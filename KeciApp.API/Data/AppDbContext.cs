@@ -1,0 +1,336 @@
+using Microsoft.EntityFrameworkCore;
+using KeciApp.API.Models;
+
+namespace KeciApp.API.Data;
+
+public class AppDbContext : DbContext
+{
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    {
+    }
+
+    // DbSet properties for all entities
+    public DbSet<User> Users { get; set; }
+    public DbSet<Role> Roles { get; set; }
+    public DbSet<PodcastSeries> PodcastSeries { get; set; }
+    public DbSet<PodcastEpisodes> PodcastEpisodes { get; set; }
+    public DbSet<Questions> Questions { get; set; }
+    public DbSet<Answers> Answers { get; set; }
+    public DbSet<Notes> Notes { get; set; }
+    public DbSet<Favorites> Favorites { get; set; }
+    public DbSet<UserSeriesAccess> UserSeriesAccesses { get; set; }
+    public DbSet<WeeklyContent> WeeklyContents { get; set; }
+    public DbSet<Music> Musics { get; set; }
+    public DbSet<Movie> Movies { get; set; }
+    public DbSet<WeeklyTask> Tasks { get; set; }
+    public DbSet<WeeklyQuestion> WeeklyQuestions { get; set; }
+    public DbSet<Aphorisms> Aphorisms { get; set; }
+    public DbSet<Affirmations> Affirmations { get; set; }
+    public DbSet<Article> Articles { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        // User entity configuration
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.ToTable("Users");
+            entity.HasKey(e => e.UserId);
+            entity.Property(e => e.UserName).HasMaxLength(25).IsRequired();
+            entity.Property(e => e.FirstName).HasMaxLength(25).IsRequired();
+            entity.Property(e => e.LastName).HasMaxLength(25).IsRequired();
+            entity.Property(e => e.Email).HasMaxLength(60).IsRequired();
+            entity.Property(e => e.City).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.Description).HasMaxLength(255).IsRequired();
+            entity.Property(e => e.PasswordHash).HasMaxLength(255).IsRequired();
+            entity.Property(e => e.Phone).IsRequired();
+            entity.Property(e => e.Gender).IsRequired();
+            entity.Property(e => e.DateOfBirth).IsRequired();
+            entity.Property(e => e.SubscriptionEnd).IsRequired();
+            entity.Property(e => e.WeeklyContentId).IsRequired();
+            entity.Property(e => e.RoleId).IsRequired();
+        });
+
+        // Role entity configuration
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.ToTable("Roles");
+            entity.HasKey(e => e.RoleId);
+            entity.Property(e => e.RoleName).IsRequired();
+        });
+
+        // PodcastSeries entity configuration
+        modelBuilder.Entity<PodcastSeries>(entity =>
+        {
+            entity.ToTable("PodcastSeries");
+            entity.HasKey(e => e.SeriesId);
+            entity.Property(e => e.Title).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.Description).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+        });
+
+        // PodcastEpisodes entity configuration
+        modelBuilder.Entity<PodcastEpisodes>(entity =>
+        {
+            entity.ToTable("PodcastEpisodes");
+            entity.HasKey(e => e.EpisodesId);
+            entity.Property(e => e.SeriesId).IsRequired();
+            entity.Property(e => e.Title).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.AudioLink).HasMaxLength(255).IsRequired();
+            entity.Property(e => e.SequenceNumber).IsRequired();
+            entity.Property(e => e.isActive).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+        });
+
+        // Questions entity configuration
+        modelBuilder.Entity<Questions>(entity =>
+        {
+            entity.ToTable("Questions");
+            entity.HasKey(e => e.QuestionId);
+            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.EpisodeId).IsRequired();
+            entity.Property(e => e.QuestionText).IsRequired();
+            entity.Property(e => e.isAnswered).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+            
+            // Unique constraint: One question per user per episode
+            entity.HasIndex(e => new { e.UserId, e.EpisodeId })
+                .IsUnique();
+        });
+
+        // Answers entity configuration
+        modelBuilder.Entity<Answers>(entity =>
+        {
+            entity.ToTable("Answers");
+            entity.HasKey(e => e.AnswerId);
+            entity.Property(e => e.QuestionId).IsRequired();
+            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.AnswerText).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+        });
+
+        // Notes entity configuration
+        modelBuilder.Entity<Notes>(entity =>
+        {
+            entity.ToTable("Notes");
+            entity.HasKey(e => e.NoteId);
+            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.Title).HasMaxLength(100);
+            entity.Property(e => e.NoteText).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+            
+            // Unique constraint: One note per user per episode
+            entity.HasIndex(e => new { e.UserId, e.EpisodeId })
+                .IsUnique();
+        });
+
+        // Favorites entity configuration
+        modelBuilder.Entity<Favorites>(entity =>
+        {
+            entity.ToTable("Favorites");
+            entity.HasKey(e => e.FavoriteId);
+            entity.Property(e => e.EpisodeId).IsRequired();
+            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+        });
+
+        // UserSeriesAccess entity configuration
+        modelBuilder.Entity<UserSeriesAccess>(entity =>
+        {
+            entity.ToTable("UserSeriesAccesses");
+            entity.HasKey(e => e.UserSeriesAccessId);
+            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.SeriesId).IsRequired();
+            entity.Property(e => e.CurrentAccessibleSequence).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+
+            // Unique constraint: One Access Per User and Series Id
+            entity.HasIndex(e => new { e.UserId, e.SeriesId })
+                .IsUnique();
+        });
+
+
+        // WeeklyContent entity configuration
+        modelBuilder.Entity<WeeklyContent>(entity =>
+        {
+            entity.ToTable("WeeklyContents");
+            entity.HasKey(e => e.WeekId);
+            entity.Property(e => e.WeekOrder).IsRequired();
+            entity.Property(e => e.MusicId).IsRequired();
+            entity.Property(e => e.MovieId).IsRequired();
+            entity.Property(e => e.TaskId).IsRequired();
+            entity.Property(e => e.WeeklyQuestionId).IsRequired();
+        });
+
+        // Music entity configuration
+        modelBuilder.Entity<Music>(entity =>
+        {
+            entity.ToTable("Musics");
+            entity.HasKey(e => e.MusicId);
+            entity.Property(e => e.MusicTitle).IsRequired();
+            entity.Property(e => e.MusicURL).IsRequired();
+        });
+
+        // Movie entity configuration
+        modelBuilder.Entity<Movie>(entity =>
+        {
+            entity.ToTable("Movies");
+            entity.HasKey(e => e.MovieId);
+            entity.Property(e => e.MovieTitle).IsRequired();
+        });
+
+        // WeeklyTask entity configuration
+        modelBuilder.Entity<WeeklyTask>(entity =>
+        {
+            entity.ToTable("Tasks");
+            entity.HasKey(e => e.TaskId);
+            entity.Property(e => e.TaskDescription).IsRequired();
+        });
+
+        // WeeklyQuestion entity configuration
+        modelBuilder.Entity<WeeklyQuestion>(entity =>
+        {
+            entity.ToTable("WeeklyQuestions");
+            entity.HasKey(e => e.WeeklyQuestionId);
+            entity.Property(e => e.WeeklyQuestionText).IsRequired();
+        });
+
+        // Aphorisms
+        modelBuilder.Entity<Aphorisms>(entity =>
+        {
+            entity.ToTable("Aphorisms");
+            entity.HasKey(e => e.AphorismId);
+            entity.Property(e => e.AphorismText).IsRequired();
+        });
+
+        //Affirmations
+        modelBuilder.Entity<Affirmations>(entity =>
+        {
+            entity.ToTable("Affirmations");
+            entity.HasKey(e => e.AffirmationId);
+            entity.Property(e => e.AffirmationText).IsRequired();
+        });
+
+        // Articles
+        modelBuilder.Entity<Article>(entity =>
+        {
+            entity.ToTable("Articles");
+            entity.HasKey(e => e.ArticleId);
+            entity.Property(e => e.Title).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.Slug).HasMaxLength(200).IsRequired();
+            entity.HasIndex(e => e.Slug).IsUnique();
+            entity.Property(e => e.ContentHtml).IsRequired();
+            entity.Property(e => e.Excerpt).HasMaxLength(500);
+            entity.Property(e => e.IsPublished).HasDefaultValue(false);
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt).IsRequired();
+            entity.HasOne(e => e.Author)
+                .WithMany()
+                .HasForeignKey(e => e.AuthorId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Relationships configuration
+        ConfigureRelationships(modelBuilder);
+    }
+
+    private void ConfigureRelationships(ModelBuilder modelBuilder)
+    {
+        // User relationships
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.Role)
+            .WithMany(r => r.Users)
+            .HasForeignKey(u => u.RoleId);
+
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.WeeklyContent)
+            .WithMany()
+            .HasForeignKey(u => u.WeeklyContentId);
+
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.Notes)
+            .WithOne(n => n.User)
+            .HasForeignKey(n => n.UserId);
+
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.Favorites)
+            .WithOne(f => f.User)
+            .HasForeignKey(f => f.UserId);
+
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.UserSeriesAccesses)
+            .WithOne(usa => usa.User)
+            .HasForeignKey(usa => usa.UserId);
+
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.Questions)
+            .WithOne(q => q.User)
+            .HasForeignKey(q => q.UserId);
+
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.Answers)
+            .WithOne(a => a.User)
+            .HasForeignKey(a => a.UserId);
+
+        // PodcastSeries relationships
+        modelBuilder.Entity<PodcastSeries>()
+            .HasMany(ps => ps.Episodes)
+            .WithOne(pe => pe.PodcastSeries)
+            .HasForeignKey(pe => pe.SeriesId);
+
+        // PodcastEpisodes relationships
+        modelBuilder.Entity<PodcastEpisodes>()
+            .HasMany(pe => pe.Questions)
+            .WithOne(q => q.Episodes)
+            .HasForeignKey(q => q.EpisodeId);
+
+        modelBuilder.Entity<PodcastEpisodes>()
+            .HasMany(pe => pe.Notes)
+            .WithOne(n => n.PodcastEpisode)
+            .HasForeignKey(n => n.EpisodeId);
+
+        modelBuilder.Entity<PodcastEpisodes>()
+            .HasMany(pe => pe.Favorites)
+            .WithOne(f => f.PodcastEpisode)
+            .HasForeignKey(f => f.EpisodeId);
+
+        // Questions relationships
+        modelBuilder.Entity<Questions>()
+            .HasMany(q => q.Answers)
+            .WithOne(a => a.Question)
+            .HasForeignKey(a => a.QuestionId);
+
+        // UserSeriesAccess relationships
+        modelBuilder.Entity<UserSeriesAccess>()
+            .HasOne(usa => usa.PodcastSeries)
+            .WithMany()
+            .HasForeignKey(usa => usa.SeriesId);
+
+        // WeeklyContent relationships
+        modelBuilder.Entity<WeeklyContent>()
+            .HasOne(wc => wc.Music)
+            .WithMany()
+            .HasForeignKey(wc => wc.MusicId);
+
+        modelBuilder.Entity<WeeklyContent>()
+            .HasOne(wc => wc.Movie)
+            .WithMany()
+            .HasForeignKey(wc => wc.MovieId);
+
+        modelBuilder.Entity<WeeklyContent>()
+            .HasOne(wc => wc.Task)
+            .WithMany()
+            .HasForeignKey(wc => wc.TaskId);
+
+        modelBuilder.Entity<WeeklyContent>()
+            .HasOne(wc => wc.WeeklyQuestion)
+            .WithMany()
+            .HasForeignKey(wc => wc.WeeklyQuestionId);
+    }
+}
