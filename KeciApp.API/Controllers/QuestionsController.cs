@@ -9,6 +9,10 @@ public class QuestionsController : ControllerBase
 {
     private readonly IQuestionService _questionService;
 
+    public QuestionsController(IQuestionService questionService)
+    {
+        _questionService = questionService;
+    }
 
     [HttpGet("questions")]
     public async Task<ActionResult<IEnumerable<QuestionResponseDTO>>> GetAllQuestions()

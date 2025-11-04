@@ -8,8 +8,13 @@ namespace KeciApp.API.Controllers;
 public class RoleController : ControllerBase
 {
     private readonly IRoleService _roleService;
+
+    public RoleController(IRoleService roleService)
+    {
+        _roleService = roleService;
+    }
     
-        [HttpGet("user-role/{userId}")]
+    [HttpGet("user-role/{userId}")]
     public async Task<ActionResult<RoleResponseDTO>> GetUsersRole(int userId)
     {
         try

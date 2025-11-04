@@ -9,6 +9,11 @@ public class UserSeriesAccessController : ControllerBase
 {
     private readonly IUserSeriesAccessService _userSeriesAccessService;
 
+    public UserSeriesAccessController(IUserSeriesAccessService userSeriesAccessService)
+    {
+        _userSeriesAccessService = userSeriesAccessService;
+    }
+
     [HttpGet("userseriesaccess")]
     public async Task<ActionResult<IEnumerable<UserSeriesAccessResponseDTO>>> GetAllUserSeriesAccess()
     {

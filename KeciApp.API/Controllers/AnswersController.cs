@@ -9,6 +9,11 @@ public class AnswersController : ControllerBase
 {
     private readonly IAnswersService _answersService;
 
+    public AnswersController(IAnswersService answersService)
+    {
+        _answersService = answersService;
+    }
+
     [HttpGet("answers")]
     public async Task<ActionResult<IEnumerable<AnswerResponseDTO>>> GetAllAnswers()
     {

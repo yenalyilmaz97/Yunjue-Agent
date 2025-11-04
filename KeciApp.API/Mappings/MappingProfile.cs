@@ -35,19 +35,19 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.AphorismText, opt => opt.MapFrom(src => src.Aphorisms != null ? src.Aphorisms.Text : null));
 
         CreateMap<Notes, NoteResponseDTO>()
-            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
-            .ForMember(dest => dest.EpisodeTitle, opt => opt.MapFrom(src => src.PodcastEpisode.Title))
-            .ForMember(dest => dest.SeriesTitle, opt => opt.MapFrom(src => src.PodcastEpisode.PodcastSeries.Title));
+            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.UserName : string.Empty))
+            .ForMember(dest => dest.EpisodeTitle, opt => opt.MapFrom(src => src.PodcastEpisode != null ? src.PodcastEpisode.Title : null))
+            .ForMember(dest => dest.SeriesTitle, opt => opt.MapFrom(src => src.PodcastEpisode != null && src.PodcastEpisode.PodcastSeries != null ? src.PodcastEpisode.PodcastSeries.Title : null));
 
         CreateMap<Questions, QuestionResponseDTO>()
-            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
-            .ForMember(dest => dest.EpisodeTitle, opt => opt.MapFrom(src => src.Episodes.Title))
-            .ForMember(dest => dest.SeriesTitle, opt => opt.MapFrom(src => src.Episodes.PodcastSeries.Title))
+            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.UserName : string.Empty))
+            .ForMember(dest => dest.EpisodeTitle, opt => opt.MapFrom(src => src.Episodes != null ? src.Episodes.Title : null))
+            .ForMember(dest => dest.SeriesTitle, opt => opt.MapFrom(src => src.Episodes != null && src.Episodes.PodcastSeries != null ? src.Episodes.PodcastSeries.Title : null))
             .ForMember(dest => dest.IsAnswered, opt => opt.MapFrom(src => src.isAnswered));
 
         CreateMap<Answers, AnswerResponseDTO>()
-            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
-            .ForMember(dest => dest.QuestionText, opt => opt.MapFrom(src => src.Question.QuestionText));
+            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.UserName : string.Empty))
+            .ForMember(dest => dest.QuestionText, opt => opt.MapFrom(src => src.Question != null ? src.Question.QuestionText : string.Empty));
 
         // Weekly Content Mappings
         CreateMap<WeeklyContent, WeeklyContentResponseDTO>();
@@ -68,7 +68,7 @@ public class MappingProfile : Profile
 
         // User Mappings 
         CreateMap<User, UserResponseDTO>()
-            .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.RoleName));
+            .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role != null ? src.Role.RoleName : string.Empty));
 
         // Map User to AuthResponse UserInfo (for login/register)
         CreateMap<User, UserInfo>();

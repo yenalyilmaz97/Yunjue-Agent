@@ -2,6 +2,7 @@
 using KeciApp.API.DTOs;
 using KeciApp.API.Interfaces;
 using KeciApp.API.Models;
+using System.Text.Json;
 
 namespace KeciApp.API.Services;
 public class PodcastSeriesService : IPodcastSeriesService
@@ -25,7 +26,7 @@ public class PodcastSeriesService : IPodcastSeriesService
     public async Task<IEnumerable<PodcastSeriesResponseDTO>> GetAllPodcastSeriesAsync()
     {
         var series = await _podcastSeriesRepository.GetAllPodcastSeriesAsync();
-        return _mapper.Map<IEnumerable<PodcastSeriesResponseDTO>>(series);
+        return series.Select(MapToResponseDTO);
     }
 
     public async Task<PodcastSeriesResponseDTO> GetPodcastSeriesByIdAsync(int seriesId)
@@ -35,7 +36,42 @@ public class PodcastSeriesService : IPodcastSeriesService
         {
             throw new InvalidOperationException("Podcast series not found");
         }
-        return _mapper.Map<PodcastSeriesResponseDTO>(series);
+        return MapToResponseDTO(series);
+    }
+
+    private PodcastSeriesResponseDTO MapToResponseDTO(PodcastSeries series)
+    {
+        var dto = _mapper.Map<PodcastSeriesResponseDTO>(series);
+        
+        // Map episodes with Content deserialization
+        if (series.Episodes != null && series.Episodes.Any())
+        {
+            dto.Episodes = series.Episodes.Select(episode =>
+            {
+                var episodeDto = _mapper.Map<PodcastEpisodeResponseDTO>(episode);
+                
+                // Deserialize ContentJson to EpisodeContent
+                try
+                {
+                    if (!string.IsNullOrEmpty(episode.ContentJson))
+                    {
+                        episodeDto.Content = JsonSerializer.Deserialize<EpisodeContent>(episode.ContentJson) ?? new EpisodeContent();
+                    }
+                    else
+                    {
+                        episodeDto.Content = new EpisodeContent();
+                    }
+                }
+                catch
+                {
+                    episodeDto.Content = new EpisodeContent();
+                }
+                
+                return episodeDto;
+            }).ToList();
+        }
+        
+        return dto;
     }
 
     public async Task<PodcastSeriesResponseDTO> CreatePodcastSeriesAsync(CreatePodcastSeriesRequest request)
@@ -61,7 +97,7 @@ public class PodcastSeriesService : IPodcastSeriesService
                 var resp = await _userSeriesAccessRepository.CreateUserSeriesAccessAsync(access);
             }
         }
-        return _mapper.Map<PodcastSeriesResponseDTO>(createdSeries);
+        return MapToResponseDTO(createdSeries);
     }
 
     public async Task<PodcastSeriesResponseDTO> UpdatePodcastSeriesAsync(EditPodcastSeriesRequest request)
@@ -82,15 +118,15 @@ public class PodcastSeriesService : IPodcastSeriesService
             foreach (var episode in episodes)
             {
                 episode.isActive = request.isActive;
-                var ep = _mapper.Map<PodcastEpisodes>(episode);
-                await _podcastEpisodesRepository.UpdatePodcastEpisodeAsync(ep);
+                episode.UpdatedAt = DateTime.UtcNow;
+                await _podcastEpisodesRepository.UpdatePodcastEpisodeAsync(episode);
             }
         }
 
         existingSeries.isActive = request.isActive;
 
         var updatedSeries = await _podcastSeriesRepository.UpdatePodcastSeriesAsync(existingSeries);
-        return _mapper.Map<PodcastSeriesResponseDTO>(updatedSeries);
+        return MapToResponseDTO(updatedSeries);
     }
 
     public async Task RemovePodcastSeriesAsync(int seriesId)

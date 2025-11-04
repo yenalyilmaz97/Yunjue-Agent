@@ -23,6 +23,9 @@ public class RoleRepository : IRoleRepository
         if (user == null)
             throw new InvalidOperationException($"User with ID {userId} not found");
 
+        if (user.Role == null)
+            throw new InvalidOperationException($"User with ID {userId} does not have a role assigned");
+
         return user.Role;
     }
 

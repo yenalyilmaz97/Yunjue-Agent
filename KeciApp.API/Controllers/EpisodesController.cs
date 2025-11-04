@@ -10,6 +10,11 @@ public class EpisodesController : ControllerBase
 {
     private readonly IPodcastEpisodesService _episodeService;
 
+    public EpisodesController(IPodcastEpisodesService episodeService)
+    {
+        _episodeService = episodeService;
+    }
+
     [HttpGet("episodes/{episodeId}")]
     public async Task<ActionResult<PodcastEpisodeResponseDTO>> GetPodcastEpisodeById(int episodeId)
     {

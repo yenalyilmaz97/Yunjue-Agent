@@ -10,6 +10,11 @@ public class SeriesController : ControllerBase
 {
     private readonly IPodcastSeriesService _seriesService;
 
+    public SeriesController(IPodcastSeriesService seriesService)
+    {
+        _seriesService = seriesService;
+    }
+
     [HttpGet("series")]
     public async Task<ActionResult<IEnumerable<PodcastSeriesResponseDTO>>> GetAllPodcastSeries()
     {
