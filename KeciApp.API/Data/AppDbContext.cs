@@ -27,6 +27,8 @@ public class AppDbContext : DbContext
     public DbSet<Aphorisms> Aphorisms { get; set; }
     public DbSet<Affirmations> Affirmations { get; set; }
     public DbSet<Article> Articles { get; set; }
+    public DbSet<DailyContent> DailyContents { get; set; }
+    public DbSet<UserProgress> UserProgresses { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -78,7 +80,7 @@ public class AppDbContext : DbContext
             entity.HasKey(e => e.EpisodesId);
             entity.Property(e => e.SeriesId).IsRequired();
             entity.Property(e => e.Title).HasMaxLength(50).IsRequired();
-            entity.Property(e => e.AudioLink).HasMaxLength(255).IsRequired();
+            entity.Property(e => e.ContentJson).IsRequired();
             entity.Property(e => e.SequenceNumber).IsRequired();
             entity.Property(e => e.isActive).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired();
@@ -91,15 +93,10 @@ public class AppDbContext : DbContext
             entity.ToTable("Questions");
             entity.HasKey(e => e.QuestionId);
             entity.Property(e => e.UserId).IsRequired();
-            entity.Property(e => e.EpisodeId).IsRequired();
             entity.Property(e => e.QuestionText).IsRequired();
             entity.Property(e => e.isAnswered).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired();
             entity.Property(e => e.UpdatedAt).IsRequired();
-            
-            // Unique constraint: One question per user per episode
-            entity.HasIndex(e => new { e.UserId, e.EpisodeId })
-                .IsUnique();
         });
 
         // Answers entity configuration
@@ -120,14 +117,10 @@ public class AppDbContext : DbContext
             entity.ToTable("Notes");
             entity.HasKey(e => e.NoteId);
             entity.Property(e => e.UserId).IsRequired();
-            entity.Property(e => e.Title).HasMaxLength(100);
+            entity.Property(e => e.Title).HasMaxLength(100).IsRequired();
             entity.Property(e => e.NoteText).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired();
             entity.Property(e => e.UpdatedAt).IsRequired();
-            
-            // Unique constraint: One note per user per episode
-            entity.HasIndex(e => new { e.UserId, e.EpisodeId })
-                .IsUnique();
         });
 
         // Favorites entity configuration
@@ -135,8 +128,8 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("Favorites");
             entity.HasKey(e => e.FavoriteId);
-            entity.Property(e => e.EpisodeId).IsRequired();
             entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.FavoriteType).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired();
         });
 
@@ -206,7 +199,7 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("Aphorisms");
             entity.HasKey(e => e.AphorismId);
-            entity.Property(e => e.AphorismText).IsRequired();
+            entity.Property(e => e.Text).IsRequired();
         });
 
         //Affirmations
@@ -214,7 +207,7 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("Affirmations");
             entity.HasKey(e => e.AffirmationId);
-            entity.Property(e => e.AffirmationText).IsRequired();
+            entity.Property(e => e.Text).IsRequired();
         });
 
         // Articles
@@ -223,17 +216,30 @@ public class AppDbContext : DbContext
             entity.ToTable("Articles");
             entity.HasKey(e => e.ArticleId);
             entity.Property(e => e.Title).HasMaxLength(200).IsRequired();
-            entity.Property(e => e.Slug).HasMaxLength(200).IsRequired();
-            entity.HasIndex(e => e.Slug).IsUnique();
-            entity.Property(e => e.ContentHtml).IsRequired();
-            entity.Property(e => e.Excerpt).HasMaxLength(500);
-            entity.Property(e => e.IsPublished).HasDefaultValue(false);
+            entity.Property(e => e.PdfLink).IsRequired();
+            entity.Property(e => e.isActive).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired();
             entity.Property(e => e.UpdatedAt).IsRequired();
-            entity.HasOne(e => e.Author)
-                .WithMany()
-                .HasForeignKey(e => e.AuthorId)
-                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // DailyContent entity configuration
+        modelBuilder.Entity<DailyContent>(entity =>
+        {
+            entity.ToTable("DailyContent");
+            entity.HasKey(e => e.DailyContentId);
+            entity.Property(e => e.DayOrder).IsRequired();
+            entity.Property(e => e.AffirmationId).IsRequired();
+            entity.Property(e => e.AporismId).IsRequired();
+        });
+
+        // UserProgress entity configuration
+        modelBuilder.Entity<UserProgress>(entity =>
+        {
+            entity.ToTable("UserProgress");
+            entity.HasKey(e => e.UserProgressId);
+            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.isCompleted).IsRequired();
+            entity.Property(e => e.CompleteTime).IsRequired();
         });
 
         // Relationships configuration
@@ -300,6 +306,22 @@ public class AppDbContext : DbContext
             .WithOne(f => f.PodcastEpisode)
             .HasForeignKey(f => f.EpisodeId);
 
+        // Favorites relationships
+        modelBuilder.Entity<Favorites>()
+            .HasOne(f => f.Article)
+            .WithMany()
+            .HasForeignKey(f => f.ArticleId);
+
+        modelBuilder.Entity<Favorites>()
+            .HasOne(f => f.Affirmations)
+            .WithMany()
+            .HasForeignKey(f => f.AffirmationId);
+
+        modelBuilder.Entity<Favorites>()
+            .HasOne(f => f.Aphorisms)
+            .WithMany()
+            .HasForeignKey(f => f.AphorismId);
+
         // Questions relationships
         modelBuilder.Entity<Questions>()
             .HasMany(q => q.Answers)
@@ -332,5 +354,37 @@ public class AppDbContext : DbContext
             .HasOne(wc => wc.WeeklyQuestion)
             .WithMany()
             .HasForeignKey(wc => wc.WeeklyQuestionId);
+
+        // DailyContent relationships
+        modelBuilder.Entity<DailyContent>()
+            .HasOne(dc => dc.Affirmations)
+            .WithMany()
+            .HasForeignKey(dc => dc.AffirmationId);
+
+        modelBuilder.Entity<DailyContent>()
+            .HasOne(dc => dc.Aphorisms)
+            .WithMany()
+            .HasForeignKey(dc => dc.AporismId);
+
+        // UserProgress relationships
+        modelBuilder.Entity<UserProgress>()
+            .HasOne(up => up.User)
+            .WithMany()
+            .HasForeignKey(up => up.UserId);
+
+        modelBuilder.Entity<UserProgress>()
+            .HasOne(up => up.WeeklyContent)
+            .WithMany()
+            .HasForeignKey(up => up.WeekId);
+
+        modelBuilder.Entity<UserProgress>()
+            .HasOne(up => up.Article)
+            .WithMany()
+            .HasForeignKey(up => up.ArticleId);
+
+        modelBuilder.Entity<UserProgress>()
+            .HasOne(up => up.PodcastEpisodes)
+            .WithMany()
+            .HasForeignKey(up => up.EpisodeId);
     }
 }

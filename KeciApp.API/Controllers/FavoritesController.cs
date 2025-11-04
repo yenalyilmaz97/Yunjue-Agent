@@ -10,12 +10,17 @@ public class FavoritesController : ControllerBase
 {
     private readonly IFavoritesService _favoritesService;
 
+    public FavoritesController(IFavoritesService favoritesService)
+    {
+        _favoritesService = favoritesService;
+    }
+
     [HttpGet("favorites/{userId}")]
-    public async Task<ActionResult<IEnumerable<FavoriteResponseDTO>>> GetAllFavoritePodcastEpisodesByUserId(int userId)
+    public async Task<ActionResult<IEnumerable<FavoriteResponseDTO>>> GetAllFavoritesByUserId(int userId)
     {
         try
         {
-            var favorites = await _favoritesService.GetAllFavoritePodcastEpisodesByUserIdAsync(userId);
+            var favorites = await _favoritesService.GetAllFavoritesByUserIdAsync(userId);
             return Ok(favorites);
         }
         catch (Exception ex)
@@ -36,6 +41,10 @@ public class FavoritesController : ControllerBase
 
             var favorite = await _favoritesService.AddToFavoritesAsync(request);
             return Ok(favorite);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
         catch (InvalidOperationException ex)
         {

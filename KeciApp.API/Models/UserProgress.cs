@@ -9,16 +9,16 @@ public class UserProgress
 
     [Required] [ForeignKey("User")] public int UserId { get; set; }
 
-    [ForeignKey("Task")] public int? TaskId { get; set; }
+    [ForeignKey("WeeklyContent")] public int? WeekId { get; set; }
     [ForeignKey("Article")] public int? ArticleId { get; set; }
 
     [ForeignKey("PodcastEpisodes")] public int? EpisodeId { get; set; }
-    public bool isTaskCompleted { get; set; }
+    public bool isCompleted { get; set; }
     public DateTime CompleteTime { get; set; }
 
     //Navigation Properties
     public User User { get; set; }
-    public Task? Task { get; set; }
+    public WeeklyContent? WeeklyContent { get; set; }
     public Article? Article { get; set; }
     public PodcastEpisodes? PodcastEpisodes { get; set; }
 

@@ -9,10 +9,12 @@ public class MappingProfile : Profile
     public MappingProfile()
     {
         //Aphorism Mappings
-        CreateMap<Aphorisms, AphorismResponseDTO>();
+        CreateMap<Aphorisms, AphorismResponseDTO>()
+            .ForMember(dest => dest.AphorismText, opt => opt.MapFrom(src => src.Text));
 
         //Affirmation Mappings
-        CreateMap<Affirmations, AffirmationResponseDTO>();
+        CreateMap<Affirmations, AffirmationResponseDTO>()
+            .ForMember(dest => dest.AffirmationText, opt => opt.MapFrom(src => src.Text));
 
         // Podcast Mappings
         CreateMap<PodcastSeries, PodcastSeriesResponseDTO>()
@@ -21,12 +23,16 @@ public class MappingProfile : Profile
 
         CreateMap<PodcastEpisodes, PodcastEpisodeResponseDTO>()
             .ForMember(dest => dest.SeriesTitle, opt => opt.MapFrom(src => src.PodcastSeries.Title))
-            .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.isActive));
+            .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.isActive))
+            .ForMember(dest => dest.Content, opt => opt.Ignore()); // Content will be deserialized in service
 
         CreateMap<Favorites, FavoriteResponseDTO>()
-            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
-            .ForMember(dest => dest.EpisodeTitle, opt => opt.MapFrom(src => src.PodcastEpisode.Title))
-            .ForMember(dest => dest.SeriesTitle, opt => opt.MapFrom(src => src.PodcastEpisode.PodcastSeries.Title));
+            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.UserName : string.Empty))
+            .ForMember(dest => dest.EpisodeTitle, opt => opt.MapFrom(src => src.PodcastEpisode != null ? src.PodcastEpisode.Title : null))
+            .ForMember(dest => dest.SeriesTitle, opt => opt.MapFrom(src => src.PodcastEpisode != null && src.PodcastEpisode.PodcastSeries != null ? src.PodcastEpisode.PodcastSeries.Title : null))
+            .ForMember(dest => dest.ArticleTitle, opt => opt.MapFrom(src => src.Article != null ? src.Article.Title : null))
+            .ForMember(dest => dest.AffirmationText, opt => opt.MapFrom(src => src.Affirmations != null ? src.Affirmations.Text : null))
+            .ForMember(dest => dest.AphorismText, opt => opt.MapFrom(src => src.Aphorisms != null ? src.Aphorisms.Text : null));
 
         CreateMap<Notes, NoteResponseDTO>()
             .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
@@ -56,8 +62,7 @@ public class MappingProfile : Profile
         CreateMap<WeeklyQuestion, WeeklyQuestionResponseDTO>();
 
         // Articles
-        CreateMap<Article, ArticleResponseDTO>()
-            .ForMember(dest => dest.AuthorUserName, opt => opt.MapFrom(src => src.Author.UserName));
+        CreateMap<Article, ArticleResponseDTO>();
         CreateMap<CreateArticleRequest, Article>();
         CreateMap<EditArticleRequest, Article>();
 
@@ -88,20 +93,32 @@ public class MappingProfile : Profile
         CreateMap<EditRoleRequest, Role>();
 
         // Request to Entity Mappings
-        CreateMap<CretaeAphorismRequest, Aphorisms>();
-        CreateMap<EditAphorismRequest, Aphorisms>();
+        CreateMap<CretaeAphorismRequest, Aphorisms>()
+            .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.AphorismText));
+        CreateMap<EditAphorismRequest, Aphorisms>()
+            .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.AphorismText));
 
-        CreateMap<CreateAffirmationRequest, Affirmations>();
-        CreateMap<EditAffirmationRequest, Affirmations>();
+        CreateMap<CreateAffirmationRequest, Affirmations>()
+            .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.AffirmationText));
+        CreateMap<EditAffirmationRequest, Affirmations>()
+            .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.AffirmationText));
 
         CreateMap<CreatePodcastSeriesRequest, PodcastSeries>();
         CreateMap<EditPodcastSeriesRequest, PodcastSeries>();
 
         CreateMap<CreatePodcastEpisodeRequest, PodcastEpisodes>()
-            .ForMember(dest => dest.isActive, opt => opt.MapFrom(src => src.IsActive));
+            .ForMember(dest => dest.isActive, opt => opt.MapFrom(src => src.IsActive))
+            .ForMember(dest => dest.ContentJson, opt => opt.Ignore()) // ContentJson will be set in service
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.SequenceNumber, opt => opt.Ignore());
 
         CreateMap<EditPodcastEpisodeRequest, PodcastEpisodes>()
-            .ForMember(dest => dest.isActive, opt => opt.MapFrom(src => src.IsActive));
+            .ForMember(dest => dest.isActive, opt => opt.MapFrom(src => src.IsActive))
+            .ForMember(dest => dest.ContentJson, opt => opt.Ignore()) // ContentJson will be set in service
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.EpisodesId, opt => opt.MapFrom(src => src.EpisodeId));
 
         CreateMap<CreateWeeklyContentRequest, WeeklyContent>();
         

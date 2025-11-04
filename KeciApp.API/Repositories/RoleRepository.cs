@@ -8,17 +8,18 @@ namespace KeciApp.API.Repositories;
 public class RoleRepository : IRoleRepository
 {
     private readonly AppDbContext _context;
-    private readonly IUserRepository _userRepository;
 
-    public RoleRepository(AppDbContext context, IUserRepository userRepository)
+    public RoleRepository(AppDbContext context)
     {
         _context = context;
-        _userRepository = userRepository;
     }
 
     public async Task<Role> GetUsersRoleAsync(int userId)
     {
-        var user = await _userRepository.GetUserByIdAsync(userId);
+        var user = await _context.Users
+            .Include(u => u.Role)
+            .FirstOrDefaultAsync(u => u.UserId == userId);
+        
         if (user == null)
             throw new InvalidOperationException($"User with ID {userId} not found");
 

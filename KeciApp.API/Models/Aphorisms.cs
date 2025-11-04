@@ -9,7 +9,7 @@ public class Aphorisms
     public int AphorismId { get; set; }
 
     [Required]
-    public string AphorismText { get; set; }
+    public string Text { get; set; }
 
     public int order { get; set; }
 }

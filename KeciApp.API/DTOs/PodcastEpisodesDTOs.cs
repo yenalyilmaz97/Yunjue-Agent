@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using KeciApp.API.Models;
 
 namespace KeciApp.API.DTOs;
 public class CreatePodcastEpisodeRequest
@@ -14,8 +15,7 @@ public class CreatePodcastEpisodeRequest
     public string? Description { get; set; }
 
     [Required]
-    [StringLength(255, ErrorMessage = "Audio link en fazla 255 karakter olabilir")]
-    public string AudioLink { get; set; }
+    public EpisodeContent Content { get; set; }
 
     [Required]
     public bool IsActive { get; set; }
@@ -38,8 +38,7 @@ public class EditPodcastEpisodeRequest
     public string? Description { get; set; }
 
     [Required]
-    [StringLength(255, ErrorMessage = "Audio link en fazla 255 karakter olabilir")]
-    public string AudioLink { get; set; }
+    public EpisodeContent Content { get; set; }
 
     [Required]
     public int SequenceNumber { get; set; }
@@ -48,18 +47,23 @@ public class EditPodcastEpisodeRequest
     public bool IsActive { get; set; }
     public bool IsVideo { get; set; }
 }
+
 public class PodcastEpisodeResponseDTO
 {
     public int EpisodesId { get; set; }
     public int SeriesId { get; set; }
     public string Title { get; set; }
     public string? Description { get; set; }
-    public string AudioLink { get; set; }
+    public EpisodeContent Content { get; set; }
     public int SequenceNumber { get; set; }
     public bool IsActive { get; set; }
     public bool IsVideo { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public string? SeriesTitle { get; set; }
+    
+    // Backward compatibility - will be removed in future
+    [Obsolete("Use Content.Audio instead")]
+    public string? AudioLink => Content?.Audio;
 }
 

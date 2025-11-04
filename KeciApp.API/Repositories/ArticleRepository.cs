@@ -12,32 +12,22 @@ public class ArticleRepository : IArticleRepository
     {
         _context = context;
     }
-    public async Task<IEnumerable<Article>> GetAllArticlesAsync(bool onlyPublished = true)
+    public async Task<IEnumerable<Article>> GetAllArticlesAsync(bool onlyActive = true)
     {
-        var query = _context.Articles
-            .Include(a => a.Author)
-            .AsQueryable();
-        if (onlyPublished)
+        var query = _context.Articles.AsQueryable();
+        if (onlyActive)
         {
-            query = query.Where(a => a.IsPublished);
+            query = query.Where(a => a.isActive);
         }
         return await query
-            .OrderByDescending(a => a.PublishedAt ?? a.CreatedAt)
+            .OrderByDescending(a => a.CreatedAt)
             .ToListAsync();
     }
 
     public async Task<Article?> GetArticleByIdAsync(int articleId)
     {
         return await _context.Articles
-            .Include(a => a.Author)
             .FirstOrDefaultAsync(a => a.ArticleId == articleId);
-    }
-
-    public async Task<Article?> GetArticleBySlugAsync(string slug)
-    {
-        return await _context.Articles
-            .Include(a => a.Author)
-            .FirstOrDefaultAsync(a => a.Slug == slug);
     }
 
     public async Task<Article> CreateArticleAsync(Article article)

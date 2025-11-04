@@ -13,14 +13,13 @@ public class PodcastEpisodes
     public int SeriesId { get; set; }
     
     [Required]
-    [StringLength(100)]
+    [StringLength(50)]
     public string Title { get; set; }
     
     public string? Description { get; set; }
     
     [Required]
-    [StringLength(255)]
-    public string AudioLink { get; set; }
+    public string ContentJson { get; set; } // JSON string containing EpisodeContent (audio, video, images)
     
     [Required]
     public int SequenceNumber { get; set; }

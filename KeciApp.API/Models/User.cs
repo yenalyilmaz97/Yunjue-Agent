@@ -38,6 +38,7 @@ public class User
     [Required]
     public string Phone { get; set; }
 
+    [Required]
     [StringLength(255)]
     public string Description { get; set; }
     

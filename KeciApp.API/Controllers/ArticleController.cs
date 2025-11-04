@@ -11,12 +11,10 @@ namespace KeciApp.API.Controllers;
 public class ArticleController : ControllerBase
 {
     private readonly IArticleService _articleService;
-    private readonly IWebHostEnvironment _env;
 
-    public ArticleController(IArticleService articleService, IWebHostEnvironment env)
+    public ArticleController(IArticleService articleService)
     {
         _articleService = articleService;
-        _env = env;
     }
     
     [HttpGet("articles")]
@@ -48,13 +46,13 @@ public class ArticleController : ControllerBase
         }
     }
 
-    [HttpGet("articles/{slug}")]
-    public async Task<ActionResult<ArticleResponseDTO>> GetArticleBySlug(string slug)
+    [HttpGet("articles/{articleId}")]
+    public async Task<ActionResult<ArticleResponseDTO>> GetArticleById(int articleId)
     {
         try
         {
-            var article = await _articleService.GetArticleBySlugAsync(slug);
-            if (!article.IsPublished)
+            var article = await _articleService.GetArticleByIdAsync(articleId);
+            if (!article.isActive)
             {
                 return NotFound(new { message = "Article not found" });
             }
@@ -77,12 +75,7 @@ public class ArticleController : ControllerBase
     {
         try
         {
-            var userIdClaim = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var userId))
-            {
-                return Unauthorized();
-            }
-            var created = await _articleService.AddArticleAsync(request, userId);
+            var created = await _articleService.AddArticleAsync(request);
             return Ok(created);
         }
         catch (Exception ex)
@@ -129,102 +122,4 @@ public class ArticleController : ControllerBase
         }
     }
 
-    [HttpPost("articles/{articleId}/cover")]
-    [AuthorizeRoles("admin", "superadmin")]
-    [RequestSizeLimit(10_000_000)] // ~10MB
-    public async Task<ActionResult<ArticleResponseDTO>> UploadArticleCover(int articleId, IFormFile file)
-    {
-        try
-        {
-            if (file == null || file.Length == 0)
-            {
-                return BadRequest(new { message = "No file uploaded" });
-            }
-
-            var allowedContentTypes = new[] { "image/jpeg", "image/png", "image/webp" };
-            if (!allowedContentTypes.Contains(file.ContentType))
-            {
-                return BadRequest(new { message = "Invalid file type. Allowed: jpg, png, webp" });
-            }
-
-            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-            if (string.IsNullOrWhiteSpace(ext))
-            {
-                ext = file.ContentType switch
-                {
-                    "image/jpeg" => ".jpg",
-                    "image/png" => ".png",
-                    "image/webp" => ".webp",
-                    _ => ".bin"
-                };
-            }
-            var fileName = $"{Guid.NewGuid():N}{ext}";
-            var webRoot = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-            var uploadsDir = Path.Combine(webRoot, "images", "articles");
-            if (!Directory.Exists(uploadsDir)) Directory.CreateDirectory(uploadsDir);
-            var fullPath = Path.Combine(uploadsDir, fileName);
-            using (var stream = System.IO.File.Create(fullPath))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
-            var url = $"{baseUrl}/images/articles/{fileName}";
-            var updated = await _articleService.SetArticleCoverAsync(articleId, url);
-            return Ok(updated);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-    }
-
-    [HttpPost("articles/asset")]
-    [AuthorizeRoles("admin", "superadmin")]
-    [RequestSizeLimit(10_000_000)]
-    public async Task<ActionResult> UploadArticleAsset(IFormFile file)
-    {
-        try
-        {
-            if (file == null || file.Length == 0)
-            {
-                return BadRequest(new { message = "No file uploaded" });
-            }
-
-            var allowedContentTypes = new[] { "image/jpeg", "image/png", "image/webp" };
-            if (!allowedContentTypes.Contains(file.ContentType))
-            {
-                return BadRequest(new { message = "Invalid file type. Allowed: jpg, png, webp" });
-            }
-
-            var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
-            if (string.IsNullOrWhiteSpace(ext))
-            {
-                ext = file.ContentType switch
-                {
-                    "image/jpeg" => ".jpg",
-                    "image/png" => ".png",
-                    "image/webp" => ".webp",
-                    _ => ".bin"
-                };
-            }
-            var fileName = $"{Guid.NewGuid():N}{ext}";
-            var webRoot = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-            var uploadsDir = Path.Combine(webRoot, "images", "articles");
-            if (!Directory.Exists(uploadsDir)) Directory.CreateDirectory(uploadsDir);
-            var fullPath = Path.Combine(uploadsDir, fileName);
-            using (var stream = System.IO.File.Create(fullPath))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
-            var url = $"{baseUrl}/images/articles/{fileName}";
-            return Ok(new { url });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-    }
 }

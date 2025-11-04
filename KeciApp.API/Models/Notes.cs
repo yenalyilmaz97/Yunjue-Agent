@@ -18,6 +18,7 @@ public class Notes
     [ForeignKey("Article")]
     public int? ArticleId { get; set; }
     
+    [Required]
     [StringLength(100)]
     public string Title { get; set; } = string.Empty;
     

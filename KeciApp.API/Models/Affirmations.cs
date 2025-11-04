@@ -9,7 +9,7 @@ public class Affirmations
     public int AffirmationId { get; set; }
 
     [Required]
-    public string AffirmationText { get; set; }
+    public string Text { get; set; }
 
     public int order { get; set; }
 }

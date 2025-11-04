@@ -22,7 +22,8 @@ public class GrantAccessRequest
     [Required]
     public int UserId { get; set; }
 
-    public int? SeriesId { get; set; }
+    [Required]
+    public int SeriesId { get; set; }
     public int? ArticleId { get; set; }
 }
 
