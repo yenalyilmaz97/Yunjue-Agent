@@ -9,10 +9,12 @@ namespace KeciApp.API.Controllers;
 public class SeriesController : ControllerBase
 {
     private readonly IPodcastSeriesService _seriesService;
+    private readonly IUserSeriesAccessService _userSeriesAccessService;
 
-    public SeriesController(IPodcastSeriesService seriesService)
+    public SeriesController(IPodcastSeriesService seriesService, IUserSeriesAccessService userSeriesAccessService)
     {
         _seriesService = seriesService;
+        _userSeriesAccessService = userSeriesAccessService;
     }
 
     [HttpGet("series")]
@@ -95,6 +97,24 @@ public class SeriesController : ControllerBase
         {
             await _seriesService.RemovePodcastSeriesAsync(seriesId);
             return Ok(new { message = "Podcast series deleted successfully" });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpGet("series/{seriesId}/user/{userId}/last-sequence")]
+    public async Task<ActionResult<int>> GetLastSequence(int userId, int seriesId)
+    {
+        try
+        {
+            var access = await _userSeriesAccessService.GetUserSeriesAccessByUserIdAndSeriesIdAsync(userId, seriesId);
+            return Ok(new { lastSequence = access.CurrentAccessibleSequence });
         }
         catch (InvalidOperationException ex)
         {

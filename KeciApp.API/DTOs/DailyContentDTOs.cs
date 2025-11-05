@@ -1,0 +1,41 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace KeciApp.API.DTOs;
+
+public class CreateDailyContentRequest
+{
+    [Required]
+    public int DayOrder { get; set; }
+
+    [Required]
+    public int AffirmationId { get; set; }
+
+    [Required]
+    public int AporismId { get; set; }
+}
+
+public class UpdateDailyContentRequest
+{
+    [Required]
+    public int DailyContentId { get; set; }
+
+    [Required]
+    public int DayOrder { get; set; }
+
+    [Required]
+    public int AffirmationId { get; set; }
+
+    [Required]
+    public int AporismId { get; set; }
+}
+
+public class DailyContentResponseDTO
+{
+    public int DailyContentId { get; set; }
+    public int DayOrder { get; set; }
+    public int AffirmationId { get; set; }
+    public int AporismId { get; set; }
+    public AffirmationResponseDTO? Affirmation { get; set; }
+    public AphorismResponseDTO? Aphorism { get; set; }
+}
+

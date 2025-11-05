@@ -42,7 +42,7 @@ public class QuestionService : IQuestionService
         var questions = await _questionRepository.GetAllQuestionsByUserIdAsync(userId);
         var responseDtos = _mapper.Map<IEnumerable<QuestionResponseDTO>>(questions);
 
-        // Set series and episode titles manually
+        // Set series and episode titles manually, and include answers if answered
         foreach (var responseDto in responseDtos)
         {
             var question = questions.FirstOrDefault(q => q.QuestionId == responseDto.QuestionId);
@@ -50,6 +50,13 @@ public class QuestionService : IQuestionService
             {
                 responseDto.SeriesTitle = question.Episodes.PodcastSeries?.Title ?? string.Empty;
                 responseDto.EpisodeTitle = question.Episodes.Title;
+            }
+
+            // Include answers if question is answered
+            if (question != null && question.isAnswered && question.Answers != null && question.Answers.Any())
+            {
+                responseDto.Answers = _mapper.Map<List<AnswerResponseDTO>>(question.Answers);
+                responseDto.Answer = responseDto.Answers.First();
             }
         }
 

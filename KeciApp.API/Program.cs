@@ -75,6 +75,8 @@ builder.Services.AddScoped<IMoviesRepository, MoviesRepository>();
 builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
 builder.Services.AddScoped<IAphorismsRepository, AphorismsRepository>();
 builder.Services.AddScoped<IAffirmationRepository, AffirmationRepository>();
+builder.Services.AddScoped<IDailyContentRepository, DailyContentRepository>();
+builder.Services.AddScoped<IWeeklyQuestionAnswerRepository, WeeklyQuestionAnswerRepository>();
 
 // Add Services
 builder.Services.AddScoped<IUserService, UserService>();
@@ -94,6 +96,8 @@ builder.Services.AddScoped<IMoviesService, MoviesService>();
 builder.Services.AddScoped<IArticleService, ArticleService>();
 builder.Services.AddScoped<IAphorismsService, AphorismsService>();
 builder.Services.AddScoped<IAffirmationsService, AffirmationService>();
+builder.Services.AddScoped<IDailyContentService, DailyContentService>();
+builder.Services.AddScoped<IWeeklyQuestionAnswerService, WeeklyQuestionAnswerService>();
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
