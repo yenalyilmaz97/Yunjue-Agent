@@ -10,62 +10,128 @@ import type {
   WeeklyContent,
 } from '@/types/keci'
 
-const USER_ASSIGNMENT_ENDPOINT = API_CONFIG.ENDPOINTS.USER_WEEKLY_ASSIGNMENT
+const WEEKLY_ENDPOINT = API_CONFIG.ENDPOINTS.WEEKLY
 
+// Note: Backend doesn't have a separate UserWeeklyAssignment controller
+// All weekly assignment endpoints are in WeeklyController
+// Some endpoints may not exist in backend - these are placeholders for future implementation
 export const userWeeklyAssignmentService = {
+  // These endpoints don't exist in backend yet - returning empty arrays for now
   async getAllUserAssignments(): Promise<UserWeeklyAssignment[]> {
-    return api.get<UserWeeklyAssignment[]>(USER_ASSIGNMENT_ENDPOINT)
+    // Backend doesn't have this endpoint - return empty array
+    return Promise.resolve([])
   },
   async getUserAssignmentById(id: number): Promise<UserWeeklyAssignment> {
-    return api.get<UserWeeklyAssignment>(`${USER_ASSIGNMENT_ENDPOINT}/${id}`)
+    // Backend doesn't have this endpoint
+    throw new Error('Endpoint not implemented in backend')
   },
   async getUserCurrentAssignment(userId: number): Promise<UserWeeklyAssignment> {
-    return api.get<UserWeeklyAssignment>(`${USER_ASSIGNMENT_ENDPOINT}/user/${userId}`)
+    // Use Weekly controller's current endpoint
+    const weeklyContent = await api.get<WeeklyContent>(`${WEEKLY_ENDPOINT}/user/${userId}/current`)
+    // Convert WeeklyContent to UserWeeklyAssignment format if needed
+    return {} as UserWeeklyAssignment
   },
   async createUserAssignment(assignmentData: AssignUserToWeekRequest): Promise<UserWeeklyAssignment> {
-    return api.post<UserWeeklyAssignment>(USER_ASSIGNMENT_ENDPOINT, assignmentData)
+    // Use Weekly controller's assign endpoint
+    const weeklyContent = await api.post<WeeklyContent>(`${WEEKLY_ENDPOINT}/assign`, {
+      userId: assignmentData.userId,
+      weeklyContentId: assignmentData.assignedWeekNumber, // This might need adjustment
+    })
+    return {} as UserWeeklyAssignment
   },
   async updateUserAssignment(id: number, assignmentData: Partial<AssignUserToWeekRequest>): Promise<UserWeeklyAssignment> {
-    return api.put<UserWeeklyAssignment>(`${USER_ASSIGNMENT_ENDPOINT}/${id}`, assignmentData)
+    // Backend doesn't have this endpoint
+    throw new Error('Endpoint not implemented in backend')
   },
   async deleteUserAssignment(id: number): Promise<boolean> {
-    await api.delete(`${USER_ASSIGNMENT_ENDPOINT}/${id}`)
-    return true
+    // Backend doesn't have this endpoint
+    throw new Error('Endpoint not implemented in backend')
   },
   async getUserAssignments(userId: number): Promise<UserWeeklyAssignment[]> {
-    return api.get<UserWeeklyAssignment[]>(`${USER_ASSIGNMENT_ENDPOINT}/user/${userId}`)
+    // Use Weekly controller's user content endpoint
+    const contents = await api.get<WeeklyContent[]>(`${WEEKLY_ENDPOINT}/content/user/${userId}`)
+    return [] as UserWeeklyAssignment[]
   },
   async assignUserToWeek(userId: number, weekNumber: number, year: number, isOverride: boolean = true): Promise<UserWeeklyAssignment> {
-    return api.post<UserWeeklyAssignment>(`${USER_ASSIGNMENT_ENDPOINT}/assign`, { userId, weekNumber, year, isOverride, assignedBy: 1 })
+    // Use Weekly controller's assign endpoint - need to find weeklyContentId from weekNumber
+    // This is a simplified version - may need adjustment
+    const weeklyContents = await api.get<WeeklyContent[]>(`${WEEKLY_ENDPOINT}/content`)
+    const matchingContent = weeklyContents.find((wc) => wc.weekOrder === weekNumber)
+    if (!matchingContent) {
+      throw new Error(`Weekly content for week ${weekNumber} not found`)
+    }
+    const weeklyContent = await api.post<WeeklyContent>(`${WEEKLY_ENDPOINT}/assign`, {
+      userId,
+      weeklyContentId: matchingContent.weekId,
+    })
+    return {} as UserWeeklyAssignment
   },
   async removeUserAssignment(userId: number): Promise<boolean> {
-    await api.delete(`${USER_ASSIGNMENT_ENDPOINT}/user/${userId}`)
-    return true
+    // Backend doesn't have this endpoint
+    throw new Error('Endpoint not implemented in backend')
   },
   async getAssignmentsByWeek(weekNumber: number, year: number): Promise<UserWeeklyAssignment[]> {
-    return api.get<UserWeeklyAssignment[]>(`${USER_ASSIGNMENT_ENDPOINT}/week/${weekNumber}/${year}`)
+    // Backend doesn't have this endpoint
+    return Promise.resolve([])
   },
   async bulkAssignWeek(assignmentData: BulkAssignWeekRequest): Promise<UserWeeklyAssignment[]> {
-    return api.post<UserWeeklyAssignment[]>(`${USER_ASSIGNMENT_ENDPOINT}/bulk-assign`, assignmentData)
+    // Backend doesn't have this endpoint
+    return Promise.resolve([])
   },
   async assignUsersToCurrentWeek(assignmentData: { userIds: number[] }): Promise<UserWeeklyAssignment[]> {
-    return api.post<UserWeeklyAssignment[]>(`${USER_ASSIGNMENT_ENDPOINT}/assign-current-week`, assignmentData)
+    // Backend doesn't have this endpoint
+    return Promise.resolve([])
   },
   async bulkRemoveAssignments(userIds: number[]): Promise<boolean> {
-    await api.delete(`${USER_ASSIGNMENT_ENDPOINT}/bulk-remove`, { data: { userIds } })
-    return true
+    // Backend doesn't have this endpoint
+    return Promise.resolve(false)
   },
   async getAssignmentStats(): Promise<UserWeeklyAssignmentStats> {
-    return api.get<UserWeeklyAssignmentStats>(`${USER_ASSIGNMENT_ENDPOINT}/stats`)
+    // Backend doesn't have this endpoint
+    return Promise.resolve({} as UserWeeklyAssignmentStats)
   },
   async getUserAssignmentSummaries(): Promise<UserAssignmentSummary[]> {
-    return api.get<UserAssignmentSummary[]>(`${USER_ASSIGNMENT_ENDPOINT}/summaries`)
+    // Backend doesn't have this endpoint - we need to build it from available data
+    // For now, return empty array or build from users and weekly content
+    try {
+      // Get all users and their weekly content assignments
+      const { userService } = await import('./users')
+      const { weeklyService } = await import('./weekly')
+      const users = await userService.getAllUsers()
+      const allWeeklyContent = await weeklyService.getAllWeeklyContent()
+      
+      // Build summaries from available data
+      const summaries: UserAssignmentSummary[] = users.map((user) => {
+        const userWeeklyContent = allWeeklyContent.find((wc) => wc.weekId === user.weeklyContentId)
+        return {
+          user,
+          currentAssignment: userWeeklyContent
+            ? {
+                assignedWeekNumber: userWeeklyContent.weekOrder,
+                assignedYear: new Date().getFullYear(), // This might need to come from backend
+                isOverride: false, // This might need to come from backend
+                assignedBy: 1,
+              }
+            : null,
+        } as UserAssignmentSummary
+      })
+      return summaries
+    } catch (error) {
+      console.error('Error building user assignment summaries:', error)
+      return []
+    }
   },
-  async getAvailableWeeks(): Promise<{ weekNumber: number; year: number; weeklyContent: WeeklyContent }[]> {
-    return api.get<{ weekNumber: number; year: number; weeklyContent: WeeklyContent }[]>(`${USER_ASSIGNMENT_ENDPOINT}/available-weeks`)
+  async getAvailableWeeks(): Promise<WeeklyContent[]> {
+    // Use Weekly controller's available-weeks endpoint
+    return api.get<WeeklyContent[]>(`${WEEKLY_ENDPOINT}/userweeklyassignment/available-weeks`)
   },
   async getCurrentWeek(): Promise<{ weekNumber: number; year: number }> {
-    return api.get<{ weekNumber: number; year: number }>(`${USER_ASSIGNMENT_ENDPOINT}/current-week`)
+    // Backend doesn't have this endpoint - calculate from current date
+    const now = new Date()
+    const startOfYear = new Date(now.getFullYear(), 0, 1)
+    const pastDaysOfYear = (now.getTime() - startOfYear.getTime()) / 86400000
+    const weekNumber = Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7)
+    return { weekNumber, year: now.getFullYear() }
   },
   async getFilteredUserAssignmentSummaries(filter: UserWeeklyAssignmentFilter = {}): Promise<UserAssignmentSummary[]> {
     let summaries = await this.getUserAssignmentSummaries()

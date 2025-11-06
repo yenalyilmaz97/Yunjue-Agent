@@ -10,6 +10,8 @@ export { weeklyService } from './weekly'
 export { contentService } from './content'
 export { userSeriesAccessService } from './userSeriesAccess'
 export { userWeeklyAssignmentService } from './userWeeklyAssignment'
+export { dailyContentService } from './dailyContent'
+export { weeklyQuestionAnswerService } from './weeklyQuestionAnswer'
 
 export type * from '@/types/keci'
 

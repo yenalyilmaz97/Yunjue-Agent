@@ -4,6 +4,9 @@ using KeciApp.API.Services;
 using KeciApp.API.Interfaces;
 
 namespace KeciApp.API.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
 public class TasksController : ControllerBase
 {
     private readonly ITasksService _tasksService;
