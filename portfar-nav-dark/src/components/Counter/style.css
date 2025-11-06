@@ -1,0 +1,92 @@
+/*.===============================
+4.1 counter-area
+===============================*/
+.tp-counter-area,
+.counter-style-2 {
+    padding: 50px 0;
+    position: relative;
+    background: #333333;
+}
+
+
+
+.tp-counter-area .tp-counter-grids .grid {
+    width: 24%;
+    float: left;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+    position: relative;
+    background: #2a2a2a;
+    padding:40px 0;
+}
+.tp-counter-area .tp-counter-grids .grid .fi:before{
+  color: #fff;
+  font-size: 50px;
+}
+
+.tp-counter-area .tp-counter-grids .grid p {
+    font-size: 18px;
+    font-weight: normal;
+    color: #e4e4e4;
+    padding-top: 5px;
+    margin-bottom: 0;
+}
+
+.tp-counter-area .tp-counter-grids{
+    overflow: hidden;
+    position: relative;
+}
+
+.tp-counter-area .odometer.odometer-auto-theme,
+.tp-counter-area .odometer.odometer-theme-default{
+    line-height: 0.8em;
+}
+
+.tp-counter-area .tp-counter-grids .grid h2{
+    font-size: 40px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    line-height: 10px;
+    margin-top: 8px;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+@media(max-width: 1200px) {
+
+    .tp-counter-area .tp-counter-grids .grid{
+        width: 23%;
+    }
+}
+
+@media(max-width: 992px) {
+
+    .tp-counter-area .tp-counter-grids .grid h2 {
+        font-size: 35px;
+    }
+}
+
+@media(max-width: 767px) {
+
+  .tp-counter-area .tp-counter-grids .grid{
+      width: 47.33%;
+      padding:20px 0;
+  }
+
+  .skill-area .progress {
+        margin-bottom: 110px;
+   }
+  .skill-area .progress.green{
+        margin-bottom: 50px;
+   }
+}
+
+@media(max-width: 530px) {
+
+  .tp-counter-area .tp-counter-grids .grid {
+      width: 100%;
+      padding:20px 0;
+  }
+}
