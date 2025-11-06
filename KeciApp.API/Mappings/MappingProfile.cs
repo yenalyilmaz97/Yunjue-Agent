@@ -61,6 +61,16 @@ public class MappingProfile : Profile
 
         CreateMap<WeeklyQuestion, WeeklyQuestionResponseDTO>();
 
+        // DailyContent Mappings
+        CreateMap<DailyContent, DailyContentResponseDTO>();
+        CreateMap<CreateDailyContentRequest, DailyContent>();
+        CreateMap<UpdateDailyContentRequest, DailyContent>();
+
+        // WeeklyQuestionAnswer Mappings
+        CreateMap<WeeklyQuestionAnswer, WeeklyQuestionAnswerResponseDTO>();
+        CreateMap<AnswerWeeklyQuestionRequest, WeeklyQuestionAnswer>();
+        CreateMap<UpdateWeeklyQuestionAnswerRequest, WeeklyQuestionAnswer>();
+
         // Articles
         CreateMap<Article, ArticleResponseDTO>();
         CreateMap<CreateArticleRequest, Article>();

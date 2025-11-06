@@ -24,6 +24,7 @@ public class AppDbContext : DbContext
     public DbSet<Movie> Movies { get; set; }
     public DbSet<WeeklyTask> Tasks { get; set; }
     public DbSet<WeeklyQuestion> WeeklyQuestions { get; set; }
+    public DbSet<WeeklyQuestionAnswer> WeeklyQuestionAnswers { get; set; }
     public DbSet<Aphorisms> Aphorisms { get; set; }
     public DbSet<Affirmations> Affirmations { get; set; }
     public DbSet<Article> Articles { get; set; }

@@ -1,11 +1,28 @@
-import { api } from '@/lib/axios'
+import { api, API_CONFIG } from '@/lib/axios'
 import type { WeeklyContent, CreateWeeklyContentRequest, EditWeeklyContentRequest, WeeklyContentFilter } from '@/types/keci'
 
-const WEEKLY_ENDPOINT = '/Weekly'
+const WEEKLY_ENDPOINT = API_CONFIG.ENDPOINTS.WEEKLY
+
+export interface AssignWeeklyContentRequest {
+  userId: number
+  weeklyContentId: number
+}
 
 export const weeklyService = {
   async getAllWeeklyContent(): Promise<WeeklyContent[]> {
     return api.get<WeeklyContent[]>(`${WEEKLY_ENDPOINT}/content`)
+  },
+  async getWeeklyContentById(id: number): Promise<WeeklyContent> {
+    return api.get<WeeklyContent>(`${WEEKLY_ENDPOINT}/content/${id}`)
+  },
+  async getWeeklyContentByWeek(weekId: number): Promise<WeeklyContent[]> {
+    return api.get<WeeklyContent[]>(`${WEEKLY_ENDPOINT}/content/week/${weekId}`)
+  },
+  async getWeeklyContentByUser(userId: number): Promise<WeeklyContent[]> {
+    return api.get<WeeklyContent[]>(`${WEEKLY_ENDPOINT}/content/user/${userId}`)
+  },
+  async getCurrentWeeklyContent(userId: number): Promise<WeeklyContent> {
+    return api.get<WeeklyContent>(`${WEEKLY_ENDPOINT}/user/${userId}/current`)
   },
   async createWeeklyContent(contentData: CreateWeeklyContentRequest): Promise<WeeklyContent> {
     return api.post<WeeklyContent>(`${WEEKLY_ENDPOINT}/content`, contentData)
@@ -16,6 +33,15 @@ export const weeklyService = {
   async deleteWeeklyContent(id: number): Promise<boolean> {
     await api.delete(`${WEEKLY_ENDPOINT}/content/${id}`)
     return true
+  },
+  async assignWeeklyContent(request: AssignWeeklyContentRequest): Promise<WeeklyContent> {
+    return api.post<WeeklyContent>(`${WEEKLY_ENDPOINT}/assign`, request)
+  },
+  async getAvailableWeeks(): Promise<WeeklyContent[]> {
+    return api.get<WeeklyContent[]>(`${WEEKLY_ENDPOINT}/userweeklyassignment/available-weeks`)
+  },
+  async generateWeeklyContent(): Promise<boolean> {
+    return api.post<boolean>(`${WEEKLY_ENDPOINT}/generate`)
   },
   async getFilteredWeeklyContent(filter: WeeklyContentFilter): Promise<WeeklyContent[]> {
     const allContent = await this.getAllWeeklyContent()

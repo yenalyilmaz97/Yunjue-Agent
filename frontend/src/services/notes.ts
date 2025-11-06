@@ -1,51 +1,67 @@
-import { api } from '@/lib/axios'
+import { api, API_CONFIG } from '@/lib/axios'
 import type { Note } from '@/types/keci'
 
+const NOTES_ENDPOINT = API_CONFIG.ENDPOINTS.NOTES
+
 const NOTES_ENDPOINTS = {
-  LIST: '/Podcast/notes',
-  CREATE: '/Podcast/notes',
-  GET: (id: string) => `/Podcast/notes/${id}`,
-  UPDATE: () => `/Podcast/notes`,
-  DELETE: () => `/Podcast/notes`,
-  BY_USER: (userId: string) => `/Podcast/notes/user/${userId}`,
-  BY_EPISODE: (episodeId: string) => `/Podcast/notes/episode/${episodeId}`,
-  BY_USER_AND_EPISODE: (userId: string, episodeId: string) => `/Podcast/notes/user/${userId}/episode/${episodeId}`,
+  LIST: `${NOTES_ENDPOINT}/notes`,
+  CREATE: `${NOTES_ENDPOINT}/notes`,
+  UPDATE: `${NOTES_ENDPOINT}/notes`,
+  DELETE: `${NOTES_ENDPOINT}/notes`,
+  BY_USER: (userId: number) => `${NOTES_ENDPOINT}/notes/user/${userId}`,
+  BY_EPISODE: (episodeId: number) => `${NOTES_ENDPOINT}/notes/episode/${episodeId}`,
+  BY_USER_AND_EPISODE: (userId: number, episodeId: number) => `${NOTES_ENDPOINT}/notes/user/${userId}/episode/${episodeId}`,
 } as const
+
+export interface AddNoteRequest {
+  userId: number
+  episodeId?: number | null
+  articleId?: number | null
+  title: string
+  noteText: string
+}
+
+export interface EditNoteRequest {
+  userId: number
+  episodeId?: number | null
+  articleId?: number | null
+  title: string
+  noteText: string
+}
+
+export interface DeleteNoteRequest {
+  userId: number
+  episodeId: number
+}
 
 export const notesService = {
   async getNotes(): Promise<Note[]> {
     return await api.get<Note[]>(NOTES_ENDPOINTS.LIST)
   },
-  async getNoteById(id: number): Promise<Note> {
-    return await api.get<Note>(NOTES_ENDPOINTS.GET(id.toString()))
+  async createNote(noteData: AddNoteRequest): Promise<Note> {
+    return await api.post<Note>(NOTES_ENDPOINTS.CREATE, noteData)
   },
-  async createNote(noteData: { userId: number; episodeId: number; note: string }): Promise<Note> {
-    return await api.post<Note>(NOTES_ENDPOINTS.CREATE, { userId: noteData.userId, episodeId: noteData.episodeId, Note: noteData.note })
+  async updateNote(noteData: EditNoteRequest): Promise<Note> {
+    return await api.put<Note>(NOTES_ENDPOINTS.UPDATE, noteData)
   },
-  async updateNote(id: number, noteData: Partial<Note>): Promise<Note> {
-    return await api.put<Note>(NOTES_ENDPOINTS.UPDATE(), { ...noteData, noteId: id })
-  },
-  async deleteNote(id: number): Promise<void> {
-    return await api.delete(NOTES_ENDPOINTS.DELETE(), { data: { noteId: id } })
+  async deleteNote(request: DeleteNoteRequest): Promise<Note> {
+    return await api.delete<Note>(NOTES_ENDPOINTS.DELETE, { data: request })
   },
   async getNotesByUser(userId: number): Promise<Note[]> {
-    return await api.get<Note[]>(NOTES_ENDPOINTS.BY_USER(userId.toString()))
+    return await api.get<Note[]>(NOTES_ENDPOINTS.BY_USER(userId))
   },
   async getNotesByEpisode(episodeId: number): Promise<Note[]> {
-    return await api.get<Note[]>(NOTES_ENDPOINTS.BY_EPISODE(episodeId.toString()))
+    return await api.get<Note[]>(NOTES_ENDPOINTS.BY_EPISODE(episodeId))
   },
   async getNoteByUserAndEpisode(userId: number, episodeId: number): Promise<Note | null> {
     try {
-      return await api.get<Note>(NOTES_ENDPOINTS.BY_USER_AND_EPISODE(userId.toString(), episodeId.toString()))
+      return await api.get<Note>(NOTES_ENDPOINTS.BY_USER_AND_EPISODE(userId, episodeId))
     } catch (error: unknown) {
       // swallow 404
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if ((error as any)?.response?.status === 404) return null
       throw error
     }
-  },
-  async updateNoteByUserAndEpisode(noteData: { userId: number; episodeId: number; note: string }): Promise<Note> {
-    return await api.put<Note>(NOTES_ENDPOINTS.UPDATE(), { userId: noteData.userId, episodeId: noteData.episodeId, Note: noteData.note })
   },
 }
 

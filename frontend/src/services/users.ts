@@ -10,6 +10,9 @@ export const userService = {
   async getUserById(id: number): Promise<User> {
     return api.get<User>(`${USERS_ENDPOINT}/${id}`)
   },
+  async getUserProfile(userId: number): Promise<User> {
+    return api.get<User>(`${USERS_ENDPOINT}/profile/${userId}`)
+  },
   async getUsersByRole(roleId: number): Promise<User[]> {
     return api.get<User[]>(`${USERS_ENDPOINT}/role/${roleId}`)
   },
@@ -25,6 +28,15 @@ export const userService = {
   },
   async changePassword(payload: ChangePasswordRequest): Promise<User> {
     return api.post<User>(`${USERS_ENDPOINT}/change-password`, payload)
+  },
+  async addTime(payload: { userId: number; dayCount: number }): Promise<User> {
+    return api.post<User>(`${USERS_ENDPOINT}/add-time`, payload)
+  },
+  async addKeciTime(payload: { userId: number; keciTimeEnd: string }): Promise<User> {
+    return api.put<User>(`${USERS_ENDPOINT}/keci`, payload)
+  },
+  async banUser(userId: number): Promise<User> {
+    return api.post<User>(`${USERS_ENDPOINT}/ban/${userId}`)
   },
   async getFilteredUsers(filter: UserFilter = {}): Promise<User[]> {
     let users = await this.getAllUsers()

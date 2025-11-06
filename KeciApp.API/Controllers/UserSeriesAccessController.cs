@@ -1,6 +1,7 @@
 ﻿using KeciApp.API.DTOs;
 using KeciApp.API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using KeciApp.API.Attributes;
 
 namespace KeciApp.API.Controllers;
 [ApiController]
@@ -112,6 +113,7 @@ public class UserSeriesAccessController : ControllerBase
     }
 
     [HttpPut("userseriesaccess/{id}")]
+    [AuthorizeRoles("admin", "superadmin")]
     public async Task<ActionResult<UserSeriesAccessResponseDTO>> UpdateUserSeriesAccess(int id, [FromBody] UpdateUserSeriesAccessRequest request)
     {
         try
@@ -153,6 +155,7 @@ public class UserSeriesAccessController : ControllerBase
     }
 
     [HttpPost("userseriesaccess/grant")]
+    [AuthorizeRoles("admin", "superadmin")]
     public async Task<ActionResult<UserSeriesAccessResponseDTO>> GrantAccess([FromBody] GrantAccessRequest request)
     {
         try

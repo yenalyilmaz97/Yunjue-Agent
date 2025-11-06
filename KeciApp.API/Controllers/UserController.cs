@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using KeciApp.API.Interfaces;
 using KeciApp.API.DTOs;
 using KeciApp.API.Models;
+using KeciApp.API.Attributes;
 
 namespace KeciApp.API.Controllers;
 
@@ -82,6 +83,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
+    [AuthorizeRoles("admin", "superadmin")]
     public async Task<ActionResult<UserResponseDTO>> AddUser([FromBody] CreateUserRequest request)
     {
         try
@@ -128,6 +130,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("keci")]
+    [AuthorizeRoles("admin", "superadmin")]
     public async Task<ActionResult<UserResponseDTO>> AddKeciTimeToUser([FromBody] AddKeciTimeDTO dto)
     {
         try
@@ -165,6 +168,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("add-time")]
+    [AuthorizeRoles("admin", "superadmin")]
     public async Task<ActionResult<UserResponseDTO>> AddTimeToUser([FromBody] AddTimeRequest request)
     {
         try

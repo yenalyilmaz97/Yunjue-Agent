@@ -1,37 +1,48 @@
-import { api } from '@/lib/axios'
+import { api, API_CONFIG } from '@/lib/axios'
 import type { Answer } from '@/types/keci'
 
+const ANSWERS_ENDPOINT = API_CONFIG.ENDPOINTS.ANSWERS
+
 const ANSWERS_ENDPOINTS = {
-  LIST: '/Podcast/answers',
-  CREATE: '/Podcast/answers',
-  GET: (id: string) => `/Podcast/answers/${id}`,
-  UPDATE: (id: string) => `/Podcast/answers/${id}`,
-  DELETE: (id: string) => `/Podcast/answers/${id}`,
-  BY_USER: (userId: string) => `/Podcast/answers/user/${userId}`,
-  BY_QUESTION: (questionId: string) => `/Podcast/answers/question/${questionId}`,
+  LIST: `${ANSWERS_ENDPOINT}/answers`,
+  CREATE: `${ANSWERS_ENDPOINT}/answers`,
+  UPDATE: `${ANSWERS_ENDPOINT}/answers`,
+  DELETE: `${ANSWERS_ENDPOINT}/answers`,
+  BY_QUESTION: (questionId: number) => `${ANSWERS_ENDPOINT}/answers/question/${questionId}`,
 } as const
+
+export interface AnswerQuestionRequest {
+  userId: number
+  questionId: number
+  answer: string
+}
+
+export interface EditAnswerRequest {
+  userId: number
+  answerId: number
+  answer: string
+}
+
+export interface DeleteAnswerRequest {
+  userId: number
+  answerId: number
+}
 
 export const answersService = {
   async getAnswers(): Promise<Answer[]> {
     return await api.get<Answer[]>(ANSWERS_ENDPOINTS.LIST)
   },
-  async getAnswerById(id: number): Promise<Answer> {
-    return await api.get<Answer>(ANSWERS_ENDPOINTS.GET(id.toString()))
-  },
-  async createAnswer(answerData: Omit<Answer, 'answerId' | 'createdAt' | 'updatedAt'>): Promise<Answer> {
+  async createAnswer(answerData: AnswerQuestionRequest): Promise<Answer> {
     return await api.post<Answer>(ANSWERS_ENDPOINTS.CREATE, answerData)
   },
-  async updateAnswer(id: number, answerData: Partial<Answer>): Promise<Answer> {
-    return await api.put<Answer>(ANSWERS_ENDPOINTS.UPDATE(id.toString()), answerData)
+  async updateAnswer(answerData: EditAnswerRequest): Promise<Answer> {
+    return await api.put<Answer>(ANSWERS_ENDPOINTS.UPDATE, answerData)
   },
-  async deleteAnswer(id: number): Promise<void> {
-    return await api.delete(ANSWERS_ENDPOINTS.DELETE(id.toString()))
+  async deleteAnswer(request: DeleteAnswerRequest): Promise<Answer> {
+    return await api.delete<Answer>(ANSWERS_ENDPOINTS.DELETE, { data: request })
   },
-  async getAnswersByUser(userId: number): Promise<Answer[]> {
-    return await api.get<Answer[]>(ANSWERS_ENDPOINTS.BY_USER(userId.toString()))
-  },
-  async getAnswersByQuestion(questionId: number): Promise<Answer[]> {
-    return await api.get<Answer[]>(ANSWERS_ENDPOINTS.BY_QUESTION(questionId.toString()))
+  async getAnswerByQuestion(questionId: number): Promise<Answer> {
+    return await api.get<Answer>(ANSWERS_ENDPOINTS.BY_QUESTION(questionId))
   },
 }
 

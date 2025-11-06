@@ -24,3 +24,34 @@ public class WeeklyQuestionResponseDTO
     public int Order { get; set; }
 }
 
+public class AnswerWeeklyQuestionRequest
+{
+    [Required]
+    public int UserId { get; set; }
+
+    [Required]
+    public int WeeklyQuestionId { get; set; }
+
+    [Required]
+    public string WeeklyQuestionAnswerText { get; set; }
+}
+
+public class UpdateWeeklyQuestionAnswerRequest
+{
+    [Required]
+    public int WeeklyQuestionAnswerId { get; set; }
+
+    [Required]
+    public string WeeklyQuestionAnswerText { get; set; }
+}
+
+public class WeeklyQuestionAnswerResponseDTO
+{
+    public int WeeklyQuestionAnswerId { get; set; }
+    public int UserId { get; set; }
+    public int WeeklyQuestionId { get; set; }
+    public string WeeklyQuestionAnswerText { get; set; }
+    public UserResponseDTO? User { get; set; }
+    public WeeklyQuestionResponseDTO? WeeklyQuestion { get; set; }
+}
+

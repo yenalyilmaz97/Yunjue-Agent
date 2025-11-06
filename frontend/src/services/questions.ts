@@ -1,45 +1,59 @@
-import { api } from '@/lib/axios'
+import { api, API_CONFIG } from '@/lib/axios'
 import type { Question } from '@/types/keci'
 
+const QUESTIONS_ENDPOINT = API_CONFIG.ENDPOINTS.QUESTIONS
+
 const QUESTIONS_ENDPOINTS = {
-  LIST: '/Podcast/questions',
-  CREATE: '/Podcast/questions',
-  GET: (id: string) => `/Podcast/questions/${id}`,
-  UPDATE: (id: string) => `/Podcast/questions/${id}`,
-  DELETE: (id: string) => `/Podcast/questions/${id}`,
-  BY_USER: (userId: string) => `/Podcast/questions/user/${userId}`,
-  BY_EPISODE: (episodeId: string) => `/Podcast/questions/episode/${episodeId}`,
-  BY_USER_AND_EPISODE: (userId: string, episodeId: string) => `/Podcast/questions/user/${userId}/episode/${episodeId}`,
+  LIST: `${QUESTIONS_ENDPOINT}/questions`,
+  CREATE: `${QUESTIONS_ENDPOINT}/questions`,
+  UPDATE: `${QUESTIONS_ENDPOINT}/questions`,
+  UPDATE_BY_ID: (questionId: number) => `${QUESTIONS_ENDPOINT}/questions/${questionId}`,
+  BY_USER: (userId: number) => `${QUESTIONS_ENDPOINT}/questions/user/${userId}`,
+  BY_EPISODE: (episodeId: number) => `${QUESTIONS_ENDPOINT}/questions/episode/${episodeId}`,
+  BY_USER_AND_EPISODE: (userId: number, episodeId: number) => `${QUESTIONS_ENDPOINT}/questions/user/${userId}/episode/${episodeId}`,
 } as const
+
+export interface AddQuestionRequest {
+  userId: number
+  episodeId?: number | null
+  articleId?: number | null
+  questionText: string
+}
+
+export interface EditQuestionRequest {
+  userId: number
+  episodeId: number
+  questionText: string
+}
+
+export interface UpdateQuestionRequest {
+  questionId: number
+  questionText?: string | null
+  isAnswered?: boolean | null
+}
 
 export const questionsService = {
   async getQuestions(): Promise<Question[]> {
     return await api.get<Question[]>(QUESTIONS_ENDPOINTS.LIST)
   },
-  async getQuestionById(id: number): Promise<Question> {
-    return await api.get<Question>(QUESTIONS_ENDPOINTS.GET(id.toString()))
+  async createQuestion(questionData: AddQuestionRequest): Promise<Question> {
+    return await api.post<Question>(QUESTIONS_ENDPOINTS.CREATE, questionData)
   },
-  async createQuestion(questionData: { userId: number; episodeId: number; question: string }): Promise<Question> {
-    return await api.post<Question>(QUESTIONS_ENDPOINTS.CREATE, { userId: questionData.userId, episodeId: questionData.episodeId, Question: questionData.question })
+  async updateQuestion(questionData: EditQuestionRequest): Promise<Question> {
+    return await api.put<Question>(QUESTIONS_ENDPOINTS.UPDATE, questionData)
   },
-  async updateQuestion(id: number, questionData: Partial<Question>): Promise<Question> {
-    return await api.put<Question>(QUESTIONS_ENDPOINTS.UPDATE(id.toString()), questionData)
-  },
-  async updateQuestionByUserAndEpisode(questionData: { userId: number; episodeId: number; question: string }): Promise<Question> {
-    return await api.put<Question>(QUESTIONS_ENDPOINTS.LIST, { userId: questionData.userId, episodeId: questionData.episodeId, Question: questionData.question })
-  },
-  async deleteQuestion(id: number): Promise<void> {
-    return await api.delete(QUESTIONS_ENDPOINTS.DELETE(id.toString()))
+  async updateQuestionById(questionId: number, questionData: UpdateQuestionRequest): Promise<Question> {
+    return await api.put<Question>(QUESTIONS_ENDPOINTS.UPDATE_BY_ID(questionId), questionData)
   },
   async getQuestionsByUser(userId: number): Promise<Question[]> {
-    return await api.get<Question[]>(QUESTIONS_ENDPOINTS.BY_USER(userId.toString()))
+    return await api.get<Question[]>(QUESTIONS_ENDPOINTS.BY_USER(userId))
   },
   async getQuestionsByEpisode(episodeId: number): Promise<Question[]> {
-    return await api.get<Question[]>(QUESTIONS_ENDPOINTS.BY_EPISODE(episodeId.toString()))
+    return await api.get<Question[]>(QUESTIONS_ENDPOINTS.BY_EPISODE(episodeId))
   },
   async getQuestionByUserAndEpisode(userId: number, episodeId: number): Promise<Question | null> {
     try {
-      return await api.get<Question>(QUESTIONS_ENDPOINTS.BY_USER_AND_EPISODE(userId.toString(), episodeId.toString()))
+      return await api.get<Question>(QUESTIONS_ENDPOINTS.BY_USER_AND_EPISODE(userId, episodeId))
     } catch (error: unknown) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if ((error as any)?.response?.status === 404) return null
