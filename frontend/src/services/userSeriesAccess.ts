@@ -51,16 +51,17 @@ export const userSeriesAccessService = {
   async getFilteredUserSeriesAccess(filter: UserSeriesAccessFilter = {}): Promise<UserSeriesAccess[]> {
     let accessRecords = await this.getAllUserSeriesAccess()
     if (filter.userId) accessRecords = accessRecords.filter((a) => a.userId === filter.userId)
-    if (filter.seriesId) accessRecords = accessRecords.filter((a) => a.seriesId === filter.seriesId)
+    if (filter.seriesId !== undefined) accessRecords = accessRecords.filter((a) => a.seriesId === filter.seriesId)
     if (filter.search) {
       const searchTerm = filter.search.toLowerCase()
       accessRecords = accessRecords.filter(
         (a) =>
-          a.user?.firstName.toLowerCase().includes(searchTerm) ||
-          a.user?.lastName.toLowerCase().includes(searchTerm) ||
-          a.user?.userName.toLowerCase().includes(searchTerm) ||
-          a.user?.email.toLowerCase().includes(searchTerm) ||
-          a.podcastSeries?.title.toLowerCase().includes(searchTerm),
+          a.user?.firstName?.toLowerCase().includes(searchTerm) ||
+          a.user?.lastName?.toLowerCase().includes(searchTerm) ||
+          a.user?.userName?.toLowerCase().includes(searchTerm) ||
+          a.user?.email?.toLowerCase().includes(searchTerm) ||
+          a.podcastSeries?.title?.toLowerCase().includes(searchTerm) ||
+          a.article?.title?.toLowerCase().includes(searchTerm),
       )
     }
     return accessRecords

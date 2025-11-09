@@ -38,31 +38,21 @@ export interface Aphorism {
 export interface Article {
   articleId: number
   title: string
-  slug: string
-  contentHtml: string
-  excerpt?: string | null
-  coverImageUrl?: string | null
-  authorId: number
-  authorUserName: string
-  isPublished: boolean
-  publishedAt?: string | null
+  pdfLink: string
+  isActive: boolean
   createdAt: string
   updatedAt: string
 }
 
 export interface CreateArticleRequest {
   title: string
-  contentHtml: string
-  excerpt?: string
-  coverImageUrl?: string
-  isPublished: boolean
+  pdfLink: string
+  isActive: boolean
 }
 
 export interface EditArticleRequest {
   articleId: number
   title: string
-  contentHtml: string
-  excerpt?: string
-  coverImageUrl?: string
-  isPublished: boolean
+  pdfLink: string
+  isActive: boolean
 }

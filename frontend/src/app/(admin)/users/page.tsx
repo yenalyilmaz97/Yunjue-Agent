@@ -96,20 +96,34 @@ const page = () => {
               { key: 'userId', header: 'ID', width: '80px', sortable: true },
               { key: 'userName', header: 'Username', sortable: true },
               { key: 'email', header: 'Email', sortable: true },
-              { key: 'firstName', header: 'First Name', sortable: true },
-              { key: 'lastName', header: 'Last Name', sortable: true },
-              { key: 'roleName', header: 'Role', sortable: true },
-              { key: 'city', header: 'City' },
-              { key: 'phone', header: 'Phone' },
+              {
+                key: 'actions',
+                header: 'Actions',
+                width: '120px',
+                render: (r) => {
+                  const u = r as User
+                  return (
+                    <Button variant="outline-primary" size="sm" onClick={() => navigate(`/admin/users/${u.userId}`)}>
+                      <IconifyIcon icon="mdi:eye" className="me-1" /> Detail
+                    </Button>
+                  )
+                },
+              },
             ]}
             accordion
             renderAccordionContent={(u) => (
               <Row className="g-3 align-items-center">
                 <Col md={8}>
-                  <div className="d-flex flex-wrap gap-3 small text-muted">
-                    <span><IconifyIcon icon="mdi:city" className="me-1" />{u.city || '-'}</span>
-                    <span><IconifyIcon icon="mdi:phone" className="me-1" />{u.phone || '-'}</span>
-                    <span><IconifyIcon icon="mdi:calendar" className="me-1" />Sub ends: {new Date(u.subscriptionEnd).toLocaleDateString()}</span>
+                  <div className="d-flex flex-wrap gap-3 small">
+                    <div><strong>First Name:</strong> {u.firstName || '-'}</div>
+                    <div><strong>Last Name:</strong> {u.lastName || '-'}</div>
+                    <div><strong>Role:</strong> {u.roleName || '-'}</div>
+                    <div><strong>City:</strong> {u.city || '-'}</div>
+                    <div><strong>Phone:</strong> {u.phone || '-'}</div>
+                    <div><strong>Subscription End:</strong> {new Date(u.subscriptionEnd).toLocaleDateString()}</div>
+                    <div><strong>Date of Birth:</strong> {new Date(u.dateOfBirth).toLocaleDateString()}</div>
+                    <div><strong>Gender:</strong> {u.gender ? 'Female' : 'Male'}</div>
+                    {u.description && <div><strong>Description:</strong> {u.description}</div>}
                   </div>
                 </Col>
                 <Col md={4} className="d-flex justify-content-end gap-2">

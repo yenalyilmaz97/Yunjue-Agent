@@ -75,15 +75,19 @@ const AdminMusicPage = lazy(() => import('@/app/(admin)/weekly-content/music/pag
 const AdminMoviesPage = lazy(() => import('@/app/(admin)/weekly-content/movies/page'))
 const AdminTasksPage = lazy(() => import('@/app/(admin)/weekly-content/tasks/page'))
 const AdminWeeklyQuestionsPage = lazy(() => import('@/app/(admin)/weekly-content/weekly-questions/page'))
+const AdminWeeklyContentPage = lazy(() => import('@/app/(admin)/weekly-content/weekly-content/page'))
 const AdminAphorismsPage = lazy(() => import('@/app/(admin)/weekly-content/aphorisms/page'))
 const AdminAffirmationsPage = lazy(() => import('@/app/(admin)/weekly-content/affirmations/page'))
+const AdminDailyContentPage = lazy(() => import('@/app/(admin)/daily-content/daily-content/page'))
 // Admin Content Create Pages
 const AdminMusicCreatePage = lazy(() => import('@/app/(admin)/weekly-content/music/create'))
 const AdminMoviesCreatePage = lazy(() => import('@/app/(admin)/weekly-content/movies/create'))
 const AdminTasksCreatePage = lazy(() => import('@/app/(admin)/weekly-content/tasks/create'))
 const AdminWeeklyQuestionsCreatePage = lazy(() => import('@/app/(admin)/weekly-content/weekly-questions/create'))
+const AdminWeeklyContentCreatePage = lazy(() => import('@/app/(admin)/weekly-content/weekly-content/create'))
 const AdminAphorismsCreatePage = lazy(() => import('@/app/(admin)/weekly-content/aphorisms/create'))
 const AdminAffirmationsCreatePage = lazy(() => import('@/app/(admin)/weekly-content/affirmations/create'))
+const AdminDailyContentCreatePage = lazy(() => import('@/app/(admin)/daily-content/daily-content/create'))
 // Admin Articles Pages
 const AdminArticlesPage = lazy(() => import('@/app/(admin)/articles/page'))
 const AdminArticlesCreatePage = lazy(() => import('@/app/(admin)/articles/create'))
@@ -95,12 +99,15 @@ const AdminPodcastEpisodesCreatePage = lazy(() => import('@/app/(admin)/podcasts
 // Admin User Management Pages
 const AdminUsersPage = lazy(() => import('@/app/(admin)/users/page'))
 const AdminUsersCreatePage = lazy(() => import('@/app/(admin)/users/create'))
+const AdminUserDetailPage = lazy(() => import('@/app/(admin)/users/[userId]/page'))
 const AdminRolesPage = lazy(() => import('@/app/(admin)/roles/page'))
 // Admin Access Pages
 const AdminSeriesAccessPage = lazy(() => import('@/app/(admin)/access/series-access/page'))
 const AdminSeriesAccessGrantPage = lazy(() => import('@/app/(admin)/access/series-access/grant'))
 const AdminSeriesAccessEditPage = lazy(() => import('@/app/(admin)/access/series-access/edit'))
 const AdminWeeklyAssignmentPage = lazy(() => import('@/app/(admin)/access/weekly-assignment/page'))
+const AdminWeeklyAssignmentEditPage = lazy(() => import('@/app/(admin)/access/weekly-assignment/edit'))
+const AdminQuestionsPage = lazy(() => import('@/app/(admin)/questions/page'))
 // User Articles Pages
 const UserArticlesPage = lazy(() => import('@/app/(user)/articles/page'))
 const UserArticleDetailPage = lazy(() => import('@/app/(user)/articles/[slug]/page'))
@@ -411,15 +418,19 @@ export const appRoutes = [
   { name: 'AdminContentMovies', path: '/admin/content/movies', element: <AdminMoviesPage /> },
   { name: 'AdminContentTasks', path: '/admin/content/tasks', element: <AdminTasksPage /> },
   { name: 'AdminContentWeeklyQuestions', path: '/admin/content/weekly-questions', element: <AdminWeeklyQuestionsPage /> },
+  { name: 'AdminContentWeeklyContent', path: '/admin/content/weekly-content', element: <AdminWeeklyContentPage /> },
   { name: 'AdminContentAphorisms', path: '/admin/content/aphorisms', element: <AdminAphorismsPage /> },
   { name: 'AdminContentAffirmations', path: '/admin/content/affirmations', element: <AdminAffirmationsPage /> },
+  { name: 'AdminContentDailyContent', path: '/admin/content/daily-content', element: <AdminDailyContentPage /> },
   // admin content create routes
   { name: 'AdminContentMusicCreate', path: '/admin/content/music/create', element: <AdminMusicCreatePage /> },
   { name: 'AdminContentMoviesCreate', path: '/admin/content/movies/create', element: <AdminMoviesCreatePage /> },
   { name: 'AdminContentTasksCreate', path: '/admin/content/tasks/create', element: <AdminTasksCreatePage /> },
   { name: 'AdminContentWeeklyQuestionsCreate', path: '/admin/content/weekly-questions/create', element: <AdminWeeklyQuestionsCreatePage /> },
+  { name: 'AdminContentWeeklyContentCreate', path: '/admin/content/weekly-content/create', element: <AdminWeeklyContentCreatePage /> },
   { name: 'AdminContentAphorismsCreate', path: '/admin/content/aphorisms/create', element: <AdminAphorismsCreatePage /> },
   { name: 'AdminContentAffirmationsCreate', path: '/admin/content/affirmations/create', element: <AdminAffirmationsCreatePage /> },
+  { name: 'AdminContentDailyContentCreate', path: '/admin/content/daily-content/create', element: <AdminDailyContentCreatePage /> },
   // admin podcasts routes
   { name: 'AdminPodcastSeries', path: '/admin/podcasts/series', element: <AdminPodcastSeriesPage /> },
   { name: 'AdminPodcastEpisodes', path: '/admin/podcasts/episodes', element: <AdminPodcastEpisodesPage /> },
@@ -428,12 +439,15 @@ export const appRoutes = [
   // admin users routes
   { name: 'AdminUsers', path: '/admin/users', element: <AdminUsersPage /> },
   { name: 'AdminUsersCreate', path: '/admin/users/create', element: <AdminUsersCreatePage /> },
+  { name: 'AdminUserDetail', path: '/admin/users/:userId', element: <AdminUserDetailPage /> },
   { name: 'AdminRoles', path: '/admin/roles', element: <AdminRolesPage /> },
   // admin access routes
   { name: 'AdminSeriesAccess', path: '/admin/access/series', element: <AdminSeriesAccessPage /> },
   { name: 'AdminSeriesAccessGrant', path: '/admin/access/series/grant', element: <AdminSeriesAccessGrantPage /> },
   { name: 'AdminSeriesAccessEdit', path: '/admin/access/series/edit', element: <AdminSeriesAccessEditPage /> },
   { name: 'AdminWeeklyAssignment', path: '/admin/access/weekly', element: <AdminWeeklyAssignmentPage /> },
+  { name: 'AdminWeeklyAssignmentEdit', path: '/admin/access/weekly/edit', element: <AdminWeeklyAssignmentEditPage /> },
+  { name: 'AdminQuestions', path: '/admin/questions', element: <AdminQuestionsPage /> },
   // user routes
   { name: 'UserArticles', path: '/articles', element: <UserArticlesPage /> },
   { name: 'UserArticleDetail', path: '/articles/*', element: <UserArticleDetailPage /> },

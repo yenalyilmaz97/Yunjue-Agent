@@ -1,0 +1,216 @@
+
+.tp-minimal-wrap {
+    position: relative;
+    margin-bottom: 50px;
+}
+.tp-minimal-wrap h2 {
+    font-size: 50px;
+    color: #fff;
+    margin-top: 30px;
+}
+.tp-minimal-img {
+    position: relative;
+}
+.tp-minimal-img img{
+    width: 100%;
+    max-height: 500px;
+    object-fit: cover;
+}
+.video-holder ul{
+    list-style: none;
+}
+
+.video-holder button.wrap {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    width: 83px;
+    height: 83px;
+    border-radius: 83px;
+    display: inline-block;
+    -webkit-animation: spineer 2s infinite;
+    animation: spineer 2s infinite;
+    z-index: 99;
+    border: 1px solid #fff;
+}
+
+.video-holder button.wrap:before {
+    content: "";
+    width: 0px;
+    height: 0px;
+    border-top: 15px solid transparent;
+    border-bottom: 15px solid transparent;
+    border-left: 20px solid #2a2a2a;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+@-webkit-keyframes spineer {
+    0% {
+        -webkit-box-shadow: 0 0 0 0 #c7c1ea;
+    }
+
+    70% {
+        -webkit-box-shadow: 0 0 0 20px rgba(1, 93, 199, 0);
+    }
+
+    100% {
+        -webkit-box-shadow: 0 0 0 0 rgba(1, 93, 199, 0);
+    }
+}
+
+@keyframes spineer {
+    0% {
+        -webkit-box-shadow: 0 0 0 0 #c7c1ea;
+        box-shadow: 0 0 0 0 #c7c1ea;
+    }
+
+    70% {
+        -webkit-box-shadow: 0 0 0 20px rgba(1, 93, 199, 0);
+        box-shadow: 0 0 0 20px rgba(1, 93, 199, 0);
+    }
+
+    100% {
+        -webkit-box-shadow: 0 0 0 0 rgba(1, 93, 199, 0);
+        box-shadow: 0 0 0 0 rgba(1, 93, 199, 0);
+    }
+}
+
+
+
+.tp-project-details-list {
+    padding: 40px;
+    background: #2a2a2a;
+}
+
+.tp-project-details-text {
+    text-align: center;
+    padding-right: 20px;
+}
+
+.tp-project-details-text-3 {
+    text-align: center;
+    border-right: 1px solid rgba(255,255,255,.2);
+    border-left: 1px solid rgba(255,255,255,.2);
+}
+
+.tp-project-details-text h2,
+.tp-project-details-text-3 h2 {
+    font-size: 22px;
+    color: #fff;
+    margin-bottom: 0;
+}
+
+.tp-project-details-text span,
+.tp-project-details-text-3 span {
+    font-size: 16px;
+    color: #ddd;
+}
+
+.tp-p-details-section {
+    margin-top: 50px;
+}
+
+.tp-p-details-section p {
+    margin-bottom: 30px;
+}
+
+.tp-p-details-quote {
+    padding: 40px;
+    background: #2a2a2a;
+    margin-top: 30px;
+    padding-left: 80px;
+    position: relative;
+    border-top-right-radius: 30px;
+    border-bottom-right-radius: 30px;
+    border-bottom-left-radius: 30px;
+}
+
+.tp-p-details-quote:before {
+    font-family: "Flaticon";
+    content: "\f10b";
+    font-size: 40px;
+    color: #ddd;
+    margin-left: 0;
+    position: absolute;
+    left: 5%;
+    top: 22%;
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+.tp-p-details-img {
+    margin-bottom: 30px;
+}
+
+.tp-p-details-quote p {
+    color: #ddd;
+    margin-bottom: 20px;
+}
+
+.tp-p-details-quote span {
+    color: #ddd;
+    text-decoration: underline;
+}
+
+.tp-faq-section {
+    padding-top: 60px;
+}
+
+
+@media(max-width:1200px) {
+
+    .tp-project-details-text h2,
+    .tp-project-details-text-3 h2 {
+        font-size: 18px;
+    }
+}
+
+@media(max-width:767px) {
+
+    .tp-project-details-text h2,
+    .tp-project-details-text-3 h2 {
+        margin-bottom: 30px;
+    }
+
+    .tp-project-details-text-3 {
+        border: none;
+    }
+
+    .tp-project-details-list{
+        padding-bottom: 10px;
+    }
+    .tp-minimal-wrap h2{
+        font-size: 35px;
+    }
+
+    .tp-minimal-wrap{
+        margin-bottom: 30px;
+    }
+}
+
+@media(max-width:530px) {
+    .tp-p-details-quote:before {
+        left: 12%;
+        top: 17%;
+    }
+}
+
+#customized-dialog-title{
+  padding-bottom: 30px;
+}
