@@ -113,9 +113,11 @@ builder.Services.AddCors(options =>
                 "http://127.0.0.1:5173",
                 "https://localhost:5173",
                 "https://127.0.0.1:5173",
+                "https://app.keciyibesle.com", 
                 "https://www.keciyibesle.com", 
                 "https://keciyibesle.com",
-                "http://www.keciyibesle.com", 
+                "http://app.keciyibesle.com", 
+                "http://www.keciyibesle.com",
                 "http://keciyibesle.com"
             )
                    .AllowAnyMethod()

@@ -55,7 +55,7 @@ const page = () => {
             rowKey={(r) => (r as PodcastSeries).seriesId}
             hideSearch
             searchQuery={search}
-            searchKeys={['seriesId', 'title', 'description', 'episodes.title', 'episodes.description', 'episodes.audioLink']}
+            searchKeys={['seriesId', 'title', 'description', 'episodes.title', 'episodes.description']}
             renderRowActions={(row) => {
               const s = row as PodcastSeries
               return (

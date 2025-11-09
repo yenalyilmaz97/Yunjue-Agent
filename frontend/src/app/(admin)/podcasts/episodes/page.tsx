@@ -56,12 +56,15 @@ const page = () => {
             rowKey={(r) => (r as PodcastEpisode).episodesId}
             hideSearch
             searchQuery={search}
-            searchKeys={['episodesId', 'seriesId', 'title', 'description', 'audioLink']}
+            searchKeys={['episodesId', 'seriesId', 'title', 'description']}
             renderRowActions={(row) => {
               const e = row as PodcastEpisode
+              const previewSrc = e.content?.video || e.content?.audio || e.audioLink
               return (
                 <div className="d-inline-flex gap-2">
-                  <Button size="sm" variant="outline-primary" onClick={() => setPreview({ title: e.title, isVideo: !!(e as any).isVideo, src: e.audioLink })}>Preview</Button>
+                  {previewSrc && (
+                    <Button size="sm" variant="outline-primary" onClick={() => setPreview({ title: e.title, isVideo: !!e.isVideo, src: previewSrc })}>Preview</Button>
+                  )}
                   <Button size="sm" variant="outline-secondary" onClick={() => navigate('/admin/podcasts/episodes/create', { state: { mode: 'edit', item: e } })}>Edit</Button>
                   <Button size="sm" variant="outline-danger" onClick={() => handleDeleteEpisode(e.episodesId)}>Delete</Button>
                 </div>
@@ -73,7 +76,18 @@ const page = () => {
               { key: 'seriesId', header: 'Series ID', width: '100px', sortable: true },
               { key: 'title', header: 'Title', sortable: true },
               { key: 'description', header: 'Description' },
-              { key: 'audioLink', header: 'Audio' },
+              {
+                key: 'content',
+                header: 'Content',
+                render: (e) => {
+                  const episode = e as PodcastEpisode
+                  const audio = episode.content?.audio || episode.audioLink
+                  const video = episode.content?.video
+                  if (video) return <span className="text-muted">Video</span>
+                  if (audio) return <span className="text-muted">Audio</span>
+                  return <span className="text-muted">-</span>
+                },
+              },
               { key: 'isActive', header: 'Active', render: (e) => ((e as PodcastEpisode).isActive ? 'Yes' : 'No'), sortable: true },
             ]}
           />

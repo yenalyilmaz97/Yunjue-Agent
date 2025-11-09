@@ -9,7 +9,7 @@ import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-type FormFields = { title: string; description: string; isVideo: boolean }
+type FormFields = { title: string; description: string; isVideo: boolean; isActive?: boolean }
 
 const SeriesCreateEditPage = () => {
   const navigate = useNavigate()
@@ -18,11 +18,12 @@ const SeriesCreateEditPage = () => {
     title: yup.string().trim().required('Please enter title'),
     description: yup.string().trim().required('Please enter description'),
     isVideo: yup.boolean().required(),
+    isActive: yup.boolean().optional(),
   })
 
   const { control, handleSubmit, reset, formState } = useForm<FormFields>({
     resolver: yupResolver(schema),
-    defaultValues: { title: '', description: '', isVideo: false },
+    defaultValues: { title: '', description: '', isVideo: false, isActive: true },
   })
   const { isSubmitting } = formState
   const state = (location.state as any) || {}
@@ -31,13 +32,13 @@ const SeriesCreateEditPage = () => {
 
   useEffect(() => {
     if (isEdit && editItem) {
-      reset({ title: editItem.title || '', description: editItem.description || '', isVideo: !!editItem.isVideo })
+      reset({ title: editItem.title || '', description: editItem.description || '', isVideo: !!editItem.isVideo, isActive: !!editItem.isActive })
     }
-  }, [isEdit])
+  }, [isEdit, editItem, reset])
 
   const onSubmit = handleSubmit(async (data) => {
     if (isEdit && editItem) {
-      await podcastService.updateSeries(editItem.seriesId, { title: data.title, description: data.description, isVideo: data.isVideo })
+      await podcastService.updateSeries(editItem.seriesId, { title: data.title, description: data.description, isVideo: data.isVideo, isActive: data.isActive ?? true })
     } else {
       await podcastService.createSeries({ title: data.title, description: data.description, isVideo: data.isVideo })
     }
@@ -75,6 +76,23 @@ const SeriesCreateEditPage = () => {
                   )}
                 />
               </Col>
+              {isEdit && (
+                <Col md={6}>
+                  <Controller
+                    control={control}
+                    name="isActive"
+                    render={({ field }) => (
+                      <Form.Check
+                        type="switch"
+                        id="isActive"
+                        label="Active"
+                        checked={!!field.value}
+                        onChange={(e) => field.onChange(e.target.checked)}
+                      />
+                    )}
+                  />
+                </Col>
+              )}
             </Row>
             <div className="d-flex justify-content-end gap-2 mt-3">
               <Button type="button" variant="light" onClick={() => navigate('/admin/podcasts/series')}>Cancel</Button>

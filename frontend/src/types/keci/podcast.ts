@@ -1,3 +1,9 @@
+export interface EpisodeContent {
+  audio?: string
+  video?: string
+  images?: string[]
+}
+
 export interface PodcastSeries {
   seriesId: number
   title: string
@@ -14,7 +20,7 @@ export interface PodcastEpisode {
   seriesId: number
   title: string
   description?: string
-  audioLink: string
+  content: EpisodeContent
   sequenceNumber: number
   isActive: boolean
   isVideo?: boolean
@@ -23,6 +29,9 @@ export interface PodcastEpisode {
   updatedAt: string
   seriesTitle?: string
   podcastSeries?: PodcastSeries
+  // Backward compatibility - will be removed in future
+  /** @deprecated Use content.audio instead */
+  audioLink?: string
 }
 
 export interface CreatePodcastSeriesRequest {
@@ -36,13 +45,14 @@ export interface EditPodcastSeriesRequest {
   title: string
   description: string
   isVideo: boolean
+  isActive: boolean
 }
 
 export interface CreatePodcastEpisodeRequest {
   seriesId: number
   title: string
   description?: string
-  audioLink: string
+  content: EpisodeContent
   isVideo?: boolean
   isActive: boolean
 }
@@ -52,10 +62,10 @@ export interface EditPodcastEpisodeRequest {
   seriesId: number
   title: string
   description?: string
-  audioLink: string
+  content: EpisodeContent
   sequenceNumber: number
   isActive: boolean
-  isVideo?: boolean
+  isVideo: boolean
 }
 
 export interface AddToFavoritesRequest {

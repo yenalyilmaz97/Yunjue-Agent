@@ -51,7 +51,7 @@ const page = () => {
             searchQuery={search}
             onSearchQueryChange={setSearch}
             searchPlaceholder="Search article..."
-            searchKeys={['title', 'slug', 'authorUserName']}
+            searchKeys={['title', 'pdfLink']}
             actionsHeader="Actions"
             renderRowActions={(row) => {
               const a = row as Article
@@ -71,10 +71,12 @@ const page = () => {
             columns={[
               { key: 'articleId', header: 'ID', width: '80px', sortable: true },
               { key: 'title', header: 'Title', sortable: true },
-              { key: 'slug', header: 'Slug', sortable: true },
-              { key: 'authorUserName', header: 'Author', sortable: true },
-              { key: 'isPublished', header: 'Published', sortable: true, render: (r) => ((r as Article).isPublished ? 'Yes' : 'No') },
-              { key: 'publishedAt', header: 'Date', sortable: true, render: (r) => ((r as Article).publishedAt || (r as Article).createdAt)?.slice(0,10) },
+              { key: 'pdfLink', header: 'PDF Link', sortable: true, render: (r) => {
+                const link = (r as Article).pdfLink
+                return link ? <a href={link} target="_blank" rel="noopener noreferrer" className="text-truncate d-inline-block" style={{ maxWidth: '200px' }}>{link}</a> : '-'
+              }},
+              { key: 'isActive', header: 'Active', sortable: true, render: (r) => ((r as Article).isActive ? 'Yes' : 'No') },
+              { key: 'createdAt', header: 'Date', sortable: true, render: (r) => ((r as Article).createdAt)?.slice(0,10) },
             ]}
           />
         </CardBody>
