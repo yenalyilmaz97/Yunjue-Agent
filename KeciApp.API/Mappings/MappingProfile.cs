@@ -62,7 +62,9 @@ public class MappingProfile : Profile
         CreateMap<WeeklyQuestion, WeeklyQuestionResponseDTO>();
 
         // DailyContent Mappings
-        CreateMap<DailyContent, DailyContentResponseDTO>();
+        CreateMap<DailyContent, DailyContentResponseDTO>()
+            .ForMember(dest => dest.Affirmation, opt => opt.MapFrom(src => src.Affirmations != null ? src.Affirmations : null))
+            .ForMember(dest => dest.Aphorism, opt => opt.MapFrom(src => src.Aphorisms != null ? src.Aphorisms : null));
         CreateMap<CreateDailyContentRequest, DailyContent>();
         CreateMap<UpdateDailyContentRequest, DailyContent>();
 

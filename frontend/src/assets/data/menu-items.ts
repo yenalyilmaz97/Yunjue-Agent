@@ -332,6 +332,7 @@ export const MENU_ITEMS: MenuItemType[] = [
     label: 'Daily',
     icon: 'mingcute:book-3-line',
     children: [
+      { key: 'content-daily-content', label: 'Daily Content', url: '/admin/content/daily-content', parentKey: 'daily-management' },
       { key: 'content-aphorisms', label: 'Aphorisms', url: '/admin/content/aphorisms', parentKey: 'daily-management' },
       { key: 'content-affirmations', label: 'Affirmations', url: '/admin/content/affirmations', parentKey: 'daily-management' },
     ]
@@ -342,6 +343,7 @@ export const MENU_ITEMS: MenuItemType[] = [
     label: 'Weeklies',
     icon: 'mingcute:book-3-line',
     children: [
+      { key: 'content-weekly-content', label: 'Weekly Content', url: '/admin/content/weekly-content', parentKey: 'weekly-content' },
       { key: 'content-music', label: 'Music', url: '/admin/content/music', parentKey: 'weekly-content' },
       { key: 'content-movies', label: 'Movies', url: '/admin/content/movies', parentKey: 'weekly-content' },
       { key: 'content-tasks', label: 'Tasks', url: '/admin/content/tasks', parentKey: 'weekly-content' },
@@ -377,6 +379,7 @@ export const MENU_ITEMS: MenuItemType[] = [
     children: [
       { key: 'series-access', label: 'Series Access', url: '/admin/access/series', parentKey: 'access' },
       { key: 'weekly-assignment', label: 'Weekly Assignment', url: '/admin/access/weekly', parentKey: 'access' },
+      { key: 'questions', label: 'User Questions', url: '/admin/questions', parentKey: 'access' },
     ],
   },
   // // ====================layouts===============

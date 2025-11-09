@@ -30,11 +30,12 @@ const page = () => {
     const q = search.toLowerCase()
     return items.filter(
       (a) =>
-        a.user?.firstName.toLowerCase().includes(q) ||
-        a.user?.lastName.toLowerCase().includes(q) ||
-        a.user?.userName.toLowerCase().includes(q) ||
-        a.user?.email.toLowerCase().includes(q) ||
-        a.podcastSeries?.title.toLowerCase().includes(q),
+        a.user?.firstName?.toLowerCase().includes(q) ||
+        a.user?.lastName?.toLowerCase().includes(q) ||
+        a.user?.userName?.toLowerCase().includes(q) ||
+        a.user?.email?.toLowerCase().includes(q) ||
+        a.podcastSeries?.title?.toLowerCase().includes(q) ||
+        a.article?.title?.toLowerCase().includes(q),
     )
   }, [items, search])
 
@@ -57,10 +58,10 @@ const page = () => {
     return Array.from(map.entries()).map(([userId, val]) => ({ userId, ...val }))
   }, [filtered])
 
-  const revoke = async (userId: number, seriesId: number) => {
+  const revoke = async (userId: number, seriesId?: number | null, articleId?: number | null) => {
     if (!confirm('Bu erişimi kaldırmak istediğinize emin misiniz?')) return
-    await userSeriesAccessService.revokeAccess({ userId, seriesId })
-    setItems((prev) => prev.filter((x) => !(x.userId === userId && x.seriesId === seriesId)))
+    await userSeriesAccessService.revokeAccess({ userId, seriesId, articleId })
+    setItems((prev) => prev.filter((x) => !(x.userId === userId && (x.seriesId === seriesId || x.articleId === articleId))))
   }
 
   return (
@@ -107,26 +108,24 @@ const page = () => {
                   <table className="table table-hover align-middle mb-0">
                     <thead>
                       <tr>
-                        <th style={{ width: 100 }}>Series ID</th>
+                        <th style={{ width: 100 }}>Type</th>
+                        <th style={{ width: 100 }}>ID</th>
                         <th>Title</th>
                         <th style={{ width: 160 }}>Current Seq</th>
-                        <th style={{ width: 180 }}>Next Unlock</th>
-                        <th style={{ width: 160 }}>Position</th>
                         <th style={{ width: 160 }} className="text-end">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {g.accesses.map((a: any) => (
                         <tr key={a.userSeriesAccessId}>
-                          <td>{a.seriesId}</td>
-                          <td>{a.podcastSeries?.title}</td>
+                          <td>{a.seriesId ? 'Series' : a.articleId ? 'Article' : '-'}</td>
+                          <td>{a.seriesId || a.articleId || '-'}</td>
+                          <td>{a.podcastSeries?.title || a.article?.title || '-'}</td>
                           <td>{a.currentAccessibleSequence}</td>
-                          <td>{a.nextUnlockDate || '-'}</td>
-                          <td>{a.currentPositionInSeconds}s</td>
                           <td className="text-end">
                             <div className="d-inline-flex gap-2">
                               <Button size="sm" variant="outline-secondary" onClick={() => navigate('/admin/access/series/edit', { state: { item: a } })}>Edit</Button>
-                              <Button size="sm" variant="outline-danger" onClick={() => revoke(a.userId, a.seriesId)}>Revoke</Button>
+                              <Button size="sm" variant="outline-danger" onClick={() => revoke(a.userId, a.seriesId, a.articleId)}>Revoke</Button>
                             </div>
                           </td>
                         </tr>

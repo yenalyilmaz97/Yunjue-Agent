@@ -65,8 +65,6 @@ const GrantSeriesAccessPage = () => {
           userId: Number(formUserId),
           seriesId: id,
           currentAccessibleSequence,
-          nextUnlockDate: new Date().toISOString(),
-          currentPositionInSeconds: 0,
         })
       }
       navigate('/admin/access/series')

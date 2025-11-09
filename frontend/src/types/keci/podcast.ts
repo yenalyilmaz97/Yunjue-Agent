@@ -81,37 +81,46 @@ export interface RemoveFromFavoritesRequest {
 export interface Note {
   noteId: number
   userId: number
-  episodeId: number
+  episodeId?: number | null
+  articleId?: number | null
   title?: string
   noteText: string
   createdAt: string
   updatedAt: string
   userName: string
-  episodeTitle: string
-  seriesTitle: string
+  episodeTitle?: string | null
+  seriesTitle?: string | null
 }
 
 export interface Favorite {
   favoriteId: number
   userId: number
-  episodeId: number
+  favoriteType?: number
+  episodeId?: number | null
+  articleId?: number | null
+  affirmationId?: number | null
+  aphorismId?: number | null
   createdAt: string
   userName: string
-  episodeTitle: string
-  seriesTitle: string
+  episodeTitle?: string | null
+  seriesTitle?: string | null
+  articleTitle?: string | null
+  affirmationText?: string | null
+  aphorismText?: string | null
 }
 
 export interface Question {
   questionId: number
   userId: number
-  episodeId: number
+  episodeId?: number | null
+  articleId?: number | null
   questionText: string
   isAnswered: boolean
   createdAt: string
   updatedAt: string
   userName: string
-  episodeTitle: string
-  seriesTitle: string
+  episodeTitle?: string | null
+  seriesTitle?: string | null
   answers?: Answer[]
   answer?: Answer
 }

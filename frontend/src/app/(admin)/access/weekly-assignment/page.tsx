@@ -3,9 +3,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { userWeeklyAssignmentService } from '@/services'
 import type { UserAssignmentSummary } from '@/types/keci'
 import { Card, CardBody, CardHeader, CardTitle, Button } from 'react-bootstrap'
+import { useNavigate } from 'react-router-dom'
 import DataTable from '@/components/table/DataTable'
 
 const page = () => {
+  const navigate = useNavigate()
   const [items, setItems] = useState<UserAssignmentSummary[]>([])
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
@@ -62,11 +64,14 @@ const page = () => {
             searchQuery={search}
             searchKeys={['user.firstName', 'user.lastName', 'user.userName', 'user.email']}
             accordion
-            renderRowActions={() => (
-              <div className="d-inline-flex gap-2">
-                <Button size="sm" variant="outline-primary">Assign</Button>
-              </div>
-            )}
+            renderRowActions={(row) => {
+              const s = row as any
+              return (
+                <div className="d-inline-flex gap-2">
+                  <Button size="sm" variant="outline-secondary" onClick={() => navigate('/admin/access/weekly/edit', { state: { user: s.user } })}>Edit</Button>
+                </div>
+              )
+            }}
             actionsHeader="Actions"
             columns={[
               { key: 'user.userName', header: 'User', sortable: true, render: (r) => `${(r as any).user.firstName} ${(r as any).user.lastName} (${(r as any).user.userName})` },
@@ -97,8 +102,8 @@ const page = () => {
                     )}
                   </div>
                   <div className="col-md-3 d-flex align-items-start gap-2 justify-content-end">
-                    <Button size="sm" variant="outline-secondary">Edit</Button>
-                    <Button size="sm" variant="outline-danger">Remove</Button>
+                    <Button size="sm" variant="outline-secondary" onClick={() => navigate('/admin/access/weekly/edit', { state: { user: s.user } })}>Edit</Button>
+                    {/* <Button size="sm" variant="outline-danger">Remove</Button> */}
                   </div>
                 </div>
               )
