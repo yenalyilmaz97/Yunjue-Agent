@@ -10,18 +10,23 @@ export default function useFileUploader(showPreview: boolean = true) {
    * Handled the accepted files and shows the preview
    */
   const handleAcceptedFiles = (files: FileType[], callback?: (files: FileType[]) => void) => {
-    let allFiles: FileType[] = []
+    // Process new files (add preview and formattedSize)
+    const processedFiles = files.map((file) =>
+      Object.assign(file, {
+        preview: file['type'].split('/')[0] === 'image' ? URL.createObjectURL(file) : null,
+        formattedSize: formatBytes(file.size),
+      }),
+    )
+    
     if (showPreview) {
-      files.map((file) =>
-        Object.assign(file, {
-          preview: file['type'].split('/')[0] === 'image' ? URL.createObjectURL(file) : null,
-          formattedSize: formatBytes(file.size),
-        }),
-      )
-      allFiles = [...selectedFiles, ...files]
+      // Update internal state for preview
+      const allFiles = [...selectedFiles, ...processedFiles]
       setSelectedFiles(allFiles)
     }
-    if (callback) callback(allFiles)
+    
+    // Always pass only the newly added files to callback
+    // The callback handler will manage its own state
+    if (callback) callback(processedFiles)
   }
   /**
    * Formats the size

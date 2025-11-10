@@ -4,6 +4,7 @@ using KeciApp.API.Interfaces;
 using KeciApp.API.Services;
 using KeciApp.API.Models;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 namespace KeciApp.API.Controllers;
 [ApiController]
@@ -14,17 +15,20 @@ public class EpisodesController : ControllerBase
     private readonly IPodcastSeriesRepository _seriesRepository;
     private readonly IPodcastEpisodesRepository _episodesRepository;
     private readonly IFileUploadService _fileUploadService;
+    private readonly ILogger<EpisodesController> _logger;
 
     public EpisodesController(
         IPodcastEpisodesService episodeService,
         IPodcastSeriesRepository seriesRepository,
         IPodcastEpisodesRepository episodesRepository,
-        IFileUploadService fileUploadService)
+        IFileUploadService fileUploadService,
+        ILogger<EpisodesController> logger)
     {
         _episodeService = episodeService;
         _seriesRepository = seriesRepository;
         _episodesRepository = episodesRepository;
         _fileUploadService = fileUploadService;
+        _logger = logger;
     }
 
     [HttpGet("episodes/{episodeId}")]
@@ -63,12 +67,19 @@ public class EpisodesController : ControllerBase
     {
         try
         {
+            _logger.LogInformation("Creating new podcast episode. SeriesId: {SeriesId}, Title: {Title}", request.SeriesId, request.Title);
+            _logger.LogInformation("Files received - AudioFile: {HasAudio}, VideoFile: {HasVideo}, ImageFiles: {ImageCount}", 
+                request.AudioFile != null, request.VideoFile != null, request.ImageFiles?.Count ?? 0);
+
             // Get series information for file upload
             var series = await _seriesRepository.GetPodcastSeriesByIdAsync(request.SeriesId);
             if (series == null)
             {
+                _logger.LogWarning("Series not found. SeriesId: {SeriesId}", request.SeriesId);
                 return BadRequest(new { message = "Series not found" });
             }
+
+            _logger.LogInformation("Series found. Title: {SeriesTitle}", series.Title);
 
             var content = new EpisodeContent();
 
@@ -77,68 +88,110 @@ public class EpisodesController : ControllerBase
             int baseSequenceNumber = maxSeq + 1;
             int currentSequenceNumber = baseSequenceNumber;
 
+            _logger.LogInformation("Starting sequence number: {SequenceNumber}", baseSequenceNumber);
+
             // Upload audio file if provided
             if (request.AudioFile != null && request.AudioFile.Length > 0)
             {
-
-                string audioUrl = await _fileUploadService.UploadFileAsync(
-                    request.AudioFile,
-                    "podcast-episode",
-                    series.Title,
-                    request.Title,
-                    currentSequenceNumber++
-                );
-                content.Audio = audioUrl;
+                _logger.LogInformation("Uploading audio file. FileName: {FileName}, Size: {Size} bytes", 
+                    request.AudioFile.FileName, request.AudioFile.Length);
+                
+                try
+                {
+                    string audioUrl = await _fileUploadService.UploadFileAsync(
+                        request.AudioFile,
+                        "podcast-episode",
+                        series.Title,
+                        request.Title,
+                        currentSequenceNumber++
+                    );
+                    content.Audio = audioUrl;
+                    _logger.LogInformation("Audio file uploaded successfully. URL: {AudioUrl}", audioUrl);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error uploading audio file");
+                    return BadRequest(new { message = $"Error uploading audio file: {ex.Message}" });
+                }
             }
             else if (!string.IsNullOrWhiteSpace(request.AudioUrl))
             {
                 content.Audio = request.AudioUrl;
+                _logger.LogInformation("Using provided audio URL: {AudioUrl}", request.AudioUrl);
             }
 
             // Upload video file if provided
             if (request.VideoFile != null && request.VideoFile.Length > 0)
             {
-                string videoUrl = await _fileUploadService.UploadFileAsync(
-                    request.VideoFile,
-                    "podcast-episode",
-                    series.Title,
-                    request.Title,
-                    currentSequenceNumber++
-                );
-                content.Video = videoUrl;
+                _logger.LogInformation("Uploading video file. FileName: {FileName}, Size: {Size} bytes", 
+                    request.VideoFile.FileName, request.VideoFile.Length);
+                
+                try
+                {
+                    string videoUrl = await _fileUploadService.UploadFileAsync(
+                        request.VideoFile,
+                        "podcast-episode",
+                        series.Title,
+                        request.Title,
+                        currentSequenceNumber++
+                    );
+                    content.Video = videoUrl;
+                    _logger.LogInformation("Video file uploaded successfully. URL: {VideoUrl}", videoUrl);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error uploading video file");
+                    return BadRequest(new { message = $"Error uploading video file: {ex.Message}" });
+                }
             }
             else if (!string.IsNullOrWhiteSpace(request.VideoUrl))
             {
                 content.Video = request.VideoUrl;
+                _logger.LogInformation("Using provided video URL: {VideoUrl}", request.VideoUrl);
             }
 
             // Upload image files if provided
             if (request.ImageFiles != null && request.ImageFiles.Count > 0)
             {
+                _logger.LogInformation("Uploading {Count} image files", request.ImageFiles.Count);
                 var imageUrls = new List<string>();
                 for (int i = 0; i < request.ImageFiles.Count; i++)
                 {
                     var imageFile = request.ImageFiles[i];
                     if (imageFile != null && imageFile.Length > 0)
                     {
-                        string imageUrl = await _fileUploadService.UploadFileAsync(
-                            imageFile,
-                            "podcast-episode",
-                            series.Title,
-                            request.Title,
-                            currentSequenceNumber++
-                        );
-                        imageUrls.Add(imageUrl);
+                        _logger.LogInformation("Uploading image file {Index}. FileName: {FileName}, Size: {Size} bytes", 
+                            i + 1, imageFile.FileName, imageFile.Length);
+                        
+                        try
+                        {
+                            string imageUrl = await _fileUploadService.UploadFileAsync(
+                                imageFile,
+                                "podcast-episode",
+                                series.Title,
+                                request.Title,
+                                currentSequenceNumber++
+                            );
+                            imageUrls.Add(imageUrl);
+                            _logger.LogInformation("Image file {Index} uploaded successfully. URL: {ImageUrl}", i + 1, imageUrl);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error uploading image file {Index}", i + 1);
+                            return BadRequest(new { message = $"Error uploading image file {i + 1}: {ex.Message}" });
+                        }
                     }
                 }
                 if (imageUrls.Count > 0)
                 {
                     content.Images = imageUrls;
+                    _logger.LogInformation("All {Count} image files uploaded successfully", imageUrls.Count);
                 }
             }
             else if (request.ImageUrls != null && request.ImageUrls.Count > 0)
             {
                 content.Images = request.ImageUrls;
+                _logger.LogInformation("Using provided image URLs. Count: {Count}", request.ImageUrls.Count);
             }
             else if (!string.IsNullOrWhiteSpace(request.ImageUrlsJson))
             {
@@ -148,13 +201,18 @@ public class EpisodesController : ControllerBase
                     if (imageUrlList != null && imageUrlList.Count > 0)
                     {
                         content.Images = imageUrlList;
+                        _logger.LogInformation("Using image URLs from JSON. Count: {Count}", imageUrlList.Count);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _logger.LogWarning(ex, "Failed to parse ImageUrlsJson");
                     // Ignore JSON parse errors
                 }
             }
+
+            _logger.LogInformation("Content prepared - Audio: {HasAudio}, Video: {HasVideo}, Images: {ImageCount}", 
+                !string.IsNullOrWhiteSpace(content.Audio), !string.IsNullOrWhiteSpace(content.Video), content.Images?.Count ?? 0);
 
             // Create the episode request
             var createRequest = new CreatePodcastEpisodeRequest
@@ -168,11 +226,14 @@ public class EpisodesController : ControllerBase
             };
 
             var episode = await _episodeService.CreatePodcastEpisodeAsync(createRequest);
+            _logger.LogInformation("Episode created successfully. EpisodeId: {EpisodeId}", episode.EpisodesId);
+            
             return Ok(episode);
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = ex.Message });
+            _logger.LogError(ex, "Error creating podcast episode");
+            return BadRequest(new { message = ex.Message, details = ex.ToString() });
         }
     }
 

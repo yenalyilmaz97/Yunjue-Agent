@@ -104,11 +104,17 @@ const EpisodeCreateEditPage = () => {
           setValue('content.video', '', { shouldDirty: true })
           setValue('content.audio', '', { shouldDirty: true })
         } else if (fileType === 'image') {
-          // Multiple images allowed
-          setUploadedFiles((prev) => ({
-            ...prev,
-            images: [...prev.images, fileObj],
-          }))
+          // Multiple images allowed - check if file already exists
+          setUploadedFiles((prev) => {
+            const exists = prev.images.some(img => img.name === fileObj.name && img.size === fileObj.size)
+            if (exists) {
+              return prev
+            }
+            return {
+              ...prev,
+              images: [...prev.images, fileObj],
+            }
+          })
         }
       })
     }
@@ -133,56 +139,67 @@ const EpisodeCreateEditPage = () => {
   }, [isEdit, editItem, reset])
 
   const onSubmit = handleSubmit(async (data) => {
-    // Validation: At least one content type must be provided
-    if (!uploadedFiles.audio && !uploadedFiles.video && uploadedFiles.images.length === 0) {
-      alert('Please upload at least one content file (audio, video, or image)')
-      return
-    }
-    
-    // Determine isVideo based on content - if video exists, it's a video episode
-    const isVideo = !!uploadedFiles.video
-    
-    if (isEdit && editItem) {
-      // For edit, use existing content URLs
-      const content = editItem.content || { audio: editItem.audioLink || '', video: '', images: [] }
-      await podcastService.updateEpisode(editItem.episodesId, {
-        seriesId: data.seriesId,
-        title: data.title,
-        description: data.description,
-        content: content,
-        sequenceNumber: editItem.sequenceNumber,
-        isActive: data.isActive,
-        isVideo: isVideo,
-      })
-    } else {
-      // Create FormData for file upload
-      const formData = new FormData()
-      formData.append('seriesId', data.seriesId.toString())
-      formData.append('title', data.title)
-      if (data.description) {
-        formData.append('description', data.description)
+    try {
+      // Validation: At least one content type must be provided
+      if (!uploadedFiles.audio && !uploadedFiles.video && uploadedFiles.images.length === 0) {
+        alert('Please upload at least one content file (audio, video, or image)')
+        return
       }
-      formData.append('isActive', data.isActive.toString())
-      formData.append('isVideo', isVideo.toString())
-
-      // Add files
-      if (uploadedFiles.audio) {
-        formData.append('audioFile', uploadedFiles.audio)
-      }
-
-      if (uploadedFiles.video) {
-        formData.append('videoFile', uploadedFiles.video)
-      }
-
-      if (uploadedFiles.images.length > 0) {
-        uploadedFiles.images.forEach((file) => {
-          formData.append('imageFiles', file)
+      
+      // Determine isVideo based on content - if video exists, it's a video episode
+      const isVideo = !!uploadedFiles.video
+      
+      if (isEdit && editItem) {
+        // For edit, use existing content URLs
+        const content = editItem.content || { audio: editItem.audioLink || '', video: '', images: [] }
+        await podcastService.updateEpisode(editItem.episodesId, {
+          seriesId: data.seriesId,
+          title: data.title,
+          description: data.description,
+          content: content,
+          sequenceNumber: editItem.sequenceNumber,
+          isActive: data.isActive,
+          isVideo: isVideo,
         })
-      }
+      } else {
+        // Create FormData for file upload
+        const formData = new FormData()
+        formData.append('seriesId', data.seriesId.toString())
+        formData.append('title', data.title)
+        if (data.description) {
+          formData.append('description', data.description)
+        }
+        formData.append('isActive', data.isActive.toString())
+        formData.append('isVideo', isVideo.toString())
 
-      await podcastService.createEpisodeWithFiles(formData)
+        // Add files
+        if (uploadedFiles.audio) {
+          formData.append('audioFile', uploadedFiles.audio)
+          console.log('Adding audio file:', uploadedFiles.audio.name, 'Size:', uploadedFiles.audio.size)
+        }
+
+        if (uploadedFiles.video) {
+          formData.append('videoFile', uploadedFiles.video)
+          console.log('Adding video file:', uploadedFiles.video.name, 'Size:', uploadedFiles.video.size)
+        }
+
+        if (uploadedFiles.images.length > 0) {
+          uploadedFiles.images.forEach((file, index) => {
+            formData.append('imageFiles', file)
+            console.log(`Adding image file ${index + 1}:`, file.name, 'Size:', file.size)
+          })
+        }
+
+        console.log('Submitting episode with files...')
+        const result = await podcastService.createEpisodeWithFiles(formData)
+        console.log('Episode created successfully:', result)
+      }
+      navigate('/admin/podcasts/episodes')
+    } catch (error: any) {
+      console.error('Error creating/updating episode:', error)
+      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred while creating the episode'
+      alert(`Error: ${errorMessage}`)
     }
-    navigate('/admin/podcasts/episodes')
   })
 
   return (
@@ -238,6 +255,21 @@ const EpisodeCreateEditPage = () => {
                   iconProps={{ icon: 'bx:cloud-upload', height: 36, width: 36 }}
                   showPreview={true}
                   onFileUpload={handleFileUpload}
+                  onFileRemove={(file) => {
+                    const fileObj = file as File
+                    const fileType = getFileType(fileObj.name)
+                    
+                    if (fileType === 'audio') {
+                      setUploadedFiles((prev) => ({ ...prev, audio: null }))
+                    } else if (fileType === 'video') {
+                      setUploadedFiles((prev) => ({ ...prev, video: null }))
+                    } else if (fileType === 'image') {
+                      setUploadedFiles((prev) => ({
+                        ...prev,
+                        images: prev.images.filter((img) => !(img.name === fileObj.name && img.size === fileObj.size && img.lastModified === fileObj.lastModified))
+                      }))
+                    }
+                  }}
                   accept={{ 
                     'audio/*': ['.mp3', '.wav', '.ogg', '.m4a', '.aac', '.flac', '.wma'],
                     'video/*': ['.mp4', '.webm', '.ogg', '.mov', '.avi', '.mkv', '.flv', '.wmv'],
@@ -246,67 +278,6 @@ const EpisodeCreateEditPage = () => {
                   maxFiles={10}
                   className="mb-3"
                 />
-
-                {/* Selected Files Preview */}
-                {(uploadedFiles.audio || uploadedFiles.video || uploadedFiles.images.length > 0) && (
-                  <div className="alert alert-info">
-                    <strong>Selected files:</strong>
-                    {uploadedFiles.audio && (
-                      <div className="mt-2">
-                        <strong>Audio:</strong> {uploadedFiles.audio.name} ({(uploadedFiles.audio.size / 1024 / 1024).toFixed(2)} MB)
-                        <Button
-                          type="button"
-                          variant="link"
-                          size="sm"
-                          className="ms-2"
-                          onClick={() => setUploadedFiles((prev) => ({ ...prev, audio: null }))}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    )}
-                    {uploadedFiles.video && (
-                      <div className="mt-2">
-                        <strong>Video:</strong> {uploadedFiles.video.name} ({(uploadedFiles.video.size / 1024 / 1024).toFixed(2)} MB)
-                        <Button
-                          type="button"
-                          variant="link"
-                          size="sm"
-                          className="ms-2"
-                          onClick={() => setUploadedFiles((prev) => ({ ...prev, video: null }))}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    )}
-                    {uploadedFiles.images.length > 0 && (
-                      <div className="mt-2">
-                        <strong>Images ({uploadedFiles.images.length}):</strong>
-                        <ul className="mb-0 mt-2">
-                          {uploadedFiles.images.map((file, idx) => (
-                            <li key={idx}>
-                              {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                              <Button
-                                type="button"
-                                variant="link"
-                                size="sm"
-                                className="ms-2"
-                                onClick={() => {
-                                  setUploadedFiles((prev) => ({
-                                    ...prev,
-                                    images: prev.images.filter((_, i) => i !== idx),
-                                  }))
-                                }}
-                              >
-                                Remove
-                              </Button>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                )}
               </Col>
             </Row>
             <div className="d-flex justify-content-end gap-2 mt-3">

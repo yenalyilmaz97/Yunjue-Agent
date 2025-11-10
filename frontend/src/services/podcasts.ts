@@ -56,9 +56,8 @@ export const podcastService = {
   },
 
   async createEpisodeWithFiles(formData: FormData): Promise<PodcastEpisode> {
-    return api.post<PodcastEpisode>(`${EPISODES_ENDPOINT}/episodes`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
+    // Content-Type will be automatically set by axios interceptor for FormData
+    return api.post<PodcastEpisode>(`${EPISODES_ENDPOINT}/episodes`, formData)
   },
   async updateEpisode(id: number, episodeData: Omit<EditPodcastEpisodeRequest, 'episodeId'>): Promise<PodcastEpisode> {
     const updateData: EditPodcastEpisodeRequest = { episodeId: id, ...episodeData }

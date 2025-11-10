@@ -7,8 +7,26 @@ using KeciApp.API.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Serilog for file logging
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", LogEventLevel.Information)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File(
+        Path.Combine(builder.Environment.ContentRootPath, "logs", "app-.log"),
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 7,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -98,6 +116,7 @@ builder.Services.AddScoped<IAphorismsService, AphorismsService>();
 builder.Services.AddScoped<IAffirmationsService, AffirmationService>();
 builder.Services.AddScoped<IDailyContentService, DailyContentService>();
 builder.Services.AddScoped<IWeeklyQuestionAnswerService, WeeklyQuestionAnswerService>();
+builder.Services.AddScoped<ICdnUploadService, CdnUploadService>();
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 
 // Add AutoMapper
@@ -153,4 +172,16 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+try
+{
+    Log.Information("Starting KeciApp API");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

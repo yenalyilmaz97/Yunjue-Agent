@@ -35,6 +35,7 @@ export type DropzoneFormInputProps = {
   text?: string
   textClassName?: string
   onFileUpload?: (files: UploadFileType[]) => void
+  onFileRemove?: (file: UploadFileType) => void
   accept?: { [key: string]: string[] }
   maxFiles?: number
 }

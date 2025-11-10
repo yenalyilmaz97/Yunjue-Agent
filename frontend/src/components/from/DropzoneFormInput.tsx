@@ -16,10 +16,18 @@ const DropzoneFormInput = ({
   text,
   textClassName,
   onFileUpload,
+  onFileRemove,
   accept,
   maxFiles = 5,
 }: DropzoneFormInputProps) => {
   const { selectedFiles, handleAcceptedFiles, removeFile } = useFileUploader(showPreview)
+  
+  const handleRemoveFile = (file: any) => {
+    removeFile(file)
+    if (onFileRemove) {
+      onFileRemove(file)
+    }
+  }
   return (
     <>
       {label && <FormLabel className={labelClassName}>{label}</FormLabel>}
@@ -65,7 +73,7 @@ const DropzoneFormInput = ({
                           <Col className="text-end">
                             <Link to="" className="btn btn-link btn-lg text-muted shadow-none">
                               <div className="flex-shrink-0 ms-3">
-                            <button type="button" data-dz-remove className="btn btn-sm btn-primary" onClick={() => removeFile(file)}>
+                            <button type="button" data-dz-remove className="btn btn-sm btn-primary" onClick={() => handleRemoveFile(file)}>
                                   Delete
                                 </button>
                               </div>

@@ -2,17 +2,29 @@
 using KeciApp.API.Models;
 using KeciApp.API.DTOs;
 using KeciApp.API.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace KeciApp.API.Services;
 public class ArticleService : IArticleService
 {
     private readonly IArticleRepository _articleRepository;
+    private readonly IFileUploadService _fileUploadService;
+    private readonly ICdnUploadService _cdnUploadService;
     private readonly IMapper _mapper;
+    private readonly ILogger<ArticleService> _logger;
 
-    public ArticleService(IArticleRepository articleRepository, IMapper mapper)
+    public ArticleService(
+        IArticleRepository articleRepository, 
+        IFileUploadService fileUploadService,
+        ICdnUploadService cdnUploadService,
+        IMapper mapper,
+        ILogger<ArticleService> logger)
     {
         _articleRepository = articleRepository;
+        _fileUploadService = fileUploadService;
+        _cdnUploadService = cdnUploadService;
         _mapper = mapper;
+        _logger = logger;
     }
     public async Task<IEnumerable<ArticleResponseDTO>> GetAllArticlesAsync(bool onlyActive = true)
     {
@@ -62,6 +74,39 @@ public class ArticleService : IArticleService
         {
             throw new InvalidOperationException("Article not found");
         }
+
+        // Generate slug for folder deletion
+        string titleSlug = _fileUploadService.GenerateSlug(article.Title);
+
+        // Delete PDF file from CDN before removing article
+        if (!string.IsNullOrWhiteSpace(article.PdfLink))
+        {
+            try
+            {
+                await _fileUploadService.DeleteFileAsync(article.PdfLink);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting PDF file for article {ArticleId}. Article will still be removed from database.", articleId);
+                // Continue with article deletion even if file deletion fails
+            }
+        }
+
+        // Delete article folder from CDN (article/{titleSlug}/)
+        if (!string.IsNullOrWhiteSpace(titleSlug))
+        {
+            try
+            {
+                string articleFolderPath = $"article/{titleSlug}";
+                await _cdnUploadService.DeleteDirectoryAsync(articleFolderPath);
+            }
+            catch (Exception folderEx)
+            {
+                _logger.LogError(folderEx, "Error deleting article folder for article {ArticleId}", articleId);
+                // Continue with article deletion even if folder deletion fails
+            }
+        }
+
         await _articleRepository.RemoveArticleAsync(article);
         return _mapper.Map<ArticleResponseDTO>(article);
     }
