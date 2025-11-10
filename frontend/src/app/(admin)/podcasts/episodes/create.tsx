@@ -7,10 +7,11 @@ import SeriesSelect from './SeriesSelect'
 import { useLocation, useNavigate } from 'react-router-dom'
 import TextFormInput from '@/components/from/TextFormInput'
 import TextAreaFormInput from '@/components/from/TextAreaFormInput'
-import ContentUploader from '@/components/ContentUploader'
+import DropzoneFormInput from '@/components/from/DropzoneFormInput'
 import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
+import type { UploadFileType } from '@/types/component-props'
 
 type FormFields = {
   seriesId: number
@@ -35,7 +36,7 @@ const EpisodeCreateEditPage = () => {
     isActive: yup.boolean().required(),
   })
 
-  const { control, handleSubmit, reset, formState, watch, setValue } = useForm<FormFields>({
+  const { control, handleSubmit, reset, formState, setValue } = useForm<FormFields>({
     resolver: yupResolver(schema),
     defaultValues: {
       seriesId: undefined as unknown as number,
@@ -49,22 +50,70 @@ const EpisodeCreateEditPage = () => {
   const state = (location.state as any) || {}
   const isEdit = state.mode === 'edit'
   const editItem = state.item
-  const formContent = watch('content')
-  const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [uploadedFiles, setUploadedFiles] = useState<{
+    audio: File | null
+    video: File | null
+    images: File[]
+  }>({
+    audio: null,
+    video: null,
+    images: [],
+  })
 
-  const handleUploadComplete = (type: 'audio' | 'video' | 'image', url: string) => {
-    if (type === 'audio') {
-      setValue('content.audio', url, { shouldDirty: true })
-      // Clear video if audio is uploaded
-      setValue('content.video', '', { shouldDirty: true })
-    } else if (type === 'video') {
-      setValue('content.video', url, { shouldDirty: true })
-      // Clear audio if video is uploaded
-      setValue('content.audio', '', { shouldDirty: true })
-    } else if (type === 'image') {
-      setImageUrls((prev) => [...prev, url])
+  const getFileType = (fileName: string): 'audio' | 'video' | 'image' | null => {
+    const ext = fileName.toLowerCase().split('.').pop()
+    if (!ext) return null
+
+    const audioExts = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac', 'wma']
+    const videoExts = ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv', 'flv', 'wmv']
+    const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp']
+
+    if (audioExts.includes(ext)) return 'audio'
+    if (videoExts.includes(ext)) return 'video'
+    if (imageExts.includes(ext)) return 'image'
+    return null
+  }
+
+  const handleFileUpload = (files: UploadFileType[]) => {
+    if (files && files.length > 0) {
+      files.forEach((file) => {
+        const fileObj = file as File
+        const fileType = getFileType(fileObj.name)
+
+        if (!fileType) {
+          alert(`Unsupported file type: ${fileObj.name}. Please upload audio, video, or image files.`)
+          return
+        }
+
+        if (fileType === 'audio') {
+          // Only one audio file allowed, clear video if audio is set
+          setUploadedFiles((prev) => ({
+            ...prev,
+            audio: fileObj,
+            video: null,
+          }))
+          setValue('content.audio', '', { shouldDirty: true })
+          setValue('content.video', '', { shouldDirty: true })
+        } else if (fileType === 'video') {
+          // Only one video file allowed, clear audio if video is set
+          setUploadedFiles((prev) => ({
+            ...prev,
+            video: fileObj,
+            audio: null,
+          }))
+          setValue('content.video', '', { shouldDirty: true })
+          setValue('content.audio', '', { shouldDirty: true })
+        } else if (fileType === 'image') {
+          // Multiple images allowed
+          setUploadedFiles((prev) => ({
+            ...prev,
+            images: [...prev.images, fileObj],
+          }))
+        }
+      })
     }
   }
+
 
   useEffect(() => {
     if (isEdit && editItem) {
@@ -80,45 +129,58 @@ const EpisodeCreateEditPage = () => {
         },
         isActive: !!editItem.isActive,
       })
-      setImageUrls(content.images || [])
     }
   }, [isEdit, editItem, reset])
 
   const onSubmit = handleSubmit(async (data) => {
-    const filteredImages = imageUrls.filter(url => url && url.trim())
-    const contentWithImages: EpisodeContent = {
-      ...data.content,
-      images: filteredImages.length > 0 ? filteredImages : undefined,
-    }
-    
     // Validation: At least one content type must be provided
-    if (!contentWithImages.audio && !contentWithImages.video && (!contentWithImages.images || contentWithImages.images.length === 0)) {
-      alert('Please upload at least one content (audio, video, or image)')
+    if (!uploadedFiles.audio && !uploadedFiles.video && uploadedFiles.images.length === 0) {
+      alert('Please upload at least one content file (audio, video, or image)')
       return
     }
     
     // Determine isVideo based on content - if video exists, it's a video episode
-    const isVideo = !!contentWithImages.video
+    const isVideo = !!uploadedFiles.video
     
     if (isEdit && editItem) {
+      // For edit, use existing content URLs
+      const content = editItem.content || { audio: editItem.audioLink || '', video: '', images: [] }
       await podcastService.updateEpisode(editItem.episodesId, {
         seriesId: data.seriesId,
         title: data.title,
         description: data.description,
-        content: contentWithImages,
+        content: content,
         sequenceNumber: editItem.sequenceNumber,
         isActive: data.isActive,
         isVideo: isVideo,
       })
     } else {
-      await podcastService.createEpisode({
-        seriesId: data.seriesId,
-        title: data.title,
-        description: data.description,
-        content: contentWithImages,
-        isActive: data.isActive,
-        isVideo: isVideo,
-      })
+      // Create FormData for file upload
+      const formData = new FormData()
+      formData.append('seriesId', data.seriesId.toString())
+      formData.append('title', data.title)
+      if (data.description) {
+        formData.append('description', data.description)
+      }
+      formData.append('isActive', data.isActive.toString())
+      formData.append('isVideo', isVideo.toString())
+
+      // Add files
+      if (uploadedFiles.audio) {
+        formData.append('audioFile', uploadedFiles.audio)
+      }
+
+      if (uploadedFiles.video) {
+        formData.append('videoFile', uploadedFiles.video)
+      }
+
+      if (uploadedFiles.images.length > 0) {
+        uploadedFiles.images.forEach((file) => {
+          formData.append('imageFiles', file)
+        })
+      }
+
+      await podcastService.createEpisodeWithFiles(formData)
     }
     navigate('/admin/podcasts/episodes')
   })
@@ -162,65 +224,90 @@ const EpisodeCreateEditPage = () => {
               </Col>
               <Col md={12}>
                 <hr />
-                <div className="d-flex align-items-center justify-content-between mb-3">
-                  <h6 className="mb-0">Content</h6>
-                  <ContentUploader onUploadComplete={handleUploadComplete} disabled={isSubmitting} />
-                </div>
-                <p className="text-muted small mb-0">Upload audio, video, or image files. The system will automatically detect the file type.</p>
+                <h6 className="mb-3">Content</h6>
+                <p className="text-muted small mb-3">
+                  {isEdit 
+                    ? 'Upload audio, video, or image files. The system will automatically detect the file type based on extension.'
+                    : 'Upload audio, video, or image files. Files will be automatically categorized and uploaded to CDN.'}
+                </p>
+
+                <DropzoneFormInput
+                  label="Content Files"
+                  text="Drop audio, video, or image files here or click to upload"
+                  helpText="Supported formats: Audio (mp3, wav, ogg, m4a, aac, flac, wma), Video (mp4, webm, ogg, mov, avi, mkv, flv, wmv), Images (jpg, jpeg, png, gif, webp, svg, bmp)"
+                  iconProps={{ icon: 'bx:cloud-upload', height: 36, width: 36 }}
+                  showPreview={true}
+                  onFileUpload={handleFileUpload}
+                  accept={{ 
+                    'audio/*': ['.mp3', '.wav', '.ogg', '.m4a', '.aac', '.flac', '.wma'],
+                    'video/*': ['.mp4', '.webm', '.ogg', '.mov', '.avi', '.mkv', '.flv', '.wmv'],
+                    'image/*': ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp']
+                  }}
+                  maxFiles={10}
+                  className="mb-3"
+                />
+
+                {/* Selected Files Preview */}
+                {(uploadedFiles.audio || uploadedFiles.video || uploadedFiles.images.length > 0) && (
+                  <div className="alert alert-info">
+                    <strong>Selected files:</strong>
+                    {uploadedFiles.audio && (
+                      <div className="mt-2">
+                        <strong>Audio:</strong> {uploadedFiles.audio.name} ({(uploadedFiles.audio.size / 1024 / 1024).toFixed(2)} MB)
+                        <Button
+                          type="button"
+                          variant="link"
+                          size="sm"
+                          className="ms-2"
+                          onClick={() => setUploadedFiles((prev) => ({ ...prev, audio: null }))}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    )}
+                    {uploadedFiles.video && (
+                      <div className="mt-2">
+                        <strong>Video:</strong> {uploadedFiles.video.name} ({(uploadedFiles.video.size / 1024 / 1024).toFixed(2)} MB)
+                        <Button
+                          type="button"
+                          variant="link"
+                          size="sm"
+                          className="ms-2"
+                          onClick={() => setUploadedFiles((prev) => ({ ...prev, video: null }))}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    )}
+                    {uploadedFiles.images.length > 0 && (
+                      <div className="mt-2">
+                        <strong>Images ({uploadedFiles.images.length}):</strong>
+                        <ul className="mb-0 mt-2">
+                          {uploadedFiles.images.map((file, idx) => (
+                            <li key={idx}>
+                              {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                              <Button
+                                type="button"
+                                variant="link"
+                                size="sm"
+                                className="ms-2"
+                                onClick={() => {
+                                  setUploadedFiles((prev) => ({
+                                    ...prev,
+                                    images: prev.images.filter((_, i) => i !== idx),
+                                  }))
+                                }}
+                              >
+                                Remove
+                              </Button>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
               </Col>
-              {/* Preview Section */}
-              {(formContent?.audio || formContent?.video || imageUrls.filter(img => img && img.trim()).length > 0) && (
-                <Col md={12}>
-                  <hr />
-                  <h6 className="mb-3">Preview</h6>
-                  {formContent?.video ? (
-                    <div className="ratio ratio-16x9 border rounded overflow-hidden mb-3">
-                      <video style={{ width: '100%', height: '100%' }} controls src={formContent.video} />
-                    </div>
-                  ) : formContent?.audio ? (
-                    <div className="border rounded p-2 mb-3">
-                      <audio style={{ width: '100%' }} controls src={formContent.audio} />
-                    </div>
-                  ) : null}
-                  {imageUrls.filter(img => img && img.trim()).length > 0 && (
-                    <div className="row g-2">
-                      {imageUrls.filter(img => img && img.trim()).map((img, idx) => (
-                        <div key={idx} className="col-md-4 col-sm-6">
-                          <div className="border rounded p-2 position-relative">
-                            <img
-                              src={img}
-                              alt={`Image ${idx + 1}`}
-                              className="img-fluid rounded"
-                              style={{ maxHeight: '200px', objectFit: 'contain', width: '100%' }}
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement
-                                target.style.display = 'none'
-                                const parent = target.parentElement
-                                if (parent) {
-                                  parent.innerHTML = `<div class="text-muted text-center p-3">Invalid image URL</div>`
-                                }
-                              }}
-                            />
-                            <Button
-                              type="button"
-                              variant="outline-danger"
-                              size="sm"
-                              className="position-absolute top-0 end-0 m-2"
-                              onClick={() => {
-                                const newUrls = imageUrls.filter((_, i) => i !== idx)
-                                setImageUrls(newUrls)
-                              }}
-                              style={{ zIndex: 10 }}
-                            >
-                              ×
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </Col>
-              )}
             </Row>
             <div className="d-flex justify-content-end gap-2 mt-3">
               <Button type="button" variant="light" onClick={() => navigate('/admin/podcasts/episodes')}>Cancel</Button>

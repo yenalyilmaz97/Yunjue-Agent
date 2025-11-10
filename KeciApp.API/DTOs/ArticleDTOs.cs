@@ -38,3 +38,17 @@ public class ArticleResponseDTO
     public DateTime UpdatedAt { get; set; }
 }
 
+// Request DTO for file upload support
+public class CreateArticleWithFileRequest
+{
+    [Required]
+    [StringLength(200)]
+    public string Title { get; set; }
+
+    public string? PdfLink { get; set; } // Optional if PdfFile is provided
+
+    public IFormFile? PdfFile { get; set; } // Optional if PdfLink is provided
+
+    public bool isActive { get; set; }
+}
+

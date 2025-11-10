@@ -5,7 +5,8 @@ import { contentService } from '@/services'
 type ContentType = 'audio' | 'video' | 'image'
 
 interface ContentUploaderProps {
-  onUploadComplete: (type: ContentType, url: string) => void
+  onUploadComplete?: (type: ContentType, url: string) => void
+  onFileSelect?: (type: ContentType, file: File) => void
   disabled?: boolean
 }
 
@@ -23,11 +24,11 @@ const getFileType = (fileName: string): ContentType | null => {
   return null
 }
 
-const ContentUploader = ({ onUploadComplete, disabled = false }: ContentUploaderProps) => {
+const ContentUploader = ({ onUploadComplete, onFileSelect, disabled = false }: ContentUploaderProps) => {
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelectChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -37,18 +38,30 @@ const ContentUploader = ({ onUploadComplete, disabled = false }: ContentUploader
       return
     }
 
-    setUploading(true)
-    try {
-      const { url } = await contentService.postArticleAsset(file)
-      onUploadComplete(fileType, url)
-    } catch (error) {
-      console.error('Upload error:', error)
-      alert('Failed to upload file. Please try again.')
-    } finally {
-      setUploading(false)
-      // Reset input so same file can be selected again
+    // If onFileSelect is provided, use it (for direct file upload)
+    if (onFileSelect) {
+      onFileSelect(fileType, file)
       if (e.target) {
         e.target.value = ''
+      }
+      return
+    }
+
+    // Otherwise, upload to server and get URL
+    if (onUploadComplete) {
+      setUploading(true)
+      try {
+        const { url } = await contentService.postArticleAsset(file)
+        onUploadComplete(fileType, url)
+      } catch (error) {
+        console.error('Upload error:', error)
+        alert('Failed to upload file. Please try again.')
+      } finally {
+        setUploading(false)
+        // Reset input so same file can be selected again
+        if (e.target) {
+          e.target.value = ''
+        }
       }
     }
   }
@@ -60,7 +73,7 @@ const ContentUploader = ({ onUploadComplete, disabled = false }: ContentUploader
         type="file"
         className="d-none"
         accept="audio/*,video/*,image/*"
-        onChange={handleFileSelect}
+        onChange={handleFileSelectChange}
         disabled={disabled || uploading}
       />
       <Button

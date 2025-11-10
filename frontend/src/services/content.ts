@@ -153,6 +153,12 @@ export const contentService = {
 		return api.post<Article>(`${ARTICLE_ENDPOINT}/articles`, payload)
 	},
 
+	async createArticleWithFile(formData: FormData): Promise<Article> {
+		return api.post<Article>(`${ARTICLE_ENDPOINT}/articles`, formData, {
+			headers: { 'Content-Type': 'multipart/form-data' },
+		})
+	},
+
 	async updateArticle(payload: EditArticleRequest): Promise<Article> {
 		return api.put<Article>(`${ARTICLE_ENDPOINT}/articles`, payload)
 	},

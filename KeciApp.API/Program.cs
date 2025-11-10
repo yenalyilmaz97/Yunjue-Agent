@@ -98,6 +98,7 @@ builder.Services.AddScoped<IAphorismsService, AphorismsService>();
 builder.Services.AddScoped<IAffirmationsService, AffirmationService>();
 builder.Services.AddScoped<IDailyContentService, DailyContentService>();
 builder.Services.AddScoped<IWeeklyQuestionAnswerService, WeeklyQuestionAnswerService>();
+builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

@@ -35,6 +35,8 @@ export type DropzoneFormInputProps = {
   text?: string
   textClassName?: string
   onFileUpload?: (files: UploadFileType[]) => void
+  accept?: { [key: string]: string[] }
+  maxFiles?: number
 }
 
 export type CalendarFormType = {

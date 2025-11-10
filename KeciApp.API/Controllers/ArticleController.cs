@@ -3,6 +3,7 @@ using KeciApp.API.DTOs;
 using KeciApp.API.Services;
 using KeciApp.API.Attributes;
 using KeciApp.API.Interfaces;
+using Microsoft.AspNetCore.Http;
 
 namespace KeciApp.API.Controllers;
 
@@ -71,11 +72,38 @@ public class ArticleController : ControllerBase
     // Articles - Admin
     [HttpPost("articles")]
     [AuthorizeRoles("admin", "superadmin")]
-    public async Task<ActionResult<ArticleResponseDTO>> CreateArticle([FromBody] CreateArticleRequest request)
+    public async Task<ActionResult<ArticleResponseDTO>> CreateArticle([FromForm] CreateArticleWithFileRequest request)
     {
         try
         {
-            var created = await _articleService.AddArticleAsync(request);
+            var createRequest = new CreateArticleRequest
+            {
+                Title = request.Title,
+                PdfLink = request.PdfLink ?? string.Empty,
+                isActive = request.isActive
+            };
+
+            // If file is provided, upload it first
+            if (request.PdfFile != null && request.PdfFile.Length > 0)
+            {
+                var fileUploadService = HttpContext.RequestServices.GetRequiredService<IFileUploadService>();
+                string cdnUrl = await fileUploadService.UploadFileAsync(
+                    request.PdfFile,
+                    "article",
+                    null, // No series for articles
+                    request.Title,
+                    1 // Default sequence number for articles
+                );
+                createRequest.PdfLink = cdnUrl;
+            }
+
+            // Validate that PdfLink is provided (either from file upload or direct input)
+            if (string.IsNullOrWhiteSpace(createRequest.PdfLink))
+            {
+                return BadRequest(new { message = "PDF file or PDF link is required" });
+            }
+
+            var created = await _articleService.AddArticleAsync(createRequest);
             return Ok(created);
         }
         catch (Exception ex)

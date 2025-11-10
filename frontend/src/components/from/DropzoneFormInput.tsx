@@ -16,13 +16,15 @@ const DropzoneFormInput = ({
   text,
   textClassName,
   onFileUpload,
+  accept,
+  maxFiles = 5,
 }: DropzoneFormInputProps) => {
   const { selectedFiles, handleAcceptedFiles, removeFile } = useFileUploader(showPreview)
   return (
     <>
       {label && <FormLabel className={labelClassName}>{label}</FormLabel>}
 
-      <Dropzone onDrop={(acceptedFiles) => handleAcceptedFiles(acceptedFiles, onFileUpload)} maxFiles={5}>
+      <Dropzone onDrop={(acceptedFiles) => handleAcceptedFiles(acceptedFiles, onFileUpload)} maxFiles={maxFiles} accept={accept}>
         {({ getRootProps, getInputProps }) => (
           <>
             <div className={`dropzone dropzone-custom ${className}`}>
