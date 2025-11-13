@@ -44,7 +44,7 @@ const Service = () => {
         {
             Id:"1",
             sIcon:"fi flaticon-web-design",
-            heading:"Web Design",
+            heading:"Net ve Hızlı Karar Verebilen Bir Zihin",
             Simg1:s1,
             Simg2:s2,
             Simg3:s3,
@@ -53,7 +53,7 @@ const Service = () => {
         {
             Id:"2",
             sIcon:"fi flaticon-laptop",
-            heading:"Web Development",
+            heading:"Otorite Taşıyan Bir Duruş",
             Simg1:d1,
             Simg2:d2,
             Simg3:d3,
@@ -63,7 +63,7 @@ const Service = () => {
         {
             Id:"3",
             sIcon:"fi flaticon-paint-palette",
-            heading:"Creative Design",
+            heading:"Sosyal Ortamlarda Ağırlık Koyma Becerisi",
             Simg1:c1,
             Simg2:c2,
             Simg3:c3,
@@ -72,7 +72,7 @@ const Service = () => {
         {
             Id:"4",
             sIcon:"fi flaticon-smartphone",
-            heading:"Responsive Design",
+            heading:"Stratejik İletişim",
             Simg1:r1,
             Simg2:r2,
             Simg3:r3,
@@ -81,7 +81,7 @@ const Service = () => {
         {
             Id:"5",
             sIcon:"fi flaticon-verified",
-            heading:"Branding Identity",
+            heading:"Kişisel Disiplin",
             Simg1:b1,
             Simg2:b2,
             Simg3:b3,
@@ -90,7 +90,7 @@ const Service = () => {
         {
             Id:"6",
             sIcon:"fi flaticon-operator",
-            heading:"24/Support",
+            heading:"Profesyonel Hayatta Rekabet Gücü",
             Simg1:sp1,
             Simg2:sp2,
             Simg3:sp3,
@@ -104,8 +104,8 @@ const Service = () => {
             <div className="container">
                 <div className="col-l2">
                     <div className="section-title section-title2 text-center">
-                        <span>What I am Expert In</span>
-                        <h2>My Service</h2>
+                        {/* <span>What I am Expert In</span> */}
+                        <h2>Eğitimlerimizde</h2>
                     </div>
                 </div>
                 <div className="row">

@@ -6,31 +6,33 @@ import DefaultModal from '../AboutModal'
 
 const About = (props) => {
 
-    return(
+    return (
         <section id="about" className="tp-about-section">
             <div className="container">
                 <div className="row align-items-center">
                     <div className="col-lg-6 col-md-12 col-12">
                         <div className="tp-about-wrap">
-                        <div className="tp-about-img">
-                            <img src={abimg} alt=""/>
-                        </div>
+                            <div className="tp-about-img">
+                                <img src={abimg} alt="" />
+                            </div>
                         </div>
                     </div>
                     <div className="col-lg-6 col-md-12 col-12">
                         <div className="tp-about-text">
-                        <div className="tp-about-icon">
-                            <i className="fi flaticon-web-design"></i>
-                        </div>
-                        <div className="tp-about-icon-content">
-                            <h2>Professional And Dedicated Creative Designer</h2>
-                            <p>Check out 10 Best Design's updates for the top web design  & development companies for your needs by reviewing our list & development companies! Find the best web design. Web Design Consulting. Comprehensive Directory. Top Reviewed Design Firms. Types: Enterprise Design Firms, Startup Design Firms, Custom Design Firms, eCommerce Design Firms, App Design Firms. Custom Web Solution. 24x7 Customer Support. Secure Payment Gateway. Get A Free Web Quote. 24/7 Chat Support. Services: Web Page Design, Landing Page Design, App development, Mobile Website Design</p>
-                            <div className="signeture">
-                                <span><img src={sign} alt=""/></span>
-                                <p>Ceo Of Designlab IT</p>
+                            <div className="tp-about-icon">
+                                <i className="fi flaticon-web-design"></i>
                             </div>
-                            <DefaultModal buttonClass={'template-btn'}/>
-                        </div>
+                            <div className="tp-about-icon-content">
+                                <h2>Keçiyi Besle, erkeğe zihinsel netlik, stratejik düşünce ve sosyal güç kazandırır.</h2>
+                                <p>Keçiyi Besle, erkeğe zihinsel netlik, stratejik düşünme kapasitesi ve sosyal hayatta gerçek bir avantaj kazandıran kapsamlı bir gelişim sistemidir. Modern dünyada erkekler sürekli dikkat dağıtıcıların, karışık beklentilerin ve zayıflatıcı alışkanlıkların içine sıkışıyor. Biz bu gürültüyü kesip; odaklanmış, disiplinli ve güçlü bir erkeğin nasıl inşa edileceğini adım adım gösteriyoruz.</p>
+                                <br />
+                                <p> Burada amaç yüzeysel motivasyon değil; zihinsel keskinlik, davranışsal güç ve sosyal çevrede etkin bir pozisyon kazanmaktır. Keçiyi Besle, ilişkilerden iş dünyasına kadar hayatın her alanındaki dinamikleri analiz ederek, erkeğe stratejik avantaj sağlayan pratik teknikler sunar.  Her erkek aynı yollardan geçmez; bu yüzden yaklaşımımız kişiye özel, hedef odaklı ve sonuç garantili yöntemlerle ilerler.</p>
+                                <div className="signeture">
+                                    <span><img src={sign} alt="" /></span>
+                                    <p>Ceo Of Designlab IT</p>
+                                </div>
+                                <DefaultModal buttonClass={'template-btn'} />
+                            </div>
                         </div>
                     </div>
                 </div>
