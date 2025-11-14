@@ -8,7 +8,6 @@ const LeftSideBarToggle = () => {
   const {
     menu: { size },
     changeMenu: { size: changeMenuSize },
-    toggleBackdrop,
   } = useLayoutContext()
   const { pathname } = useLocation()
   const { width } = useViewPort()

@@ -1,5 +1,5 @@
 import { GoogleMap, Marker, Polyline, InfoWindow, useLoadScript } from '@react-google-maps/api'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { Card, CardBody, CardHeader, CardTitle, Col, Row } from 'react-bootstrap'
 
 const containerStyle = { width: '100%', height: '400px' }
@@ -40,7 +40,7 @@ const BasicMap = () => {
 }
 
 const MapWithMarkers = () => {
-  const [activeMarker, setActiveMarker] = useState<any>({})
+  const [, setActiveMarker] = useState<any>({})
   const [selectedPlace, setSelectedPlace] = useState<any>({})
   const [showingInfoWindow, setShowingInfoWindow] = useState<boolean>(false)
 
@@ -98,16 +98,14 @@ const MapWithMarkers = () => {
 }
 
 const StreetViewMap = () => {
-  let mapRef: any = useRef()
-
-  const activateStreetView = (position: { lat: number; lng: number }) => {
-    if (mapRef) {
-      const mapObj = mapRef.map.getStreetView()
-      mapObj.setPov({ heading: 34, pitch: 10 })
-      mapObj.setPosition(position)
-      mapObj.setVisible(true)
-    }
-  }
+  // const activateStreetView = (position: { lat: number; lng: number }) => {
+  //   if (mapRef) {
+  //     const mapObj = mapRef.map.getStreetView()
+  //     mapObj.setPov({ heading: 34, pitch: 10 })
+  //     mapObj.setPosition(position)
+  //     mapObj.setVisible(true)
+  //   }
+  // }
 
   return (
     <>
@@ -127,7 +125,6 @@ const StreetViewMap = () => {
                 <div style={{ width: '100%', height: '400px' }}>
                   <GoogleMap
                     onLoad={(map) => {
-                      mapRef = map
                       const sv = map.getStreetView()
                       sv.setPov({ heading: 34, pitch: 10 })
                       sv.setPosition({ lat: 40.7295174, lng: -73.9986496 })

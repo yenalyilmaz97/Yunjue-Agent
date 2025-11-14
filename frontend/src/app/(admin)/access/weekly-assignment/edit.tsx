@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { weeklyService, userService } from '@/services'
+import { weeklyService } from '@/services'
 import type { WeeklyContent } from '@/types/keci'
 import type { User } from '@/types/keci'
 
