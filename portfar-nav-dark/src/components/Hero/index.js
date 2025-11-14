@@ -13,13 +13,13 @@ class Hero extends Component {
                             <div className="row">
                                 <div className="col col-md-10 col-sm-12 slide-caption">
                                     <div className="slide-subtitle">
-                                        <h4>I Am David Miller</h4>
+                                        <h4>Karanlığını yönetmeyi öğrenmeyen adam, başkalarının oyuncağı olur. Burada kontrolü geri alırsın.</h4>
                                     </div>
                                     <div className="slide-title">
-                                        <h2>Creative Designer</h2>
+                                        <h2>Zayıf erkeklerin kaybolduğu yerde, biz güç inşa ediyoruz.</h2>
                                     </div>
                                     <div className="btns">
-                                        <AnchorLink href="#contact" className="template-btn go-contact-area">Contact Me</AnchorLink>
+                                        <AnchorLink href="#contact" className="template-btn go-contact-area">Keçiyi Besle</AnchorLink>
                                     </div>
                                 </div>
                             </div>
