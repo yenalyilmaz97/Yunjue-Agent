@@ -1,0 +1,113 @@
+import { Card, CardBody, Button } from 'react-bootstrap'
+import { Icon } from '@iconify/react'
+import { useState } from 'react'
+
+interface PDFViewerProps {
+  pdfUrl: string
+  title?: string
+  onClose?: () => void
+}
+
+const PDFViewer = ({ pdfUrl, title, onClose }: PDFViewerProps) => {
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+
+  const handleLoad = () => {
+    setLoading(false)
+  }
+
+  const handleError = () => {
+    setLoading(false)
+    setError(true)
+  }
+
+  const handleDownload = () => {
+    window.open(pdfUrl, '_blank')
+  }
+
+  return (
+    <Card className="border-0 shadow-sm">
+      <CardBody className="p-0">
+        <div className="position-relative" style={{ minHeight: '500px', maxHeight: '80vh' }}>
+          {loading && (
+            <div
+              className="position-absolute top-50 start-50 translate-middle"
+              style={{ zIndex: 1 }}
+            >
+              <div className="text-center">
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Yükleniyor...</span>
+                </div>
+                <p className="mt-2 text-muted small">PDF yükleniyor...</p>
+              </div>
+            </div>
+          )}
+
+          {error ? (
+            <div className="d-flex flex-column align-items-center justify-content-center p-5" style={{ minHeight: '500px' }}>
+              <Icon icon="mingcute:file-pdf-line" style={{ fontSize: '4rem', opacity: 0.3 }} className="text-danger mb-3" />
+              <p className="text-muted mb-3">PDF yüklenemedi</p>
+              <div className="d-flex gap-2">
+                <Button variant="outline-primary" size="sm" onClick={handleDownload}>
+                  <Icon icon="mingcute:download-line" className="me-1" />
+                  PDF'i İndir
+                </Button>
+                <Button variant="outline-secondary" size="sm" onClick={() => window.open(pdfUrl, '_blank')}>
+                  <Icon icon="mingcute:external-link-line" className="me-1" />
+                  Yeni Sekmede Aç
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <iframe
+                src={`${pdfUrl}#toolbar=1&navpanes=1&scrollbar=1`}
+                className="w-100 h-100 border-0"
+                style={{ minHeight: '500px', maxHeight: '80vh' }}
+                onLoad={handleLoad}
+                onError={handleError}
+                title={title || 'PDF Viewer'}
+              />
+              <div className="position-absolute top-0 end-0 p-2" style={{ zIndex: 10 }}>
+                <div className="d-flex gap-2">
+                  <Button
+                    variant="light"
+                    size="sm"
+                    onClick={handleDownload}
+                    className="shadow-sm"
+                    title="PDF'i İndir"
+                  >
+                    <Icon icon="mingcute:download-line" />
+                  </Button>
+                  <Button
+                    variant="light"
+                    size="sm"
+                    onClick={() => window.open(pdfUrl, '_blank')}
+                    className="shadow-sm"
+                    title="Yeni Sekmede Aç"
+                  >
+                    <Icon icon="mingcute:external-link-line" />
+                  </Button>
+                  {onClose && (
+                    <Button
+                      variant="light"
+                      size="sm"
+                      onClick={onClose}
+                      className="shadow-sm"
+                      title="Kapat"
+                    >
+                      <Icon icon="mingcute:close-line" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </CardBody>
+    </Card>
+  )
+}
+
+export default PDFViewer
+
