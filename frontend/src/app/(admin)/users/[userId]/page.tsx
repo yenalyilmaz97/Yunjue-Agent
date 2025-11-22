@@ -1,6 +1,6 @@
 import PageTitle from '@/components/PageTitle'
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { userService, favoritesService, notesService, questionsService } from '@/services'
 import type { User, Favorite, Note, Question } from '@/types/keci'
 import { Card, CardBody, CardHeader, CardTitle, Button, Row, Col, Nav, Modal, Form } from 'react-bootstrap'
@@ -14,9 +14,12 @@ import { yupResolver } from '@hookform/resolvers/yup'
 const UserDetailPage = () => {
   const { userId } = useParams<{ userId: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'favorites' | 'notes' | 'questions'>('favorites')
+  const [activeTab, setActiveTab] = useState<'favorites' | 'notes' | 'questions'>(
+    (location.state as { activeTab?: 'favorites' | 'notes' | 'questions' })?.activeTab || 'favorites'
+  )
   const [favorites, setFavorites] = useState<Favorite[]>([])
   const [notes, setNotes] = useState<Note[]>([])
   const [questions, setQuestions] = useState<Question[]>([])
@@ -59,7 +62,13 @@ const UserDetailPage = () => {
       setUser(userData)
       setFavorites(favoritesData)
       setNotes(notesData)
-      setQuestions(questionsData)
+      // Soruları en yeni üstte olacak şekilde sırala
+      const sortedQuestions = [...questionsData].sort((a, b) => {
+        const dateA = new Date(a.createdAt).getTime()
+        const dateB = new Date(b.createdAt).getTime()
+        return dateB - dateA
+      })
+      setQuestions(sortedQuestions)
     } finally {
       setLoading(false)
     }

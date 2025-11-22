@@ -2,7 +2,7 @@ import PageTitle from '@/components/PageTitle'
 import { useEffect, useState, useRef } from 'react'
 import { useAuthContext } from '@/context/useAuthContext'
 import { userSeriesAccessService, podcastService, favoritesService, notesService, questionsService } from '@/services'
-import type { PodcastSeries, PodcastEpisode } from '@/types/keci'
+import type { PodcastSeries, PodcastEpisode, Question } from '@/types/keci'
 import { Card, CardBody, Row, Col, Spinner, Button, Form, Collapse } from 'react-bootstrap'
 import { Icon } from '@iconify/react'
 import { useLocation } from 'react-router-dom'
@@ -28,6 +28,7 @@ const PodcastsPage = () => {
   const [noteText, setNoteText] = useState('')
   const [noteTitle, setNoteTitle] = useState('')
   const [questionText, setQuestionText] = useState('')
+  const [existingQuestion, setExistingQuestion] = useState<Question | null>(null)
   const [noteLoading, setNoteLoading] = useState(false)
   const [questionLoading, setQuestionLoading] = useState(false)
   const [existingNote, setExistingNote] = useState<any>(null)
@@ -220,11 +221,29 @@ const PodcastsPage = () => {
           setNoteTitle('')
           setNoteText('')
         })
+
+      // Mevcut soruyu yükle
+      questionsService
+        .getQuestionByUserAndEpisode(userId, currentEpisode.episodesId)
+        .then((question) => {
+          if (question) {
+            setExistingQuestion(question)
+            setQuestionText(question.questionText || '')
+          } else {
+            setExistingQuestion(null)
+            setQuestionText('')
+          }
+        })
+        .catch(() => {
+          setExistingQuestion(null)
+          setQuestionText('')
+        })
     } else {
       setIsFavorited(false)
       setExistingNote(null)
       setNoteTitle('')
       setNoteText('')
+      setExistingQuestion(null)
       setQuestionText('')
     }
   }, [currentEpisode, user])
@@ -249,6 +268,15 @@ const PodcastsPage = () => {
             noteText: noteText.trim(),
           })
       setExistingNote(savedNote)
+      // Başarı geri bildirimi
+      const successMsg = document.createElement('div')
+      successMsg.className = 'alert alert-success position-fixed'
+      successMsg.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 250px;'
+      successMsg.innerHTML = '<strong>Başarılı!</strong> Not kaydedildi.'
+      document.body.appendChild(successMsg)
+      setTimeout(() => {
+        successMsg.remove()
+      }, 2000)
     } catch (error) {
       console.error('Error saving note:', error)
       alert('Not kaydedilirken bir hata oluştu. Lütfen tekrar deneyin.')
@@ -258,16 +286,17 @@ const PodcastsPage = () => {
   }
 
   const handleSubmitQuestion = async () => {
-    if (!currentEpisode || !user?.id || !questionText.trim()) return
+    if (!currentEpisode || !user?.id || !questionText.trim() || existingQuestion) return
 
     setQuestionLoading(true)
     try {
       const userId = parseInt(user.id)
-      await questionsService.createQuestion({
+      const newQuestion = await questionsService.createQuestion({
         userId,
         episodeId: currentEpisode.episodesId,
         questionText: questionText.trim(),
       })
+      setExistingQuestion(newQuestion)
       setQuestionText('')
       // Başarı geri bildirimi için geçici mesaj göster
       const successMsg = document.createElement('div')
@@ -399,7 +428,7 @@ const PodcastsPage = () => {
     <>
       <PageTitle subName="KeciApp" title="Podcasts" />
       
-      {/* Player/Viewer - Sayfanın üstünde sticky */}
+      {/* Player/Viewer */}
       {currentEpisode && (() => {
         const contentType = getContentType(currentEpisode)
         const getIcon = () => {
@@ -420,8 +449,7 @@ const PodcastsPage = () => {
         return (
           <div
             ref={playerRef}
-            className="sticky-top bg-white shadow-sm border-bottom mb-3 mb-md-4"
-            style={{ zIndex: 1000, top: 0 }}
+            className="bg-white shadow-sm border-bottom mb-3 mb-md-4"
           >
             <Card className="border-0 shadow-none mb-0">
               <CardBody className="p-2 p-md-3">
@@ -555,13 +583,14 @@ const PodcastsPage = () => {
                   {contentType === 'video' && (
                     <video
                       controls
+                      controlsList="nodownload"
                       className="w-100 rounded"
                       style={{ maxHeight: '400px' }}
                       src={getVideoUrl(currentEpisode) || undefined}
                     />
                   )}
                   {contentType === 'audio' && (
-                    <audio controls className="w-100" src={getAudioUrl(currentEpisode) || undefined} />
+                    <audio controls controlsList="nodownload" className="w-100" src={getAudioUrl(currentEpisode) || undefined} />
                   )}
                   {contentType === 'pdf' && (
                     <PDFViewer
@@ -636,10 +665,17 @@ const PodcastsPage = () => {
                                 <h6 className="mb-0 fw-semibold">Notlarım</h6>
                                 {existingNote && (
                                   <span className="badge bg-success ms-auto" style={{ fontSize: '0.7rem' }}>
+                                    <Icon icon="mingcute:check-fill" className="me-1" style={{ fontSize: '0.7rem' }} />
                                     Kaydedildi
                                   </span>
                                 )}
                               </div>
+                              {existingNote && (
+                                <div className="alert alert-info py-2 px-2 mb-2" style={{ fontSize: '0.8rem' }}>
+                                  <Icon icon="mingcute:information-line" className="me-1" style={{ fontSize: '0.875rem' }} />
+                                  Mevcut notunuz düzenlenebilir. Değişiklikler kaydedildiğinde güncellenecektir.
+                                </div>
+                              )}
                               <Form.Group className="mb-2">
                                 <Form.Control
                                   type="text"
@@ -682,12 +718,12 @@ const PodcastsPage = () => {
                                 ) : existingNote ? (
                                   <>
                                     <Icon icon="mingcute:save-line" className="me-1" style={{ fontSize: '1rem' }} />
-                                    Güncelle
+                                    Notu Güncelle
                                   </>
                                 ) : (
                                   <>
                                     <Icon icon="mingcute:save-line" className="me-1" style={{ fontSize: '1rem' }} />
-                                    Kaydet
+                                    Notu Kaydet
                                   </>
                                 )}
                               </Button>
@@ -716,47 +752,94 @@ const PodcastsPage = () => {
                               <div className="d-flex align-items-center gap-2 mb-2">
                                 <Icon icon="mingcute:question-line" className="text-warning" style={{ fontSize: '1.25rem' }} />
                                 <h6 className="mb-0 fw-semibold">Soru Sor</h6>
-                                <span className="badge bg-warning text-dark ms-auto" style={{ fontSize: '0.7rem' }}>
-                                  Admin'e Gönderilir
-                                </span>
-                              </div>
-                              <Form.Group className="mb-2">
-                                <Form.Control
-                                  as="textarea"
-                                  rows={4}
-                                  placeholder="Bu bölüm hakkında sorunuzu yazın. Sorunuz admin'e gönderilecektir..."
-                                  value={questionText}
-                                  onChange={(e) => setQuestionText(e.target.value)}
-                                  style={{
-                                    resize: 'none',
-                                    fontSize: '0.875rem',
-                                    minHeight: '80px',
-                                  }}
-                                />
-                              </Form.Group>
-                              <Button
-                                variant="warning"
-                                size="sm"
-                                onClick={handleSubmitQuestion}
-                                disabled={questionLoading || !questionText.trim()}
-                                className="w-100"
-                                style={{
-                                  transition: 'all 0.2s',
-                                  fontSize: '0.875rem',
-                                }}
-                              >
-                                {questionLoading ? (
-                                  <>
-                                    <Spinner animation="border" size="sm" className="me-2" />
-                                    Gönderiliyor...
-                                  </>
+                                {existingQuestion ? (
+                                  <span className="badge bg-success ms-auto" style={{ fontSize: '0.7rem' }}>
+                                    <Icon icon="mingcute:check-fill" className="me-1" style={{ fontSize: '0.7rem' }} />
+                                    Soru Gönderildi
+                                  </span>
                                 ) : (
-                                  <>
-                                    <Icon icon="mingcute:send-line" className="me-1" style={{ fontSize: '1rem' }} />
-                                    Soruyu Gönder
-                                  </>
+                                  <span className="badge bg-warning text-dark ms-auto" style={{ fontSize: '0.7rem' }}>
+                                    Admin'e Gönderilir
+                                  </span>
                                 )}
-                              </Button>
+                              </div>
+                              {existingQuestion ? (
+                                <>
+                                  <div className="alert alert-info py-2 px-2 mb-2" style={{ fontSize: '0.8rem' }}>
+                                    <Icon icon="mingcute:information-line" className="me-1" style={{ fontSize: '0.875rem' }} />
+                                    Bu bölüm için daha önce soru gönderilmiş. Sorunuz admin tarafından inceleniyor.
+                                  </div>
+                                  <div className="border rounded p-2 bg-light">
+                                    <div className="d-flex align-items-center gap-2 mb-1">
+                                      <Icon icon="mingcute:question-line" className="text-warning" style={{ fontSize: '1rem' }} />
+                                      <span className="fw-semibold small">Gönderilen Soru</span>
+                                      {existingQuestion.createdAt && (
+                                        <span className="text-muted small ms-auto">
+                                          {new Date(existingQuestion.createdAt).toLocaleDateString('tr-TR', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric',
+                                          })}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <p className="text-muted small mb-0" style={{ lineHeight: '1.6', fontSize: '0.875rem' }}>
+                                      {existingQuestion.questionText}
+                                    </p>
+                                    {existingQuestion.isAnswered && existingQuestion.answer && (
+                                      <div className="mt-2 pt-2 border-top">
+                                        <div className="d-flex align-items-center gap-2 mb-1">
+                                          <Icon icon="mingcute:check-fill" className="text-success" style={{ fontSize: '0.875rem' }} />
+                                          <span className="fw-semibold small text-success">Cevap</span>
+                                        </div>
+                                        <p className="text-dark small mb-0" style={{ lineHeight: '1.6', fontSize: '0.875rem' }}>
+                                          {existingQuestion.answer.answerText}
+                                        </p>
+                                      </div>
+                                    )}
+                                  </div>
+                                </>
+                              ) : (
+                                <>
+                                  <Form.Group className="mb-2">
+                                    <Form.Control
+                                      as="textarea"
+                                      rows={4}
+                                      placeholder="Bu bölüm hakkında sorunuzu yazın. Sorunuz admin'e gönderilecektir..."
+                                      value={questionText}
+                                      onChange={(e) => setQuestionText(e.target.value)}
+                                      style={{
+                                        resize: 'none',
+                                        fontSize: '0.875rem',
+                                        minHeight: '80px',
+                                      }}
+                                    />
+                                  </Form.Group>
+                                  <Button
+                                    variant="warning"
+                                    size="sm"
+                                    onClick={handleSubmitQuestion}
+                                    disabled={questionLoading || !questionText.trim()}
+                                    className="w-100"
+                                    style={{
+                                      transition: 'all 0.2s',
+                                      fontSize: '0.875rem',
+                                    }}
+                                  >
+                                    {questionLoading ? (
+                                      <>
+                                        <Spinner animation="border" size="sm" className="me-2" />
+                                        Gönderiliyor...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Icon icon="mingcute:send-line" className="me-1" style={{ fontSize: '1rem' }} />
+                                        Soruyu Gönder
+                                      </>
+                                    )}
+                                  </Button>
+                                </>
+                              )}
                             </CardBody>
                           </Card>
                         </Col>
