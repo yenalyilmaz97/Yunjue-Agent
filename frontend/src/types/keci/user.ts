@@ -24,6 +24,15 @@ export interface Role {
   roleName: string
 }
 
+export interface CreateRoleRequest {
+  roleName: string
+}
+
+export interface EditRoleRequest {
+  roleId: number
+  roleName: string
+}
+
 export interface UserRole {
   userRoleId: number
   userId: number

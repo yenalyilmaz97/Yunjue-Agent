@@ -42,6 +42,12 @@ export interface Article {
   isActive: boolean
   createdAt: string
   updatedAt: string
+  slug?: string
+  excerpt?: string
+  publishedAt?: string
+  authorUserName?: string
+  coverImageUrl?: string
+  contentHtml?: string
 }
 
 export interface CreateArticleRequest {

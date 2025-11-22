@@ -1,7 +1,7 @@
 import PageTitle from '@/components/PageTitle'
 import { useEffect, useState } from 'react'
 import { weeklyService, contentService } from '@/services'
-import type { WeeklyContent, CreateWeeklyContentRequest, EditWeeklyContentRequest } from '@/types/keci'
+import type { WeeklyContent, EditWeeklyContentRequest } from '@/types/keci'
 import type { Music, Movie, Task, WeeklyQuestion } from '@/types/keci'
 import { Card, CardBody, CardHeader, CardTitle, Button, Form, Row, Col } from 'react-bootstrap'
 import { useLocation, useNavigate } from 'react-router-dom'

@@ -5,7 +5,7 @@ import type { Article } from '@/types/keci'
 import DOMPurify from 'dompurify'
 import { useParams } from 'react-router-dom'
 
-const page = () => {
+const ArticleDetailPage = () => {
   const params = useParams()
   const slug = params['*'] || ''
   const [article, setArticle] = useState<Article | null>(null)
@@ -26,11 +26,13 @@ const page = () => {
         </div>
       )}
       <div className="text-muted small mb-3">{(article.publishedAt || article.createdAt).slice(0,10)} • {article.authorUserName}</div>
-      <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.contentHtml) }} />
+      {article.contentHtml && (
+        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.contentHtml) }} />
+      )}
     </>
   )
 }
 
-export default page
+export default ArticleDetailPage
 
 

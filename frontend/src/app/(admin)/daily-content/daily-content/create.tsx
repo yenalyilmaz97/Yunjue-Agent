@@ -1,7 +1,7 @@
 import PageTitle from '@/components/PageTitle'
 import { useEffect, useState } from 'react'
 import { dailyContentService, contentService } from '@/services'
-import type { DailyContentResponseDTO, CreateDailyContentRequest, UpdateDailyContentRequest } from '@/services/dailyContent'
+import type { DailyContentResponseDTO, UpdateDailyContentRequest } from '@/services/dailyContent'
 import type { Affirmation, Aphorism } from '@/types/keci'
 import { Card, CardBody, CardHeader, CardTitle, Button, Form, Row, Col } from 'react-bootstrap'
 import { useLocation, useNavigate } from 'react-router-dom'

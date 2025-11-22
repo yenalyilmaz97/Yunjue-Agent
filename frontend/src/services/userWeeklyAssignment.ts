@@ -21,38 +21,42 @@ export const userWeeklyAssignmentService = {
     // Backend doesn't have this endpoint - return empty array
     return Promise.resolve([])
   },
-  async getUserAssignmentById(id: number): Promise<UserWeeklyAssignment> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async getUserAssignmentById(_id: number): Promise<UserWeeklyAssignment> {
     // Backend doesn't have this endpoint
     throw new Error('Endpoint not implemented in backend')
   },
   async getUserCurrentAssignment(userId: number): Promise<UserWeeklyAssignment> {
     // Use Weekly controller's current endpoint
-    const weeklyContent = await api.get<WeeklyContent>(`${WEEKLY_ENDPOINT}/user/${userId}/current`)
+    await api.get<WeeklyContent>(`${WEEKLY_ENDPOINT}/user/${userId}/current`)
     // Convert WeeklyContent to UserWeeklyAssignment format if needed
     return {} as UserWeeklyAssignment
   },
   async createUserAssignment(assignmentData: AssignUserToWeekRequest): Promise<UserWeeklyAssignment> {
     // Use Weekly controller's assign endpoint
-    const weeklyContent = await api.post<WeeklyContent>(`${WEEKLY_ENDPOINT}/assign`, {
+    await api.post<WeeklyContent>(`${WEEKLY_ENDPOINT}/assign`, {
       userId: assignmentData.userId,
       weeklyContentId: assignmentData.assignedWeekNumber, // This might need adjustment
     })
     return {} as UserWeeklyAssignment
   },
-  async updateUserAssignment(id: number, assignmentData: Partial<AssignUserToWeekRequest>): Promise<UserWeeklyAssignment> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async updateUserAssignment(_id: number, _assignmentData: Partial<AssignUserToWeekRequest>): Promise<UserWeeklyAssignment> {
     // Backend doesn't have this endpoint
     throw new Error('Endpoint not implemented in backend')
   },
-  async deleteUserAssignment(id: number): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async deleteUserAssignment(_id: number): Promise<boolean> {
     // Backend doesn't have this endpoint
     throw new Error('Endpoint not implemented in backend')
   },
   async getUserAssignments(userId: number): Promise<UserWeeklyAssignment[]> {
     // Use Weekly controller's user content endpoint
-    const contents = await api.get<WeeklyContent[]>(`${WEEKLY_ENDPOINT}/content/user/${userId}`)
+    await api.get<WeeklyContent[]>(`${WEEKLY_ENDPOINT}/content/user/${userId}`)
     return [] as UserWeeklyAssignment[]
   },
-  async assignUserToWeek(userId: number, weekNumber: number, year: number, isOverride: boolean = true): Promise<UserWeeklyAssignment> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async assignUserToWeek(userId: number, weekNumber: number, _year: number, _isOverride: boolean = true): Promise<UserWeeklyAssignment> {
     // Use Weekly controller's assign endpoint - need to find weeklyContentId from weekNumber
     // This is a simplified version - may need adjustment
     const weeklyContents = await api.get<WeeklyContent[]>(`${WEEKLY_ENDPOINT}/content`)
@@ -60,29 +64,34 @@ export const userWeeklyAssignmentService = {
     if (!matchingContent) {
       throw new Error(`Weekly content for week ${weekNumber} not found`)
     }
-    const weeklyContent = await api.post<WeeklyContent>(`${WEEKLY_ENDPOINT}/assign`, {
+    await api.post<WeeklyContent>(`${WEEKLY_ENDPOINT}/assign`, {
       userId,
       weeklyContentId: matchingContent.weekId,
     })
     return {} as UserWeeklyAssignment
   },
-  async removeUserAssignment(userId: number): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async removeUserAssignment(_userId: number): Promise<boolean> {
     // Backend doesn't have this endpoint
     throw new Error('Endpoint not implemented in backend')
   },
-  async getAssignmentsByWeek(weekNumber: number, year: number): Promise<UserWeeklyAssignment[]> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async getAssignmentsByWeek(_weekNumber: number, _year: number): Promise<UserWeeklyAssignment[]> {
     // Backend doesn't have this endpoint
     return Promise.resolve([])
   },
-  async bulkAssignWeek(assignmentData: BulkAssignWeekRequest): Promise<UserWeeklyAssignment[]> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async bulkAssignWeek(_assignmentData: BulkAssignWeekRequest): Promise<UserWeeklyAssignment[]> {
     // Backend doesn't have this endpoint
     return Promise.resolve([])
   },
-  async assignUsersToCurrentWeek(assignmentData: { userIds: number[] }): Promise<UserWeeklyAssignment[]> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async assignUsersToCurrentWeek(_assignmentData: { userIds: number[] }): Promise<UserWeeklyAssignment[]> {
     // Backend doesn't have this endpoint
     return Promise.resolve([])
   },
-  async bulkRemoveAssignments(userIds: number[]): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async bulkRemoveAssignments(_userIds: number[]): Promise<boolean> {
     // Backend doesn't have this endpoint
     return Promise.resolve(false)
   },
