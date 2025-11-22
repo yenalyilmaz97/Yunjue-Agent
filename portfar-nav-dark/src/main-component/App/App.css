@@ -25,7 +25,7 @@ TABLE OF CONTENTS:
 /*---------------------------
 	Fonts
 ----------------------------*/
-@import url('https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Heebo:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Heebo:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 /*--------------------------------------------------------------
 #0.1    Template Reset Style
 --------------------------------------------------------------*/
@@ -1344,12 +1344,13 @@ button:focus {
 
 .hero-style-1 .slide-title h2 {
     font-size: 100px;
-    font-weight: bold;
+    font-weight: 900;
     line-height: 1.2em;
     text-transform: capitalize;
     color: #fff;
     margin-bottom: 30px;
     margin-top: 20px;
+    font-family: 'Inter', sans-serif;
 }
 
 .hero-style-1 .slide-subtitle {
