@@ -21,9 +21,6 @@ const PDFViewer = ({ pdfUrl, title, onClose }: PDFViewerProps) => {
     setError(true)
   }
 
-  const handleDownload = () => {
-    window.open(pdfUrl, '_blank')
-  }
 
   return (
     <Card className="border-0 shadow-sm">
@@ -48,10 +45,6 @@ const PDFViewer = ({ pdfUrl, title, onClose }: PDFViewerProps) => {
               <Icon icon="mingcute:file-pdf-line" style={{ fontSize: '4rem', opacity: 0.3 }} className="text-danger mb-3" />
               <p className="text-muted mb-3">PDF yüklenemedi</p>
               <div className="d-flex gap-2">
-                <Button variant="outline-primary" size="sm" onClick={handleDownload}>
-                  <Icon icon="mingcute:download-line" className="me-1" />
-                  PDF'i İndir
-                </Button>
                 <Button variant="outline-secondary" size="sm" onClick={() => window.open(pdfUrl, '_blank')}>
                   <Icon icon="mingcute:external-link-line" className="me-1" />
                   Yeni Sekmede Aç
@@ -70,15 +63,6 @@ const PDFViewer = ({ pdfUrl, title, onClose }: PDFViewerProps) => {
               />
               <div className="position-absolute top-0 end-0 p-2" style={{ zIndex: 10 }}>
                 <div className="d-flex gap-2">
-                  <Button
-                    variant="light"
-                    size="sm"
-                    onClick={handleDownload}
-                    className="shadow-sm"
-                    title="PDF'i İndir"
-                  >
-                    <Icon icon="mingcute:download-line" />
-                  </Button>
                   <Button
                     variant="light"
                     size="sm"
