@@ -32,9 +32,9 @@ const HomePage =() => {
             </Element>
             <Testimonial/>
             <PricingPlan/>
-            <Element name="blog">
+            {/* <Element name="blog">
                 <BlogSection/>
-            </Element>
+            </Element> */}
             <Element name="contact">
                 <ContactSection/>
             </Element>

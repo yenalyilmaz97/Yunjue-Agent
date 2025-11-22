@@ -19,9 +19,9 @@ const About = (props) => {
                     </div>
                     <div className="col-lg-6 col-md-12 col-12">
                         <div className="tp-about-text">
-                            <div className="tp-about-icon">
+                            {/* <div className="tp-about-icon">
                                 <i className="fi flaticon-web-design"></i>
-                            </div>
+                            </div> */}
                             <div className="tp-about-icon-content">
                                 <h2>Keçiyi Besle, erkeğe zihinsel netlik, stratejik düşünce ve sosyal güç kazandırır.</h2>
                                 <p>Keçiyi Besle, erkeğe zihinsel netlik, stratejik düşünme kapasitesi ve sosyal hayatta gerçek bir avantaj kazandıran kapsamlı bir gelişim sistemidir. Modern dünyada erkekler sürekli dikkat dağıtıcıların, karışık beklentilerin ve zayıflatıcı alışkanlıkların içine sıkışıyor. Biz bu gürültüyü kesip; odaklanmış, disiplinli ve güçlü bir erkeğin nasıl inşa edileceğini adım adım gösteriyoruz.</p>

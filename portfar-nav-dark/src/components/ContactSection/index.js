@@ -10,7 +10,7 @@ const ContactSection = () => {
                     <div className="col col-lg-10 offset-lg-1">
                         <div className="office-info">
                             <div className="row">
-                                <div className="col col-xl-4 col-lg-6 col-md-6 col-12">
+                                {/* <div className="col col-xl-4 col-lg-6 col-md-6 col-12">
                                     <div className="office-info-item">
                                         <div className="office-info-icon">
                                             <div className="info-icon">
@@ -22,8 +22,8 @@ const ContactSection = () => {
                                             <p>7 Green Lake Street Crawfordsville, IN 47933</p>
                                         </div>
                                     </div>
-                                </div> 
-                                <div className="col col-xl-4 col-lg-6 col-md-6 col-12">
+                                </div>  */}
+                                <div className="col col-xl-6 col-lg-6 col-md-6 col-12">
                                     <div className="office-info-item">
                                         <div className="office-info-icon">
                                             <div className="info-icon">
@@ -31,13 +31,13 @@ const ContactSection = () => {
                                             </div>
                                         </div>
                                         <div className="office-info-text">
-                                            <h2>Email Us</h2>
+                                            <h2>Email</h2>
                                             <p>portfar@gmail.com</p>
                                             <p>helloyou@gmail.com</p>
                                         </div>
                                     </div>
                                 </div> 
-                                <div className="col col-xl-4 col-lg-6 col-md-6 col-12">
+                                <div className="col col-xl-6 col-lg-6 col-md-6 col-12">
                                     <div className="office-info-item">
                                         <div className="office-info-icon">
                                             <div className="info-icon">
@@ -45,7 +45,7 @@ const ContactSection = () => {
                                             </div>
                                         </div>
                                         <div className="office-info-text">
-                                            <h2>Call Now</h2>
+                                            <h2>Whatsapp</h2>
                                             <p>+1 800 123 456 789</p>
                                             <p>+1 800 123 654 987</p>
                                         </div>
@@ -53,13 +53,13 @@ const ContactSection = () => {
                                 </div> 
                             </div>
                         </div>
-                        <div className="section-title section-title2 text-center">
+                        {/* <div className="section-title section-title2 text-center">
                             <span>Contact</span>
                             <h2>Have Any Question?</h2>
                         </div>
                         <div className="tp-contact-form-area">
                             <ContactForm/>
-                        </div>
+                        </div> */}
                     </div>                
                 </div>
             </div> 
