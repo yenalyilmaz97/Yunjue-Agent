@@ -14,7 +14,7 @@ const AdminLayout = ({ children }: ChildrenType) => {
         <TopNavigationBar />
       </Suspense>
       <VerticalNavigationBar />
-      <AnimationStar />
+      {/* <AnimationStar /> */}
       <div className="page-content">
         <Container fluid>{children}</Container>
         <Footer />
