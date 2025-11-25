@@ -42,22 +42,22 @@ class Header extends Component {
                                     </NavLink>
                                 </div>
                                 <li className="home">
-                                    <Link activeClass="active" to="home" spy={true} smooth={true}  duration={500} >Home</Link>
+                                    <Link activeClass="active" to="home" spy={true} smooth={true}  duration={500} >Ana Sayfa</Link>
                                 </li>
                                 <li className="about">
-                                    <Link activeClass="active" to="about" spy={true} smooth={true}  duration={500}>About Me</Link>
+                                    <Link activeClass="active" to="about" spy={true} smooth={true}  duration={500}>Hakkımızda</Link>
                                 </li>
                                 <li className="service">
-                                    <Link activeClass="active" to="service" spy={true} smooth={true}  duration={500}>Service</Link>
+                                    <Link activeClass="active" to="service" spy={true} smooth={true}  duration={500}>Eğitimlerimiz</Link>
                                 </li>
                                 <li className="protfolio">
-                                    <Link activeClass="active" to="portfolio" spy={true} smooth={true}  duration={500}>Portfolio</Link>
+                                    <Link activeClass="active" to="portfolio" spy={true} smooth={true}  duration={500}>Portföy</Link>
                                 </li>
                                 <li className="blog">
-                                    <Link activeClass="active" to="blog" spy={true} smooth={true}  duration={500}>Blog</Link>
+                                    <Link activeClass="active" to="testimonials" spy={true} smooth={true}  duration={500}>Yorumlar</Link>
                                 </li>
                                 <li className="contact">
-                                    <Link activeClass="active" to="contact" spy={true} smooth={true}  duration={500}>Contact</Link>
+                                    <Link activeClass="active" to="contact" spy={true} smooth={true}  duration={500}>İletişim</Link>
                                 </li>
                             </ul>
                         </div>

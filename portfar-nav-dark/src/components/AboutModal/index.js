@@ -50,12 +50,12 @@ const DefaultModal = ({ maxWidth, button, buttonClass }) => {
 
     return (
         <Fragment>
-            <Button
+            {/* <Button
                 className={`btn ${buttonClass}`}
                 onClick={handleClickOpen}>
                 {button}
                 More About
-            </Button>
+            </Button> */}
             <Dialog
                 open={open}
                 onClose={handleClose}

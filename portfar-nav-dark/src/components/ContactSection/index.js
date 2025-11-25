@@ -32,8 +32,7 @@ const ContactSection = () => {
                                         </div>
                                         <div className="office-info-text">
                                             <h2>Email</h2>
-                                            <p>portfar@gmail.com</p>
-                                            <p>helloyou@gmail.com</p>
+                                            <p>iletisim@keciyibesle.com</p>
                                         </div>
                                     </div>
                                 </div> 
@@ -46,8 +45,8 @@ const ContactSection = () => {
                                         </div>
                                         <div className="office-info-text">
                                             <h2>Whatsapp</h2>
-                                            <p>+1 800 123 456 789</p>
-                                            <p>+1 800 123 654 987</p>
+                                            {/* <p>+1 800 123 456 789</p>
+                                            <p>+1 800 123 654 987</p> */}
                                         </div>
                                     </div>
                                 </div> 

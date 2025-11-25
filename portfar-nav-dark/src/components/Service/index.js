@@ -123,11 +123,11 @@ const Service = () => {
                                     <div className="service-content">
                                         <h2>{serv.heading}</h2>
                                         <p>{serv.des}</p>
-                                        <Button
+                                        {/* <Button
                                             className="btn"
                                             onClick={()=> handleClickOpen(serv)}>
                                             Daha Fazla
-                                        </Button>
+                                        </Button> */}
                                     </div>
                                 </div>
                             </div>

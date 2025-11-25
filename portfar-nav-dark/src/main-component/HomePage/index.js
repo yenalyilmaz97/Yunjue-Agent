@@ -30,7 +30,9 @@ const HomePage =() => {
             <Element name="portfolio">
                 <Portfolio/>
             </Element>
+            <Element name="testimonials">
             <Testimonial/>
+            </Element>
             <PricingPlan/>
             {/* <Element name="blog">
                 <BlogSection/>
