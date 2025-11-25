@@ -2,6 +2,7 @@ export interface EpisodeContent {
   audio?: string
   video?: string
   images?: string[]
+  pdf?: string
 }
 
 export interface PodcastSeries {
