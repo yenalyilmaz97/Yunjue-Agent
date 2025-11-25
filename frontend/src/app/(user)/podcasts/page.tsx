@@ -8,6 +8,7 @@ import { Icon } from '@iconify/react'
 import { useLocation } from 'react-router-dom'
 import PDFViewer from '@/components/podcast/PDFViewer'
 import GalleryViewer from '@/components/podcast/GalleryViewer'
+import ModernAudioPlayer from '@/components/podcast/ModernAudioPlayer'
 
 interface EpisodeWithAccess extends PodcastEpisode {
   lastAccessedAt?: string
@@ -424,6 +425,55 @@ const PodcastsPage = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
+  // Önceki ve sonraki bölümleri bul
+  const getPreviousEpisode = (): PodcastEpisode | null => {
+    if (!currentEpisode || !episodes.length) return null
+    
+    // Episodes'ı sequenceNumber'a göre sırala
+    const sortedEpisodes = [...episodes].sort((a, b) => a.sequenceNumber - b.sequenceNumber)
+    const currentIndex = sortedEpisodes.findIndex(ep => ep.episodesId === currentEpisode.episodesId)
+    
+    if (currentIndex > 0) {
+      return sortedEpisodes[currentIndex - 1]
+    }
+    return null
+  }
+
+  const getNextEpisode = (): PodcastEpisode | null => {
+    if (!currentEpisode || !episodes.length) return null
+    
+    // Episodes'ı sequenceNumber'a göre sırala
+    const sortedEpisodes = [...episodes].sort((a, b) => a.sequenceNumber - b.sequenceNumber)
+    const currentIndex = sortedEpisodes.findIndex(ep => ep.episodesId === currentEpisode.episodesId)
+    
+    if (currentIndex < sortedEpisodes.length - 1) {
+      return sortedEpisodes[currentIndex + 1]
+    }
+    return null
+  }
+
+  const handlePreviousEpisode = () => {
+    const prevEpisode = getPreviousEpisode()
+    if (prevEpisode) {
+      setCurrentEpisode(prevEpisode)
+      setShowNotesAndQuestions(false)
+      setTimeout(() => {
+        playerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 100)
+    }
+  }
+
+  const handleNextEpisode = () => {
+    const nextEpisode = getNextEpisode()
+    if (nextEpisode) {
+      setCurrentEpisode(nextEpisode)
+      setShowNotesAndQuestions(false)
+      setTimeout(() => {
+        playerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 100)
+    }
+  }
+
   return (
     <>
       <PageTitle subName="KeciApp" title="Podcasts" />
@@ -590,7 +640,10 @@ const PodcastsPage = () => {
                     />
                   )}
                   {contentType === 'audio' && (
-                    <audio controls controlsList="nodownload" className="w-100" src={getAudioUrl(currentEpisode) || undefined} />
+                    <ModernAudioPlayer
+                      src={getAudioUrl(currentEpisode) || ''}
+                      title={currentEpisode.title}
+                    />
                   )}
                   {contentType === 'pdf' && (
                     <PDFViewer
@@ -613,6 +666,117 @@ const PodcastsPage = () => {
                     </div>
                   )}
                 </div>
+
+                {/* Önceki/Sonraki Navigasyon Butonları */}
+                {(() => {
+                  const prevEpisode = getPreviousEpisode()
+                  const nextEpisode = getNextEpisode()
+                  
+                  if (!prevEpisode && !nextEpisode) return null
+                  
+                  return (
+                    <div className="mt-3 pt-3 border-top">
+                      <div className="d-flex align-items-center justify-content-between gap-2">
+                        {/* Önceki Butonu */}
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          onClick={handlePreviousEpisode}
+                          disabled={!prevEpisode}
+                          className="d-flex align-items-center justify-content-center gap-1 gap-sm-2"
+                          style={{
+                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                            fontSize: '0.875rem',
+                            minHeight: '38px',
+                            borderRadius: '8px',
+                            borderWidth: '1.5px',
+                            fontWeight: '500',
+                            flex: '1 1 0',
+                            opacity: prevEpisode ? 1 : 0.5,
+                          }}
+                          onMouseEnter={(e) => {
+                            if (prevEpisode) {
+                              e.currentTarget.style.transform = 'translateY(-2px)'
+                              e.currentTarget.style.boxShadow = '0 4px 8px rgba(13, 110, 253, 0.2)'
+                              e.currentTarget.style.backgroundColor = 'rgba(13, 110, 253, 0.05)'
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)'
+                            e.currentTarget.style.boxShadow = 'none'
+                            e.currentTarget.style.backgroundColor = 'transparent'
+                          }}
+                          onTouchStart={(e) => {
+                            if (prevEpisode) {
+                              e.currentTarget.style.transform = 'scale(0.98)'
+                            }
+                          }}
+                          onTouchEnd={(e) => {
+                            e.currentTarget.style.transform = 'scale(1)'
+                          }}
+                        >
+                          <Icon 
+                            icon="mingcute:arrow-left-line" 
+                            style={{ fontSize: '1.125rem', flexShrink: 0 }} 
+                          />
+                          <span className="d-none d-sm-inline">Önceki</span>
+                          {prevEpisode && (
+                            <span className="d-none d-lg-inline text-truncate ms-1" style={{ maxWidth: '100px', fontSize: '0.8rem' }}>
+                              {prevEpisode.title}
+                            </span>
+                          )}
+                        </Button>
+
+                        {/* Sonraki Butonu */}
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={handleNextEpisode}
+                          disabled={!nextEpisode}
+                          className="d-flex align-items-center justify-content-center gap-1 gap-sm-2"
+                          style={{
+                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                            fontSize: '0.875rem',
+                            minHeight: '38px',
+                            borderRadius: '8px',
+                            fontWeight: '500',
+                            flex: '1 1 0',
+                            opacity: nextEpisode ? 1 : 0.5,
+                          }}
+                          onMouseEnter={(e) => {
+                            if (nextEpisode) {
+                              e.currentTarget.style.transform = 'translateY(-2px)'
+                              e.currentTarget.style.boxShadow = '0 4px 12px rgba(13, 110, 253, 0.3)'
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)'
+                            e.currentTarget.style.boxShadow = 'none'
+                          }}
+                          onTouchStart={(e) => {
+                            if (nextEpisode) {
+                              e.currentTarget.style.transform = 'scale(0.98)'
+                            }
+                          }}
+                          onTouchEnd={(e) => {
+                            e.currentTarget.style.transform = 'scale(1)'
+                          }}
+                        >
+                          {nextEpisode && (
+                            <span className="d-none d-lg-inline text-truncate me-1" style={{ maxWidth: '100px', fontSize: '0.8rem' }}>
+                              {nextEpisode.title}
+                            </span>
+                          )}
+                          <span className="d-none d-sm-inline">Sonraki</span>
+                          <Icon 
+                            icon="mingcute:arrow-right-line" 
+                            style={{ fontSize: '1.125rem', flexShrink: 0 }} 
+                          />
+                        </Button>
+                      </div>
+                    </div>
+                  )
+                })()}
 
                 {/* Not ve Soru Toggle Butonu */}
                 <div className="mt-3 pt-3 border-top">

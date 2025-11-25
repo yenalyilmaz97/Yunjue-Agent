@@ -46,6 +46,28 @@ export const favoritesService = {
       return false
     }
   },
+  async isAffirmationFavorited(userId: number, affirmationId: number): Promise<boolean> {
+    try {
+      const userFavorites = await this.getFavoritesByUser(userId)
+      return userFavorites.some(
+        (fav) => fav.favoriteType === 3 && fav.affirmationId === affirmationId
+      )
+    } catch (error) {
+      console.error('Error checking affirmation favorite status:', error)
+      return false
+    }
+  },
+  async isAphorismFavorited(userId: number, aphorismId: number): Promise<boolean> {
+    try {
+      const userFavorites = await this.getFavoritesByUser(userId)
+      return userFavorites.some(
+        (fav) => fav.favoriteType === 4 && fav.aphorismId === aphorismId
+      )
+    } catch (error) {
+      console.error('Error checking aphorism favorite status:', error)
+      return false
+    }
+  },
 }
 
 export default favoritesService
