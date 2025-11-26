@@ -1,11 +1,29 @@
-import avatar1 from '@/assets/images/users/avatar-1.jpg'
 import IconifyIcon from '@/components/wrapper/IconifyIcon'
 import { useAuthContext } from '@/context/useAuthContext'
 import { Dropdown, DropdownHeader, DropdownItem, DropdownMenu, DropdownToggle } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { userService } from '@/services'
+import type { User } from '@/types/keci'
+import { Icon } from '@iconify/react'
 
 const ProfileDropdown = () => {
-  const { removeSession } = useAuthContext()
+  const { removeSession, user: authUser } = useAuthContext()
+  const [user, setUser] = useState<User | null>(null)
+
+  useEffect(() => {
+    const loadUser = async () => {
+      if (!authUser?.id) return
+      try {
+        const userId = parseInt(authUser.id)
+        const userData = await userService.getUserById(userId)
+        setUser(userData)
+      } catch (error) {
+        console.error('Error loading user:', error)
+      }
+    }
+    loadUser()
+  }, [authUser])
 
   return (
     <Dropdown className=" topbar-item">
@@ -17,18 +35,30 @@ const ProfileDropdown = () => {
         aria-haspopup="true"
         aria-expanded="false">
         <span className="d-flex align-items-center">
-          <img
-            className="rounded-circle"
-            width={32}
-            // height={32}
-            src={avatar1}
-            alt="avatar-3"
-          />
+          {user?.profilePictureUrl ? (
+            <img
+              className="rounded-circle"
+              width={32}
+              height={32}
+              src={user.profilePictureUrl}
+              alt={user.userName || 'User'}
+              style={{ objectFit: 'cover' }}
+            />
+          ) : (
+            <div
+              className="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center"
+              style={{ width: '32px', height: '32px' }}
+            >
+              <Icon icon="mingcute:user-line" style={{ fontSize: '1.25rem' }} />
+            </div>
+          )}
         </span>
       </DropdownToggle>
       <DropdownMenu className=" dropdown-menu-end">
-        <DropdownHeader>Welcome!</DropdownHeader>
-        <DropdownItem href="">
+        <DropdownHeader>
+          {user ? `${user.firstName} ${user.lastName}` : 'Welcome!'}
+        </DropdownHeader>
+        <DropdownItem as={Link} to="/profile">
           <IconifyIcon icon="solar:user-outline" className="align-middle me-2 fs-18" />
           <span className="align-middle">My Account</span>
         </DropdownItem>

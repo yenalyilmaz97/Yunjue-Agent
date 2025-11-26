@@ -139,6 +139,7 @@ public class UserResponseDTO
     public string Description { get; set; }
     public DateTime SubscriptionEnd { get; set; }
     public DateTime? KeciTimeEnd { get; set; }
+    public string? ProfilePictureUrl { get; set; }
     public int WeeklyContentId { get; set; }
     public int RoleId { get; set; }
     public string RoleName { get; set; }

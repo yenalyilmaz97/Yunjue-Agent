@@ -12,6 +12,7 @@ export { userSeriesAccessService } from './userSeriesAccess'
 export { userWeeklyAssignmentService } from './userWeeklyAssignment'
 export { dailyContentService } from './dailyContent'
 export { weeklyQuestionAnswerService } from './weeklyQuestionAnswer'
+export { userProgressService } from './userProgress'
 
 export type * from '@/types/keci'
 

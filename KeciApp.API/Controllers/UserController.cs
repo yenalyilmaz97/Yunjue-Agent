@@ -3,6 +3,7 @@ using KeciApp.API.Interfaces;
 using KeciApp.API.DTOs;
 using KeciApp.API.Models;
 using KeciApp.API.Attributes;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace KeciApp.API.Controllers;
 
@@ -252,6 +253,45 @@ public class UserController : ControllerBase
         catch (Exception ex)
         {
             return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("{userId}/profile-picture")]
+    public async Task<ActionResult<UserResponseDTO>> UploadProfilePicture(int userId, [FromForm] IFormFile file)
+    {
+        try
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new { message = "File is required" });
+            }
+
+            // Get user to get username
+            var user = await _userService.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found" });
+            }
+
+            // Upload profile picture
+            var fileUploadService = HttpContext.RequestServices.GetRequiredService<IFileUploadService>();
+            string profilePictureUrl = await fileUploadService.UploadProfilePictureAsync(file, user.UserName);
+
+            // Update user's profile picture URL
+            var updatedUser = await _userService.UpdateProfilePictureAsync(userId, profilePictureUrl);
+            return Ok(updatedUser);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while uploading the profile picture", error = ex.Message });
         }
     }
 

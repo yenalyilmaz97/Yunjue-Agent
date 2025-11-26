@@ -14,14 +14,16 @@ public class UserService : IUserService
     private readonly IWeeklyRepository _weeklyRepository;
     private readonly IPodcastSeriesRepository _seriesRepository;
     private readonly IUserSeriesAccessRepository _userSeriesAccessRepository;
+    private readonly IFileUploadService _fileUploadService;
     private readonly IMapper _mapper;
 
-    public UserService(IUserRepository userRepository,IUserSeriesAccessRepository userSeriesAccessRepository ,IPodcastSeriesRepository seriesRepository, IWeeklyRepository weeklyRepository, IMapper mapper)
+    public UserService(IUserRepository userRepository,IUserSeriesAccessRepository userSeriesAccessRepository ,IPodcastSeriesRepository seriesRepository, IWeeklyRepository weeklyRepository, IFileUploadService fileUploadService, IMapper mapper)
     {
         _userRepository = userRepository;
         _seriesRepository = seriesRepository;
         _weeklyRepository = weeklyRepository;
         _userSeriesAccessRepository = userSeriesAccessRepository;
+        _fileUploadService = fileUploadService;
         _mapper = mapper;
     }
 
@@ -196,5 +198,33 @@ public class UserService : IUserService
             var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
             return Convert.ToBase64String(hashedBytes);
         }
+    }
+
+    public async Task<UserResponseDTO> UpdateProfilePictureAsync(int userId, string profilePictureUrl)
+    {
+        var existingUser = await _userRepository.GetUserByIdAsync(userId);
+        if (existingUser == null)
+            throw new InvalidOperationException($"User with ID {userId} not found");
+
+        // Delete old profile picture if exists
+        if (!string.IsNullOrWhiteSpace(existingUser.ProfilePictureUrl))
+        {
+            try
+            {
+                await _fileUploadService.DeleteFileAsync(existingUser.ProfilePictureUrl);
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't fail the update
+                // Could add logging here if needed
+            }
+        }
+
+        //Update profile picture URL
+        existingUser.ProfilePictureUrl = profilePictureUrl;
+        existingUser.UpdatedAt = DateTime.UtcNow;
+
+        var updatedUser = await _userRepository.UpdateUserAsync(existingUser);
+        return _mapper.Map<UserResponseDTO>(updatedUser);
     }
 }

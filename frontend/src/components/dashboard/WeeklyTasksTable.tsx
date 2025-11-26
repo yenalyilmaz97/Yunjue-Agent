@@ -1,9 +1,10 @@
 import { Button, Badge, Modal, Card, CardBody, Nav, NavItem, NavLink, TabContainer, TabContent, TabPane } from 'react-bootstrap'
 import { useEffect, useState } from 'react'
-import { weeklyService, weeklyQuestionAnswerService } from '@/services'
+import { weeklyService, weeklyQuestionAnswerService, userProgressService } from '@/services'
 import type { WeeklyContent } from '@/types/keci'
 import { useAuthContext } from '@/context/useAuthContext'
 import type { AnswerWeeklyQuestionRequest } from '@/services/weeklyQuestionAnswer'
+import type { CreateUserProgressRequest } from '@/services/userProgress'
 
 const WeeklyTasksTable = () => {
   const { user } = useAuthContext()
@@ -21,12 +22,23 @@ const WeeklyTasksTable = () => {
       const userId = parseInt(user.id)
       Promise.all([
         weeklyService.getCurrentWeeklyContent(userId),
-        // Kullanıcının görev durumunu kontrol et (User modelinden)
-        Promise.resolve((user as any).isWeeklyTaskCompleted || false),
       ])
-        .then(([weeklyData, taskStatus]) => {
+        .then(([weeklyData]) => {
           setWeeklyContent(weeklyData)
-          setTaskCompleted(taskStatus)
+          
+          // Kullanıcının görev durumunu UserProgress'ten kontrol et
+          if (weeklyData?.weekId) {
+            userProgressService
+              .getUserProgressByUserIdAndWeekId(userId, weeklyData.weekId)
+              .then((userProgress) => {
+                setTaskCompleted(userProgress?.isCompleted || false)
+              })
+              .catch(() => {
+                setTaskCompleted(false)
+              })
+          } else {
+            setTaskCompleted(false)
+          }
           
           // Soru yanıtının olup olmadığını kontrol et
           if (weeklyData?.weeklyQuestionId) {
@@ -50,9 +62,24 @@ const WeeklyTasksTable = () => {
     }
   }, [user])
 
-  const handleTaskComplete = () => {
-    setTaskCompleted(true)
-    // TODO: API'ye görev tamamlama isteği gönder
+  const handleTaskComplete = async () => {
+    if (!user?.id || !weeklyContent) {
+      return
+    }
+
+    try {
+      const userId = parseInt(user.id)
+      const request: CreateUserProgressRequest = {
+        userId,
+        weekId: weeklyContent.weekId,
+        isCompleted: true,
+      }
+      await userProgressService.createOrUpdateUserProgress(request)
+      setTaskCompleted(true)
+    } catch (error) {
+      console.error('Error completing task:', error)
+      // TODO: Error toast göster
+    }
   }
 
   const handleQuestionClick = () => {
@@ -149,11 +176,20 @@ const WeeklyTasksTable = () => {
                     {weeklyContent.music?.musicDescription && (
                       <p className="text-muted mb-3">{weeklyContent.music.musicDescription}</p>
                     )}
-                    <div className="mt-3">
-                      <Badge bg="secondary" className="p-2">
-                        <i className="bx bx-headphone me-1"></i>Dinle
-                      </Badge>
-                    </div>
+                    {weeklyContent.music?.musicURL && (
+                      <div className="mt-3">
+                        <Button
+                          variant="primary"
+                          as="a"
+                          href={weeklyContent.music.musicURL}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="d-inline-flex align-items-center"
+                        >
+                          <i className="bx bx-headphone me-1"></i>Dinle
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </TabPane>
 
@@ -164,11 +200,6 @@ const WeeklyTasksTable = () => {
                       <i className="bx bx-movie me-2 text-primary"></i>
                       {weeklyContent.movie?.movieTitle || 'Film bulunamadı'}
                     </h6>
-                    <div className="mt-3">
-                      <Badge bg="secondary" className="p-2">
-                        <i className="bx bx-play-circle me-1"></i>İzle
-                      </Badge>
-                    </div>
                   </div>
                 </TabPane>
 
