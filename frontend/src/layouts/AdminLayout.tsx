@@ -1,4 +1,3 @@
-import AnimationStar from '@/components/AnimationStar'
 import Footer from '@/components/layout/Footer'
 import { ChildrenType } from '@/types/component-props'
 import { lazy, Suspense } from 'react'

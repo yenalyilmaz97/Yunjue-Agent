@@ -4,7 +4,6 @@
  */
 
 const STORAGE_KEY_PREFIX = 'episode_progress_'
-const SAVE_INTERVAL = 5000 // Save every 5 seconds
 
 export interface EpisodeProgress {
   episodeId: number
