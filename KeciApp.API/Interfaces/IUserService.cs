@@ -17,7 +17,7 @@ public interface IUserService
     Task<UserResponseDTO> ChangePasswordAsync(int userId, string newPassword);
     Task<UserResponseDTO> BanUserAsync(int userId);
     Task<UserResponseDTO> AssignRoleToUserAsync(int userId, int roleId);
-
+    Task<UserResponseDTO> UpdateProfilePictureAsync(int userId, string profilePictureUrl);
     Task<UserResponseDTO> AddKeciTimeToUser(AddKeciTimeDTO dto);
     
 }

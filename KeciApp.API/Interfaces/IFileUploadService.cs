@@ -10,6 +10,8 @@ public interface IFileUploadService
         int sequenceNumber // Sequence number for file naming
     );
     
+    Task<string> UploadProfilePictureAsync(IFormFile file, string userName);
+    
     Task<bool> DeleteFileAsync(string fileUrl);
     
     string GenerateSlug(string text);

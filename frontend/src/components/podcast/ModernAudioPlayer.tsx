@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { Icon } from '@iconify/react'
 import { Button } from 'react-bootstrap'
+import { saveEpisodeProgress, getResumeTime, clearEpisodeProgress } from '@/utils/episodeProgress'
 
 interface ModernAudioPlayerProps {
   src: string
   title?: string
+  episodeId?: number
   onTimeUpdate?: (currentTime: number, duration: number) => void
 }
 
-const ModernAudioPlayer = ({ src, title, onTimeUpdate }: ModernAudioPlayerProps) => {
+const ModernAudioPlayer = ({ src, title, episodeId, onTimeUpdate }: ModernAudioPlayerProps) => {
   const audioRef = useRef<HTMLAudioElement>(null)
   const progressBarRef = useRef<HTMLDivElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -17,10 +19,20 @@ const ModernAudioPlayer = ({ src, title, onTimeUpdate }: ModernAudioPlayerProps)
   const [volume, setVolume] = useState(1)
   const [showVolumeControl, setShowVolumeControl] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
+  const saveProgressIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
+
+    // Load saved progress if episodeId is provided
+    if (episodeId) {
+      const resumeTime = getResumeTime(episodeId, audio.duration || 0)
+      if (resumeTime > 0) {
+        audio.currentTime = resumeTime
+        setCurrentTime(resumeTime)
+      }
+    }
 
     const updateTime = () => {
       setCurrentTime(audio.currentTime)
@@ -30,24 +42,50 @@ const ModernAudioPlayer = ({ src, title, onTimeUpdate }: ModernAudioPlayerProps)
     }
 
     const updateDuration = () => {
-      setDuration(audio.duration || 0)
+      const newDuration = audio.duration || 0
+      setDuration(newDuration)
+      
+      // Load saved progress when duration is available
+      if (episodeId && newDuration > 0) {
+        const resumeTime = getResumeTime(episodeId, newDuration)
+        if (resumeTime > 0 && audio.currentTime === 0) {
+          audio.currentTime = resumeTime
+          setCurrentTime(resumeTime)
+        }
+      }
     }
 
     const handleEnded = () => {
       setIsPlaying(false)
       setCurrentTime(0)
+      // Clear progress when episode is completed
+      if (episodeId) {
+        clearEpisodeProgress(episodeId)
+      }
     }
 
     audio.addEventListener('timeupdate', updateTime)
     audio.addEventListener('loadedmetadata', updateDuration)
     audio.addEventListener('ended', handleEnded)
 
+    // Set up interval to save progress every 5 seconds
+    if (episodeId) {
+      saveProgressIntervalRef.current = setInterval(() => {
+        if (audio.duration && audio.currentTime > 0) {
+          saveEpisodeProgress(episodeId, audio.currentTime, audio.duration)
+        }
+      }, 5000)
+    }
+
     return () => {
       audio.removeEventListener('timeupdate', updateTime)
       audio.removeEventListener('loadedmetadata', updateDuration)
       audio.removeEventListener('ended', handleEnded)
+      if (saveProgressIntervalRef.current) {
+        clearInterval(saveProgressIntervalRef.current)
+      }
     }
-  }, [onTimeUpdate])
+  }, [onTimeUpdate, episodeId])
 
   const togglePlayPause = () => {
     const audio = audioRef.current
@@ -73,6 +111,11 @@ const ModernAudioPlayer = ({ src, title, onTimeUpdate }: ModernAudioPlayerProps)
 
     audio.currentTime = newTime
     setCurrentTime(newTime)
+    
+    // Save progress immediately when user seeks
+    if (episodeId && duration > 0) {
+      saveEpisodeProgress(episodeId, newTime, duration)
+    }
   }
 
   const handleProgressDrag = (e: React.MouseEvent<HTMLDivElement>) => {

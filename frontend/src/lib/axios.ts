@@ -27,6 +27,7 @@ export const API_CONFIG = {
     APHORISMS: '/Aphorisms',
     ARTICLE: '/Article',
     DAILY_CONTENT: '/DailyContent',
+    USER_PROGRESS: '/UserProgress',
   },
 } as const
 

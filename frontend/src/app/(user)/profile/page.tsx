@@ -1,15 +1,18 @@
 import PageTitle from '@/components/PageTitle'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useAuthContext } from '@/context/useAuthContext'
 import { userService } from '@/services'
 import type { User } from '@/types/keci'
-import { Card, CardBody, Row, Col, Spinner } from 'react-bootstrap'
+import { Card, CardBody, Row, Col, Spinner, Button } from 'react-bootstrap'
 import { Icon } from '@iconify/react'
+import { api, API_CONFIG } from '@/lib/axios'
 
 const ProfilePage = () => {
   const { user: authUser } = useAuthContext()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     const loadUserProfile = async () => {
@@ -65,6 +68,55 @@ const ProfilePage = () => {
     return new Date(subscriptionEnd) > new Date()
   }
 
+  const handleProfilePictureClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleProfilePictureChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !user) return
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+    if (!allowedTypes.includes(file.type)) {
+      alert('Sadece resim dosyaları yüklenebilir (JPG, PNG, GIF, WEBP)')
+      return
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Dosya boyutu 5MB\'dan küçük olmalıdır')
+      return
+    }
+
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await api.post<User>(
+        `${API_CONFIG.ENDPOINTS.USERS}/${user.userId}/profile-picture`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      )
+
+      setUser(response)
+      alert('Profil resmi başarıyla güncellendi')
+    } catch (error) {
+      console.error('Error uploading profile picture:', error)
+      alert('Profil resmi yüklenirken bir hata oluştu')
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
+  }
+
   if (loading) {
     return (
       <>
@@ -107,11 +159,40 @@ const ProfilePage = () => {
           <Card className="h-100 shadow-sm">
             <CardBody className="p-3 p-md-4">
               <div className="d-flex align-items-center gap-3 mb-4">
-                <div
-                  className="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                  style={{ width: '64px', height: '64px' }}
-                >
-                  <Icon icon="mingcute:user-line" style={{ fontSize: '2rem' }} />
+                <div className="position-relative" style={{ flexShrink: 0 }}>
+                  {user.profilePictureUrl ? (
+                    <img
+                      src={user.profilePictureUrl}
+                      alt={`${user.firstName} ${user.lastName}`}
+                      className="rounded-circle"
+                      style={{ width: '80px', height: '80px', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <div
+                      className="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center"
+                      style={{ width: '80px', height: '80px' }}
+                    >
+                      <Icon icon="mingcute:user-line" style={{ fontSize: '2.5rem' }} />
+                    </div>
+                  )}
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className="position-absolute bottom-0 end-0 rounded-circle p-1"
+                    style={{ width: '28px', height: '28px', padding: '0' }}
+                    onClick={handleProfilePictureClick}
+                    disabled={uploading}
+                    title="Profil resmini değiştir"
+                  >
+                    <Icon icon="mingcute:camera-line" style={{ fontSize: '1rem' }} />
+                  </Button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                    onChange={handleProfilePictureChange}
+                    style={{ display: 'none' }}
+                  />
                 </div>
                 <div className="flex-grow-1">
                   <h5 className="mb-1 fw-semibold">

@@ -64,7 +64,9 @@ public class User
     
     [Required]
     public DateTime UpdatedAt { get; set; }
-    
+
+    public string? ProfilePictureUrl { get; set; }
+
     // Navigation Properties
     [ForeignKey("RoleId")]
     public Role Role { get; set; }

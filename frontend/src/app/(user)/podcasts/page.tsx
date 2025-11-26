@@ -9,6 +9,7 @@ import { useLocation } from 'react-router-dom'
 import PDFViewer from '@/components/podcast/PDFViewer'
 import GalleryViewer from '@/components/podcast/GalleryViewer'
 import ModernAudioPlayer from '@/components/podcast/ModernAudioPlayer'
+import VideoPlayer from '@/components/podcast/VideoPlayer'
 
 interface EpisodeWithAccess extends PodcastEpisode {
   lastAccessedAt?: string
@@ -631,18 +632,19 @@ const PodcastsPage = () => {
                 {/* Content Renderer */}
                 <div className="mt-2">
                   {contentType === 'video' && (
-                    <video
-                      controls
-                      controlsList="nodownload"
+                    <VideoPlayer
+                      src={getVideoUrl(currentEpisode) || ''}
+                      episodeId={currentEpisode.episodesId}
                       className="w-100 rounded"
                       style={{ maxHeight: '400px' }}
-                      src={getVideoUrl(currentEpisode) || undefined}
+                      controlsList="nodownload"
                     />
                   )}
                   {contentType === 'audio' && (
                     <ModernAudioPlayer
                       src={getAudioUrl(currentEpisode) || ''}
                       title={currentEpisode.title}
+                      episodeId={currentEpisode.episodesId}
                     />
                   )}
                   {contentType === 'pdf' && (

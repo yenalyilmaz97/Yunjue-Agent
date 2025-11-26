@@ -119,6 +119,7 @@ builder.Services.AddScoped<IAphorismsRepository, AphorismsRepository>();
 builder.Services.AddScoped<IAffirmationRepository, AffirmationRepository>();
 builder.Services.AddScoped<IDailyContentRepository, DailyContentRepository>();
 builder.Services.AddScoped<IWeeklyQuestionAnswerRepository, WeeklyQuestionAnswerRepository>();
+builder.Services.AddScoped<IUserProgressRepository, UserProgressRepository>();
 
 // Add Services
 builder.Services.AddScoped<IUserService, UserService>();
@@ -140,6 +141,7 @@ builder.Services.AddScoped<IAphorismsService, AphorismsService>();
 builder.Services.AddScoped<IAffirmationsService, AffirmationService>();
 builder.Services.AddScoped<IDailyContentService, DailyContentService>();
 builder.Services.AddScoped<IWeeklyQuestionAnswerService, WeeklyQuestionAnswerService>();
+builder.Services.AddScoped<IUserProgressService, UserProgressService>();
 builder.Services.AddScoped<ICdnUploadService, CdnUploadService>();
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 

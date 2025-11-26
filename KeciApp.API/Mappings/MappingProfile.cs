@@ -180,5 +180,19 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.User, opt => opt.Ignore())
             .ForMember(dest => dest.PodcastSeries, opt => opt.Ignore());
 
+        // UserProgress Mappings
+        CreateMap<UserProgress, UserProgressResponseDTO>()
+            .ForMember(dest => dest.IsCompleted, opt => opt.MapFrom(src => src.isCompleted));
+        CreateMap<CreateUserProgressRequest, UserProgress>()
+            .ForMember(dest => dest.isCompleted, opt => opt.MapFrom(src => src.IsCompleted))
+            .ForMember(dest => dest.CompleteTime, opt => opt.Ignore());
+        CreateMap<UpdateUserProgressRequest, UserProgress>()
+            .ForMember(dest => dest.isCompleted, opt => opt.MapFrom(src => src.IsCompleted))
+            .ForMember(dest => dest.UserId, opt => opt.Ignore())
+            .ForMember(dest => dest.WeekId, opt => opt.Ignore())
+            .ForMember(dest => dest.ArticleId, opt => opt.Ignore())
+            .ForMember(dest => dest.EpisodeId, opt => opt.Ignore())
+            .ForMember(dest => dest.CompleteTime, opt => opt.Ignore());
+
     }
 }
