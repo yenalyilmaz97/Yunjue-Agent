@@ -2,8 +2,7 @@
 <!-- https://go.microsoft.com/fwlink/?LinkID=208121. -->
 <Project>
   <PropertyGroup>
-    <_PublishTargetUrl>C:\Users\Asus\Documents\Projects\KeciApp\KeciApp.API\bin\Release\net9.0\publish\</_PublishTargetUrl>
-    <History>True|2025-11-14T09:14:29.7172440Z||;</History>
+    <History>True|2025-11-26T18:06:21.4230198Z||;</History>
     <LastFailureDetails />
   </PropertyGroup>
 </Project>
