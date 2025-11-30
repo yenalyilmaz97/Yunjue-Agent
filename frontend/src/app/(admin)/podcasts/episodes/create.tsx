@@ -12,6 +12,7 @@ import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import type { UploadFileType } from '@/types/component-props'
+import { useI18n } from '@/i18n/context'
 
 type FormFields = {
   seriesId: number
@@ -22,11 +23,12 @@ type FormFields = {
 }
 
 const EpisodeCreateEditPage = () => {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const location = useLocation()
   const schema: yup.ObjectSchema<FormFields> = yup.object({
-    seriesId: yup.number().required('Select series'),
-    title: yup.string().trim().required('Please enter title'),
+    seriesId: yup.number().required(t('podcasts.episodes.selectSeries')),
+    title: yup.string().trim().required(t('forms.enterTitle')),
     description: yup.string().trim().optional(),
     content: yup.object({
       audio: yup.string().trim().optional(),
@@ -151,7 +153,7 @@ const EpisodeCreateEditPage = () => {
         const hasExistingContent = !!(existingContent.audio || existingContent.video || (existingContent.images && existingContent.images.length > 0))
         
         if (!hasExistingContent && !hasNewFiles) {
-          alert('Please upload at least one content file (audio, video, or image) or ensure existing content is available')
+          alert(t('podcasts.episodes.uploadAtLeastOneOrExisting'))
           return
         }
         
@@ -218,7 +220,7 @@ const EpisodeCreateEditPage = () => {
       } else {
         // Validation: At least one content type must be provided for create
         if (!uploadedFiles.audio && !uploadedFiles.video && uploadedFiles.images.length === 0) {
-          alert('Please upload at least one content file (audio, video, or image)')
+          alert(t('podcasts.episodes.uploadAtLeastOne'))
           return
         }
         
@@ -259,24 +261,24 @@ const EpisodeCreateEditPage = () => {
       navigate('/admin/podcasts/episodes')
     } catch (error: any) {
       console.error('Error creating/updating episode:', error)
-      const errorMessage = error?.response?.data?.message || error?.message || 'An error occurred while creating the episode'
-      alert(`Error: ${errorMessage}`)
+      const errorMessage = error?.response?.data?.message || error?.message || t('errors.generic')
+      alert(`${t('errors.generic')}: ${errorMessage}`)
     }
   })
 
   return (
     <>
-      <PageTitle subName="Podcasts" title={isEdit ? 'Edit Episode' : 'Create Episode'} />
+      <PageTitle subName={t('pages.podcasts')} title={isEdit ? t('podcasts.episodes.edit') : t('podcasts.episodes.create')} />
       <Card>
         <CardHeader>
-          <CardTitle as={'h5'}>{isEdit ? 'Edit Episode' : 'New Episode'}</CardTitle>
+          <CardTitle as={'h5'}>{isEdit ? t('podcasts.episodes.edit') : t('podcasts.episodes.new')}</CardTitle>
         </CardHeader>
         <CardBody>
           <Form onSubmit={onSubmit} className="needs-validation" noValidate>
             <Row className="g-3">
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label>Series</Form.Label>
+                  <Form.Label>{t('podcasts.episodes.series')}</Form.Label>
                   <SeriesSelect
                     control={control}
                     name="seriesId"
@@ -287,33 +289,33 @@ const EpisodeCreateEditPage = () => {
               </Col>
               {/* Sequence is auto-assigned on create; kept editable only on edit via separate page if needed */}
               <Col md={6}>
-                <TextFormInput control={control} name="title" label="Title" placeholder="Title" />
+                <TextFormInput control={control} name="title" label={t('podcasts.episodes.titleLabel')} placeholder={t('podcasts.episodes.titleLabel')} />
               </Col>
               <Col md={6}>
                 <Controller
                   control={control}
                   name="isActive"
                   render={({ field }) => (
-                    <Form.Check type="switch" id="isActive" label="Active" checked={!!field.value} onChange={(e) => field.onChange(e.target.checked)} />
+                    <Form.Check type="switch" id="isActive" label={t('podcasts.episodes.isActive')} checked={!!field.value} onChange={(e) => field.onChange(e.target.checked)} />
                   )}
                 />
               </Col>
               <Col md={12}>
-                <TextAreaFormInput control={control} name="description" rows={3} label="Description" placeholder="Description" />
+                <TextAreaFormInput control={control} name="description" rows={3} label={t('podcasts.episodes.descriptionLabel')} placeholder={t('podcasts.episodes.descriptionLabel')} />
               </Col>
               <Col md={12}>
                 <hr />
-                <h6 className="mb-3">Content</h6>
+                <h6 className="mb-3">{t('podcasts.episodes.content')}</h6>
                 <p className="text-muted small mb-3">
                   {isEdit 
-                    ? 'Upload audio, video, or image files. The system will automatically detect the file type based on extension.'
-                    : 'Upload audio, video, or image files. Files will be automatically categorized and uploaded to CDN.'}
+                    ? t('podcasts.episodes.contentHelpEdit')
+                    : t('podcasts.episodes.contentHelpCreate')}
                 </p>
 
                 <DropzoneFormInput
-                  label="Content Files"
-                  text="Drop audio, video, or image files here or click to upload"
-                  helpText="Supported formats: Audio (mp3, wav, ogg, m4a, aac, flac, wma), Video (mp4, webm, ogg, mov, avi, mkv, flv, wmv), Images (jpg, jpeg, png, gif, webp, svg, bmp)"
+                  label={t('podcasts.episodes.contentFiles')}
+                  text={t('podcasts.episodes.dropFiles')}
+                  helpText={t('podcasts.episodes.supportedFormats')}
                   iconProps={{ icon: 'bx:cloud-upload', height: 36, width: 36 }}
                   showPreview={true}
                   onFileUpload={handleFileUpload}
@@ -343,8 +345,8 @@ const EpisodeCreateEditPage = () => {
               </Col>
             </Row>
             <div className="d-flex justify-content-end gap-2 mt-3">
-              <Button type="button" variant="light" onClick={() => navigate('/admin/podcasts/episodes')}>Cancel</Button>
-              <Button type="submit" variant="primary" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Create'}</Button>
+              <Button type="button" variant="light" onClick={() => navigate('/admin/podcasts/episodes')}>{t('common.cancel')}</Button>
+              <Button type="submit" variant="primary" disabled={isSubmitting}>{isSubmitting ? t('common.saving') : isEdit ? t('common.update') : t('common.create')}</Button>
             </div>
           </Form>
         </CardBody>

@@ -8,6 +8,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useI18n } from '@/i18n/context'
 
 type FormFields = {
   dayOrder: number
@@ -16,15 +17,16 @@ type FormFields = {
 }
 
 const CreateDailyContentPage = () => {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const location = useLocation()
   const [affirmations, setAffirmations] = useState<Affirmation[]>([])
   const [aphorisms, setAphorisms] = useState<Aphorism[]>([])
 
   const schema = yup.object({
-    dayOrder: yup.number().required('Please enter day order').min(1, 'Day order must be at least 1'),
-    affirmationId: yup.number().required('Please select affirmation').min(1, 'Please select affirmation'),
-    aporismId: yup.number().required('Please select aphorism').min(1, 'Please select aphorism'),
+    dayOrder: yup.number().required(t('dailyContent.enterDayOrder')).min(1, t('dailyContent.dayOrderMin')),
+    affirmationId: yup.number().required(t('dailyContent.selectAffirmationRequired')).min(1, t('dailyContent.selectAffirmationRequired')),
+    aporismId: yup.number().required(t('dailyContent.selectAphorismRequired')).min(1, t('dailyContent.selectAphorismRequired')),
   })
 
   const { control, handleSubmit, reset, formState } = useForm<FormFields>({
@@ -81,10 +83,10 @@ const CreateDailyContentPage = () => {
 
   return (
     <>
-      <PageTitle subName="Content" title="Edit Daily Content" />
+      <PageTitle subName={t('pages.content')} title={t('dailyContent.edit')} />
       <Card>
         <CardHeader>
-          <CardTitle as={'h5'}>Edit Daily Content</CardTitle>
+          <CardTitle as={'h5'}>{t('dailyContent.edit')}</CardTitle>
         </CardHeader>
         <CardBody>
           <Form onSubmit={onSubmit} className="needs-validation" noValidate>
@@ -95,7 +97,7 @@ const CreateDailyContentPage = () => {
                   name="dayOrder"
                   render={({ field, fieldState }) => (
                     <>
-                      <label className="form-label">Day Order</label>
+                      <label className="form-label">{t('dailyContent.dayOrder')}</label>
                       <input
                         type="number"
                         className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
@@ -113,9 +115,9 @@ const CreateDailyContentPage = () => {
                   name="affirmationId"
                   render={({ field, fieldState }) => (
                     <>
-                      <label className="form-label">Affirmation</label>
+                      <label className="form-label">{t('dailyContent.affirmation')}</label>
                       <select className={`form-select ${fieldState.error ? 'is-invalid' : ''}`} {...field} onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)} value={field.value || ''}>
-                        <option value="">Select Affirmation</option>
+                        <option value="">{t('dailyContent.selectAffirmation')}</option>
                         {affirmations.map((a) => (
                           <option key={a.affirmationId} value={a.affirmationId}>
                             {a.affirmationText}
@@ -133,9 +135,9 @@ const CreateDailyContentPage = () => {
                   name="aporismId"
                   render={({ field, fieldState }) => (
                     <>
-                      <label className="form-label">Aphorism</label>
+                      <label className="form-label">{t('dailyContent.aphorism')}</label>
                       <select className={`form-select ${fieldState.error ? 'is-invalid' : ''}`} {...field} onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)} value={field.value || ''}>
-                        <option value="">Select Aphorism</option>
+                        <option value="">{t('dailyContent.selectAphorism')}</option>
                         {aphorisms.map((a) => (
                           <option key={a.aphorismId} value={a.aphorismId}>
                             {a.aphorismText}
@@ -149,9 +151,9 @@ const CreateDailyContentPage = () => {
               </Col>
             </Row>
             <div className="d-flex justify-content-end gap-2 mt-3">
-              <Button type="button" variant="light" onClick={() => navigate('/admin/content/daily-content')}>Cancel</Button>
+              <Button type="button" variant="light" onClick={() => navigate('/admin/content/daily-content')}>{t('common.cancel')}</Button>
               <Button type="submit" variant="primary" disabled={isSubmitting || !isEdit}>
-                {isSubmitting ? 'Saving...' : 'Update'}
+                {isSubmitting ? t('common.saving') : t('common.update')}
               </Button>
             </div>
           </Form>

@@ -5,8 +5,10 @@ import type { DailyContentResponseDTO } from '@/services/dailyContent'
 import { Card, CardBody, CardHeader, CardTitle, Button } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 import DataTable from '@/components/table/DataTable'
+import { useI18n } from '@/i18n/context'
 
 const page = () => {
+  const { t } = useI18n()
   const [items, setItems] = useState<DailyContentResponseDTO[]>([])
   const [loading, setLoading] = useState(false)
   const [generating, setGenerating] = useState(false)
@@ -65,7 +67,7 @@ const page = () => {
   }, [])
 
   const handleAutoGenerate = async () => {
-    if (!confirm('Generate new daily content automatically? This will create daily content entries by matching affirmations and aphorisms based on their order.')) {
+    if (!confirm(t('dailyContent.autoGenerateConfirm'))) {
       return
     }
     setGenerating(true)
@@ -115,7 +117,7 @@ const page = () => {
       }
 
       if (promises.length === 0) {
-        alert('No new daily content to generate. All available affirmations and aphorisms are already assigned.')
+        alert(t('dailyContent.noNewContent'))
         return
       }
 
@@ -123,7 +125,7 @@ const page = () => {
       await loadData()
     } catch (error) {
       console.error('Generate error:', error)
-      alert('Failed to generate daily content. Please try again.')
+      alert(t('dailyContent.generateError'))
     } finally {
       setGenerating(false)
     }
@@ -131,20 +133,20 @@ const page = () => {
 
   return (
     <>
-      <PageTitle subName="Content" title="Daily Content" />
+      <PageTitle subName={t('pages.content')} title={t('dailyContent.title')} />
       <Card>
         <CardHeader className="d-flex align-items-center justify-content-between">
-          <CardTitle as={'h5'}>Daily Content List</CardTitle>
+          <CardTitle as={'h5'}>{t('dailyContent.list')}</CardTitle>
           <div className="d-flex align-items-center gap-2 ms-auto">
             <input
               className="form-control form-control-sm"
-              placeholder="Search daily content..."
+              placeholder={t('dailyContent.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{ width: 260 }}
             />
             <Button variant="primary" size="sm" onClick={handleAutoGenerate} disabled={generating}>
-              {generating ? 'Generating...' : 'Auto Generate'}
+              {generating ? t('dailyContent.generating') : t('dailyContent.autoGenerate')}
             </Button>
           </div>
         </CardHeader>
@@ -156,29 +158,29 @@ const page = () => {
             hideSearch
             searchQuery={search}
             onSearchQueryChange={setSearch}
-            searchPlaceholder="Search daily content..."
+            searchPlaceholder={t('dailyContent.searchPlaceholder')}
             searchKeys={['dayOrder', 'affirmation.affirmationText', 'aphorism.aphorismText']}
-            actionsHeader="Actions"
+            actionsHeader={t('common.actions')}
             renderRowActions={(row) => {
               const dc = row as DailyContentResponseDTO
               return (
                 <div className="d-inline-flex gap-2">
-                  <Button size="sm" variant="outline-secondary" onClick={() => navigate('/admin/content/daily-content/create', { state: { mode: 'edit', item: dc } })}>Edit</Button>
+                  <Button size="sm" variant="outline-secondary" onClick={() => navigate('/admin/content/daily-content/create', { state: { mode: 'edit', item: dc } })}>{t('common.edit')}</Button>
                   <Button size="sm" variant="outline-danger" onClick={async () => {
-                    if (confirm('Delete this daily content?')) {
+                    if (confirm(t('dailyContent.deleteConfirm'))) {
                       await dailyContentService.deleteDailyContent(dc.dailyContentId)
                       await loadData()
                     }
-                  }}>Delete</Button>
+                  }}>{t('common.delete')}</Button>
                 </div>
               )
             }}
             columns={[
               { key: 'dailyContentId', header: 'ID', width: '80px', sortable: true },
-              { key: 'dayOrder', header: 'Day #', width: '100px', sortable: true },
+              { key: 'dayOrder', header: t('dailyContent.dayOrder'), width: '100px', sortable: true },
               {
                 key: 'affirmation',
-                header: 'Affirmation',
+                header: t('dailyContent.affirmation'),
                 render: (r) => {
                   const dc = r as DailyContentResponseDTO
                   if (dc.affirmation?.affirmationText) {
@@ -192,7 +194,7 @@ const page = () => {
               },
               {
                 key: 'aphorism',
-                header: 'Aphorism',
+                header: t('dailyContent.aphorism'),
                 render: (r) => {
                   const dc = r as DailyContentResponseDTO
                   if (dc.aphorism?.aphorismText) {

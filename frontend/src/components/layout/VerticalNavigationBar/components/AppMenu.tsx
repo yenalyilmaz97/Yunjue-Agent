@@ -5,8 +5,10 @@ import clsx from 'clsx'
 import { Fragment, MouseEvent, useCallback, useEffect, useState } from 'react'
 import { Collapse } from 'react-bootstrap'
 import { Link, useLocation } from 'react-router-dom'
+import { useI18n } from '@/i18n/context'
 
 const MenuItemWithChildren = ({ item, className, linkClassName, subMenuClassName, activeMenuItems, toggleMenu }: SubMenus) => {
+  const { t } = useI18n()
   const [open, setOpen] = useState<boolean>(activeMenuItems!.includes(item.key))
 
   useEffect(() => {
@@ -28,6 +30,39 @@ const MenuItemWithChildren = ({ item, className, linkClassName, subMenuClassName
     [activeMenuItems],
   )
 
+  const getLabel = (label: string) => {
+    // Map specific labels to translation keys
+    const labelMap: Record<string, string> = {
+      'MENU...': 'sidebar.menu...',
+      'dashboard': 'sidebar.dashboard',
+      'Daily': 'sidebar.daily',
+      'Daily Content': 'sidebar.dailycontent',
+      'Aphorisms': 'sidebar.aphorisms',
+      'Affirmations': 'sidebar.affirmations',
+      'Weeklies': 'sidebar.weeklies',
+      'Weekly Content': 'sidebar.weeklycontent',
+      'Music': 'sidebar.music',
+      'Movies': 'sidebar.movies',
+      'Tasks': 'sidebar.tasks',
+      'Weekly Questions': 'sidebar.weeklyquestions',
+      'Content': 'sidebar.content',
+      'Articles': 'sidebar.articles',
+      'Series': 'sidebar.series',
+      'Episodes': 'sidebar.episodes',
+      'Users': 'sidebar.users',
+      'All Users': 'sidebar.allusers',
+      'Roles': 'sidebar.roles',
+      'Access': 'sidebar.access',
+      'Series Access': 'sidebar.seriesaccess',
+      'Weekly Assignment': 'sidebar.weeklyassignment',
+      'User Questions': 'sidebar.userquestions',
+    }
+    
+    const translationKey = labelMap[label] || `sidebar.${label.toLowerCase().replace(/\s+/g, '').replace(/\.\.\./g, '')}`
+    const translated = t(translationKey)
+    return translated !== translationKey ? translated : label
+  }
+
   return (
     <li className={className}>
       <div onClick={toggleMenuItem} aria-expanded={open} role="button" className={clsx(linkClassName)}>
@@ -36,7 +71,7 @@ const MenuItemWithChildren = ({ item, className, linkClassName, subMenuClassName
             <IconifyIcon icon={item.icon} width={18} height={18} aria-hidden />
           </span>
         )}
-        <span className="nav-text">{item.label}</span>
+        <span className="nav-text">{getLabel(item.label)}</span>
         {!item.badge ? (
           <IconifyIcon icon="bx:chevron-down" className="menu-arrow ms-auto" />
         ) : (
@@ -80,6 +115,41 @@ const MenuItem = ({ item, className, linkClassName }: SubMenus) => {
 }
 
 const MenuItemLink = ({ item, className }: SubMenus) => {
+  const { t } = useI18n()
+  
+  const getLabel = (label: string) => {
+    // Map specific labels to translation keys
+    const labelMap: Record<string, string> = {
+      'MENU...': 'sidebar.menu...',
+      'dashboard': 'sidebar.dashboard',
+      'Daily': 'sidebar.daily',
+      'Daily Content': 'sidebar.dailycontent',
+      'Aphorisms': 'sidebar.aphorisms',
+      'Affirmations': 'sidebar.affirmations',
+      'Weeklies': 'sidebar.weeklies',
+      'Weekly Content': 'sidebar.weeklycontent',
+      'Music': 'sidebar.music',
+      'Movies': 'sidebar.movies',
+      'Tasks': 'sidebar.tasks',
+      'Weekly Questions': 'sidebar.weeklyquestions',
+      'Content': 'sidebar.content',
+      'Articles': 'sidebar.articles',
+      'Series': 'sidebar.series',
+      'Episodes': 'sidebar.episodes',
+      'Users': 'sidebar.users',
+      'All Users': 'sidebar.allusers',
+      'Roles': 'sidebar.roles',
+      'Access': 'sidebar.access',
+      'Series Access': 'sidebar.seriesaccess',
+      'Weekly Assignment': 'sidebar.weeklyassignment',
+      'User Questions': 'sidebar.userquestions',
+    }
+    
+    const translationKey = labelMap[label] || `sidebar.${label.toLowerCase().replace(/\s+/g, '').replace(/\.\.\./g, '')}`
+    const translated = t(translationKey)
+    return translated !== translationKey ? translated : label
+  }
+
   return (
     <Link to={item.url ?? ''} target={item.target} className={clsx(className, { disabled: item.isDisabled })}>
       {item.icon && (
@@ -87,7 +157,7 @@ const MenuItemLink = ({ item, className }: SubMenus) => {
           <IconifyIcon icon={item.icon} width={18} height={18} aria-hidden />
         </span>
       )}
-      <span className="nav-text ">{item.label}</span>
+      <span className="nav-text ">{getLabel(item.label)}</span>
       {item.badge && <span className={`badge badge-pill text-end bg-${item.badge.variant}`}>{item.badge.text}</span>}
     </Link>
   )
@@ -99,6 +169,7 @@ type AppMenuProps = {
 
 const AppMenu = ({ menuItems }: AppMenuProps) => {
   const { pathname } = useLocation()
+  const { t } = useI18n()
 
   const [activeMenuItems, setActiveMenuItems] = useState<Array<string>>([])
   const toggleMenu = (menuItem: MenuItemType, show: boolean) => {
@@ -111,6 +182,12 @@ const AppMenu = ({ menuItems }: AppMenuProps) => {
     },
     [activeMenuItems],
   )
+
+  const getLabel = (label: string) => {
+    const translationKey = `sidebar.${label.toLowerCase().replace(/\s+/g, '').replace(/\.\.\./g, '')}`
+    const translated = t(translationKey)
+    return translated !== translationKey ? translated : label
+  }
 
   const activeMenu = useCallback(() => {
     const trimmedURL = pathname?.replace('', '')
@@ -169,7 +246,7 @@ const AppMenu = ({ menuItems }: AppMenuProps) => {
         return (
           <Fragment key={item.key + idx}>
             {item.isTitle ? (
-              <li className={clsx('menu-title')}>{item.label}</li>
+              <li className={clsx('menu-title')}>{getLabel(item.label)}</li>
             ) : (
               <>
                 {item.children ? (

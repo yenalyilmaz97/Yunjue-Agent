@@ -7,12 +7,14 @@ import TextAreaFormInput from '@/components/from/TextAreaFormInput'
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useI18n } from '@/i18n/context'
 
 const CreateAphorismPage = () => {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const location = useLocation()
   const schema = yup.object({
-    aphorismText: yup.string().trim().required('Please enter aphorism'),
+    aphorismText: yup.string().trim().required(t('weeklyContent.aphorisms.enterTextRequired')),
   })
 
   const { control, handleSubmit, reset, formState } = useForm<{ aphorismText: string}>({
@@ -41,10 +43,10 @@ const CreateAphorismPage = () => {
 
   return (
     <>
-      <PageTitle subName="Content" title="Create Aphorism" />
+      <PageTitle subName={t('pages.content')} title={isEdit ? t('weeklyContent.aphorisms.edit') : t('weeklyContent.aphorisms.create')} />
       <Card>
         <CardHeader>
-          <CardTitle as={'h5'}>{isEdit ? 'Edit Aphorism' : 'New Aphorism'}</CardTitle>
+          <CardTitle as={'h5'}>{isEdit ? t('weeklyContent.aphorisms.edit') : t('weeklyContent.aphorisms.new')}</CardTitle>
         </CardHeader>
         <CardBody>
           <Form onSubmit={onSubmit} className="needs-validation" noValidate>
@@ -54,14 +56,14 @@ const CreateAphorismPage = () => {
                   control={control}
                   name="aphorismText"
                   rows={3}
-                  label="Text"
-                  placeholder="Enter aphorism"
+                  label={t('weeklyContent.aphorisms.text')}
+                  placeholder={t('weeklyContent.aphorisms.enterText')}
                 />
               </Col>
             </Row>
             <div className="d-flex justify-content-end gap-2 mt-3">
-              <Button type="button" variant="light" onClick={() => navigate('/admin/content/aphorisms')}>Cancel</Button>
-              <Button type="submit" variant="primary" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Create'}</Button>
+              <Button type="button" variant="light" onClick={() => navigate('/admin/content/aphorisms')}>{t('common.cancel')}</Button>
+              <Button type="submit" variant="primary" disabled={isSubmitting}>{isSubmitting ? t('common.saving') : isEdit ? t('common.update') : t('common.create')}</Button>
             </div>
           </Form>
         </CardBody>

@@ -5,8 +5,10 @@ import type { WeeklyContent } from '@/types/keci'
 import { useAuthContext } from '@/context/useAuthContext'
 import type { AnswerWeeklyQuestionRequest } from '@/services/weeklyQuestionAnswer'
 import type { CreateUserProgressRequest } from '@/services/userProgress'
+import { useI18n } from '@/i18n/context'
 
 const WeeklyTasksTable = () => {
+  const { t } = useI18n()
   const { user } = useAuthContext()
   const [weeklyContent, setWeeklyContent] = useState<WeeklyContent | null>(null)
   const [loading, setLoading] = useState(true)
@@ -115,7 +117,7 @@ const WeeklyTasksTable = () => {
       <div className="mb-4">
         <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '200px' }}>
           <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Yükleniyor...</span>
+            <span className="visually-hidden">{t('common.loading')}</span>
           </div>
         </div>
       </div>
@@ -126,7 +128,7 @@ const WeeklyTasksTable = () => {
     return (
       <div className="mb-4">
         <div className="text-center text-muted py-4">
-          <p>Henüz haftalık görev bulunmamaktadır.</p>
+          <p>{t('dashboard.noWeeklyTask')}</p>
         </div>
       </div>
     )
@@ -135,7 +137,7 @@ const WeeklyTasksTable = () => {
   return (
     <>
       <div className="mb-4">
-        <h5 className="mb-3">Haftalık Görevler</h5>
+        <h5 className="mb-3">{t('dashboard.weeklyTasks')}</h5>
         <Card>
           <CardBody>
             <TabContainer activeKey={activeTab} onSelect={(k) => setActiveTab(k || 'music')}>
@@ -143,25 +145,25 @@ const WeeklyTasksTable = () => {
                 <NavItem>
                   <NavLink eventKey="music">
                     <i className="bx bx-music me-2"></i>
-                    <span className="d-none d-sm-inline">Müzik</span>
+                    <span className="d-none d-sm-inline">{t('dashboard.music')}</span>
                   </NavLink>
                 </NavItem>
                 <NavItem>
                   <NavLink eventKey="movie">
                     <i className="bx bx-movie me-2"></i>
-                    <span className="d-none d-sm-inline">Film</span>
+                    <span className="d-none d-sm-inline">{t('dashboard.movie')}</span>
                   </NavLink>
                 </NavItem>
                 <NavItem>
                   <NavLink eventKey="task">
                     <i className="bx bx-task me-2"></i>
-                    <span className="d-none d-sm-inline">Görev</span>
+                    <span className="d-none d-sm-inline">{t('dashboard.task')}</span>
                   </NavLink>
                 </NavItem>
                 <NavItem>
                   <NavLink eventKey="question">
                     <i className="bx bx-question-mark me-2"></i>
-                    <span className="d-none d-sm-inline">Soru</span>
+                    <span className="d-none d-sm-inline">{t('dashboard.question')}</span>
                   </NavLink>
                 </NavItem>
               </Nav>
@@ -171,7 +173,7 @@ const WeeklyTasksTable = () => {
                   <div>
                     <h6 className="mb-3">
                       <i className="bx bx-music me-2 text-primary"></i>
-                      {weeklyContent.music?.musicTitle || 'Müzik bulunamadı'}
+                      {weeklyContent.music?.musicTitle || t('dashboard.musicNotFound')}
                     </h6>
                     {weeklyContent.music?.musicDescription && (
                       <p className="text-muted mb-3">{weeklyContent.music.musicDescription}</p>
@@ -186,7 +188,7 @@ const WeeklyTasksTable = () => {
                           rel="noopener noreferrer"
                           className="d-inline-flex align-items-center"
                         >
-                          <i className="bx bx-headphone me-1"></i>Dinle
+                          <i className="bx bx-headphone me-1"></i>{t('dashboard.listen')}
                         </Button>
                       </div>
                     )}
@@ -198,7 +200,7 @@ const WeeklyTasksTable = () => {
                   <div>
                     <h6 className="mb-3">
                       <i className="bx bx-movie me-2 text-primary"></i>
-                      {weeklyContent.movie?.movieTitle || 'Film bulunamadı'}
+                      {weeklyContent.movie?.movieTitle || t('dashboard.movieNotFound')}
                     </h6>
                   </div>
                 </TabPane>
@@ -207,7 +209,7 @@ const WeeklyTasksTable = () => {
                 <TabPane eventKey="task">
                   <div>
                     <h6 className="mb-3">
-                      <i className="bx bx-task me-2 text-primary"></i>Görev
+                      <i className="bx bx-task me-2 text-primary"></i>{t('dashboard.task')}
                     </h6>
                     <p
                       className="mb-3"
@@ -216,16 +218,16 @@ const WeeklyTasksTable = () => {
                         fontWeight: 'bold',
                         fontSize: '1.1rem',
                       }}>
-                      {weeklyContent.task?.taskDescription || 'Görev bulunamadı'}
+                      {weeklyContent.task?.taskDescription || t('dashboard.taskNotFound')}
                     </p>
                     <div className="mt-3">
                       {taskCompleted ? (
                         <Badge bg="success" className="p-2">
-                          <i className="bx bx-check me-1"></i>Yapıldı
+                          <i className="bx bx-check me-1"></i>{t('dashboard.completed')}
                         </Badge>
                       ) : (
                         <Button variant="outline-primary" onClick={handleTaskComplete}>
-                          <i className="bx bx-check me-1"></i>Yaptım
+                          <i className="bx bx-check me-1"></i>{t('dashboard.markAsCompleted')}
                         </Button>
                       )}
                     </div>
@@ -236,17 +238,17 @@ const WeeklyTasksTable = () => {
                 <TabPane eventKey="question">
                   <div>
                     <h6 className="mb-3">
-                      <i className="bx bx-question-mark me-2 text-primary"></i>Soru
+                      <i className="bx bx-question-mark me-2 text-primary"></i>{t('dashboard.question')}
                     </h6>
-                    <p className="mb-3">{weeklyContent.weeklyQuestion?.weeklyQuestionText || 'Soru bulunamadı'}</p>
+                    <p className="mb-3">{weeklyContent.weeklyQuestion?.weeklyQuestionText || t('dashboard.questionNotFound')}</p>
                     <div className="mt-3">
                       {questionAnswered ? (
                         <Badge bg="success" className="p-2">
-                          <i className="bx bx-check me-1"></i>Yanıtlandı
+                          <i className="bx bx-check me-1"></i>{t('dashboard.answered')}
                         </Badge>
                       ) : (
                         <Button variant="primary" onClick={handleQuestionClick}>
-                          <i className="bx bx-edit me-1"></i>Yanıtla
+                          <i className="bx bx-edit me-1"></i>{t('dashboard.answer')}
                         </Button>
                       )}
                     </div>
@@ -261,16 +263,16 @@ const WeeklyTasksTable = () => {
       {/* Soru Yanıtlama Modal */}
       <Modal show={showQuestionModal} onHide={() => setShowQuestionModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Haftalık Soruya Yanıt Ver</Modal.Title>
+          <Modal.Title>{t('dashboard.answerWeeklyQuestion')}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="mb-3">
-            <strong>Soru:</strong>
+            <strong>{t('dashboard.questionText')}:</strong>
             <p className="mt-2">{weeklyContent.weeklyQuestion?.weeklyQuestionText}</p>
           </div>
           <div>
             <label htmlFor="questionAnswer" className="form-label">
-              <strong>Yanıtınız:</strong>
+              <strong>{t('dashboard.yourAnswer')}:</strong>
             </label>
             <textarea
               id="questionAnswer"
@@ -278,22 +280,22 @@ const WeeklyTasksTable = () => {
               rows={5}
               value={questionAnswer}
               onChange={(e) => setQuestionAnswer(e.target.value)}
-              placeholder="Yanıtınızı buraya yazın..."
+              placeholder={t('dashboard.answerPlaceholder')}
             />
           </div>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowQuestionModal(false)}>
-            İptal
+            {t('common.cancel')}
           </Button>
           <Button variant="primary" onClick={handleSubmitAnswer} disabled={!questionAnswer.trim() || submittingAnswer}>
             {submittingAnswer ? (
               <>
                 <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Gönderiliyor...
+                {t('dashboard.submitting')}
               </>
             ) : (
-              'Gönder'
+              t('common.submit')
             )}
           </Button>
         </Modal.Footer>
