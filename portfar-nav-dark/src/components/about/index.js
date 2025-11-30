@@ -29,7 +29,7 @@ const About = (props) => {
                                 <p> Burada amaç yüzeysel motivasyon değil; zihinsel keskinlik, davranışsal güç ve sosyal çevrede etkin bir pozisyon kazanmaktır. Keçiyi Besle, ilişkilerden iş dünyasına kadar hayatın her alanındaki dinamikleri analiz ederek, erkeğe stratejik avantaj sağlayan pratik teknikler sunar.  Her erkek aynı yollardan geçmez; bu yüzden yaklaşımımız kişiye özel, hedef odaklı ve sonuç garantili yöntemlerle ilerler.</p>
                                 <div className="signeture">
                                     <span><img src={sign} alt="" /></span>
-                                    <p>Ceo Of Designlab IT</p>
+                                    <p>Ramazan Mert Durak</p>
                                 </div>
                                 <DefaultModal buttonClass={'template-btn'} />
                             </div>
