@@ -27,13 +27,13 @@ const HomePage =() => {
             <Element name="service">
                 <Service/>
             </Element>
-            <Element name="portfolio">
+            {/* <Element name="portfolio">
                 <Portfolio/>
-            </Element>
-            <Element name="testimonials">
+            </Element> */}
+            {/* <Element name="testimonials">
             <Testimonial/>
             </Element>
-            <PricingPlan/>
+            <PricingPlan/> */}
             {/* <Element name="blog">
                 <BlogSection/>
             </Element> */}
