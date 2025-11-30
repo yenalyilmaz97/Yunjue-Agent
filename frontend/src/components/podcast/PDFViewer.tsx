@@ -25,7 +25,7 @@ const PDFViewer = ({ pdfUrl, title, onClose }: PDFViewerProps) => {
   return (
     <Card className="border-0 shadow-sm">
       <CardBody className="p-0">
-        <div className="position-relative" style={{ minHeight: '500px', maxHeight: '80vh' }}>
+        <div className="position-relative" style={{ minHeight: '700px', maxHeight: '90vh' }}>
           {loading && (
             <div
               className="position-absolute top-50 start-50 translate-middle"
@@ -41,50 +41,33 @@ const PDFViewer = ({ pdfUrl, title, onClose }: PDFViewerProps) => {
           )}
 
           {error ? (
-            <div className="d-flex flex-column align-items-center justify-content-center p-5" style={{ minHeight: '500px' }}>
+            <div className="d-flex flex-column align-items-center justify-content-center p-5" style={{ minHeight: '700px' }}>
               <Icon icon="mingcute:file-pdf-line" style={{ fontSize: '4rem', opacity: 0.3 }} className="text-danger mb-3" />
               <p className="text-muted mb-3">PDF yüklenemedi</p>
-              <div className="d-flex gap-2">
-                <Button variant="outline-secondary" size="sm" onClick={() => window.open(pdfUrl, '_blank')}>
-                  <Icon icon="mingcute:external-link-line" className="me-1" />
-                  Yeni Sekmede Aç
-                </Button>
-              </div>
             </div>
           ) : (
             <>
               <iframe
                 src={`${pdfUrl}#toolbar=1&navpanes=1&scrollbar=1`}
                 className="w-100 h-100 border-0"
-                style={{ minHeight: '500px', maxHeight: '80vh' }}
+                style={{ minHeight: '700px', maxHeight: '90vh' }}
                 onLoad={handleLoad}
                 onError={handleError}
                 title={title || 'PDF Viewer'}
               />
-              <div className="position-absolute top-0 end-0 p-2" style={{ zIndex: 10 }}>
-                <div className="d-flex gap-2">
+              {onClose && (
+                <div className="position-absolute top-0 end-0 p-2" style={{ zIndex: 10 }}>
                   <Button
                     variant="light"
                     size="sm"
-                    onClick={() => window.open(pdfUrl, '_blank')}
+                    onClick={onClose}
                     className="shadow-sm"
-                    title="Yeni Sekmede Aç"
+                    title="Kapat"
                   >
-                    <Icon icon="mingcute:external-link-line" />
+                    <Icon icon="mingcute:close-line" />
                   </Button>
-                  {onClose && (
-                    <Button
-                      variant="light"
-                      size="sm"
-                      onClick={onClose}
-                      className="shadow-sm"
-                      title="Kapat"
-                    >
-                      <Icon icon="mingcute:close-line" />
-                    </Button>
-                  )}
                 </div>
-              </div>
+              )}
             </>
           )}
         </div>

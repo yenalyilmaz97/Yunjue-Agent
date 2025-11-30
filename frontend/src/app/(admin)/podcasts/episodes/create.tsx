@@ -131,7 +131,7 @@ const EpisodeCreateEditPage = () => {
         content: {
           audio: content.audio || '',
           video: content.video || '',
-          images: [],
+          images: content.images || [],
         },
         isActive: !!editItem.isActive,
       })
@@ -140,28 +140,90 @@ const EpisodeCreateEditPage = () => {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      // Validation: At least one content type must be provided
-      if (!uploadedFiles.audio && !uploadedFiles.video && uploadedFiles.images.length === 0) {
-        alert('Please upload at least one content file (audio, video, or image)')
-        return
-      }
-      
-      // Determine isVideo based on content - if video exists, it's a video episode
-      const isVideo = !!uploadedFiles.video
-      
       if (isEdit && editItem) {
-        // For edit, use existing content URLs
-        const content = editItem.content || { audio: editItem.audioLink || '', video: '', images: [] }
-        await podcastService.updateEpisode(editItem.episodesId, {
-          seriesId: data.seriesId,
-          title: data.title,
-          description: data.description,
-          content: content,
-          sequenceNumber: editItem.sequenceNumber,
-          isActive: data.isActive,
-          isVideo: isVideo,
-        })
+        // For edit mode: get existing content
+        const existingContent = editItem.content || { audio: editItem.audioLink || '', video: '', images: [] }
+        
+        // Check if new files are uploaded
+        const hasNewFiles = !!(uploadedFiles.audio || uploadedFiles.video || uploadedFiles.images.length > 0)
+        
+        // Validation: At least one content type must exist (either existing or new)
+        const hasExistingContent = !!(existingContent.audio || existingContent.video || (existingContent.images && existingContent.images.length > 0))
+        
+        if (!hasExistingContent && !hasNewFiles) {
+          alert('Please upload at least one content file (audio, video, or image) or ensure existing content is available')
+          return
+        }
+        
+        // Determine isVideo: prioritize new video, then existing video
+        const isVideo = !!(uploadedFiles.video || existingContent.video)
+        
+        // If new files are uploaded, use FormData approach with file upload endpoint
+        if (hasNewFiles) {
+          const formData = new FormData()
+          formData.append('episodeId', editItem.episodesId.toString())
+          formData.append('seriesId', data.seriesId.toString())
+          formData.append('title', data.title)
+          if (data.description) {
+            formData.append('description', data.description)
+          }
+          formData.append('sequenceNumber', editItem.sequenceNumber.toString())
+          formData.append('isActive', data.isActive.toString())
+          formData.append('isVideo', isVideo.toString())
+          
+          // Add files if uploaded
+          if (uploadedFiles.audio) {
+            formData.append('audioFile', uploadedFiles.audio)
+            console.log('Adding audio file:', uploadedFiles.audio.name, 'Size:', uploadedFiles.audio.size)
+          }
+          
+          if (uploadedFiles.video) {
+            formData.append('videoFile', uploadedFiles.video)
+            console.log('Adding video file:', uploadedFiles.video.name, 'Size:', uploadedFiles.video.size)
+          }
+          
+          if (uploadedFiles.images.length > 0) {
+            uploadedFiles.images.forEach((file, index) => {
+              formData.append('imageFiles', file)
+              console.log(`Adding image file ${index + 1}:`, file.name, 'Size:', file.size)
+            })
+          }
+          
+          // If existing images should be preserved, add them as JSON
+          if (uploadedFiles.images.length === 0 && existingContent.images && existingContent.images.length > 0) {
+            formData.append('imageUrlsJson', JSON.stringify(existingContent.images))
+          }
+          
+          console.log('Updating episode with files...')
+          await podcastService.updateEpisodeWithFiles(formData)
+          console.log('Episode updated successfully with files')
+        } else {
+          // No new files, use existing content with regular update endpoint
+          const content: EpisodeContent = {
+            audio: existingContent.audio || '',
+            video: existingContent.video || '',
+            images: existingContent.images || [],
+          }
+          
+          await podcastService.updateEpisode(editItem.episodesId, {
+            seriesId: data.seriesId,
+            title: data.title,
+            description: data.description,
+            content: content,
+            sequenceNumber: editItem.sequenceNumber,
+            isActive: data.isActive,
+            isVideo: isVideo,
+          })
+        }
       } else {
+        // Validation: At least one content type must be provided for create
+        if (!uploadedFiles.audio && !uploadedFiles.video && uploadedFiles.images.length === 0) {
+          alert('Please upload at least one content file (audio, video, or image)')
+          return
+        }
+        
+        // Determine isVideo based on content - if video exists, it's a video episode
+        const isVideo = !!uploadedFiles.video
         // Create FormData for file upload
         const formData = new FormData()
         formData.append('seriesId', data.seriesId.toString())

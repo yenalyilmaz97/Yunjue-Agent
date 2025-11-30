@@ -1,8 +1,9 @@
 import PageTitle from '@/components/PageTitle'
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
-import { userService, favoritesService, notesService, questionsService } from '@/services'
+import { userService, favoritesService, notesService, questionsService, weeklyQuestionAnswerService } from '@/services'
 import type { User, Favorite, Note, Question } from '@/types/keci'
+import type { WeeklyQuestionAnswerResponseDTO } from '@/services/weeklyQuestionAnswer'
 import { Card, CardBody, CardHeader, CardTitle, Button, Row, Col, Nav, Modal, Form } from 'react-bootstrap'
 import IconifyIcon from '@/components/wrapper/IconifyIcon'
 import DataTable from '@/components/table/DataTable'
@@ -17,12 +18,13 @@ const UserDetailPage = () => {
   const location = useLocation()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'favorites' | 'notes' | 'questions'>(
-    (location.state as { activeTab?: 'favorites' | 'notes' | 'questions' })?.activeTab || 'favorites'
+  const [activeTab, setActiveTab] = useState<'favorites' | 'notes' | 'questions' | 'weeklyAnswers'>(
+    (location.state as { activeTab?: 'favorites' | 'notes' | 'questions' | 'weeklyAnswers' })?.activeTab || 'favorites'
   )
   const [favorites, setFavorites] = useState<Favorite[]>([])
   const [notes, setNotes] = useState<Note[]>([])
   const [questions, setQuestions] = useState<Question[]>([])
+  const [weeklyAnswers, setWeeklyAnswers] = useState<WeeklyQuestionAnswerResponseDTO[]>([])
   const [showResetModal, setShowResetModal] = useState(false)
 
   const resetSchema = yup.object({
@@ -53,11 +55,12 @@ const UserDetailPage = () => {
     if (!userId) return
     setLoading(true)
     try {
-      const [userData, favoritesData, notesData, questionsData] = await Promise.all([
+      const [userData, favoritesData, notesData, questionsData, weeklyAnswersData] = await Promise.all([
         userService.getUserById(parseInt(userId)),
         favoritesService.getFavoritesByUser(parseInt(userId)),
         notesService.getNotesByUser(parseInt(userId)),
         questionsService.getQuestionsByUser(parseInt(userId)),
+        weeklyQuestionAnswerService.getWeeklyQuestionAnswersByUser(parseInt(userId)),
       ])
       setUser(userData)
       setFavorites(favoritesData)
@@ -69,6 +72,7 @@ const UserDetailPage = () => {
         return dateB - dateA
       })
       setQuestions(sortedQuestions)
+      setWeeklyAnswers(weeklyAnswersData)
     } finally {
       setLoading(false)
     }
@@ -154,6 +158,9 @@ const UserDetailPage = () => {
             </Nav.Item>
             <Nav.Item>
               <Nav.Link eventKey="questions">Questions ({questions.length})</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="weeklyAnswers">Weekly Question Answers ({weeklyAnswers.length})</Nav.Link>
             </Nav.Item>
           </Nav>
         </CardHeader>
@@ -265,6 +272,46 @@ const UserDetailPage = () => {
                     key: 'createdAt',
                     header: 'Created At',
                     render: (r) => new Date((r as Question).createdAt).toLocaleDateString(),
+                  },
+                ]}
+              />
+          )}
+
+          {activeTab === 'weeklyAnswers' && (
+            <DataTable
+                isLoading={loading}
+                data={weeklyAnswers}
+                rowKey={(r) => (r as WeeklyQuestionAnswerResponseDTO).weeklyQuestionAnswerId}
+                hideSearch
+                columns={[
+                  { key: 'weeklyQuestionAnswerId', header: 'ID', width: '80px', sortable: true },
+                  {
+                    key: 'weeklyQuestionId',
+                    header: 'Question ID',
+                    width: '120px',
+                    sortable: true,
+                  },
+                  {
+                    key: 'weeklyQuestion',
+                    header: 'Question',
+                    render: (r) => {
+                      const answer = r as WeeklyQuestionAnswerResponseDTO
+                      const question = answer.weeklyQuestion
+                      if (question && 'weeklyQuestionText' in question) {
+                        const text = question.weeklyQuestionText as string
+                        return text.length > 100 ? `${text.substring(0, 100)}...` : text
+                      }
+                      return '-'
+                    },
+                  },
+                  {
+                    key: 'weeklyQuestionAnswerText',
+                    header: 'Answer',
+                    render: (r) => {
+                      const answer = r as WeeklyQuestionAnswerResponseDTO
+                      const text = answer.weeklyQuestionAnswerText || ''
+                      return text.length > 150 ? `${text.substring(0, 150)}...` : text || '-'
+                    },
                   },
                 ]}
               />

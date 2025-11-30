@@ -257,11 +257,12 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("{userId}/profile-picture")]
-    public async Task<ActionResult<UserResponseDTO>> UploadProfilePicture(int userId, [FromForm] IFormFile file)
+    [Consumes("multipart/form-data")]
+    public async Task<ActionResult<UserResponseDTO>> UploadProfilePicture(int userId, [FromForm] UploadProfilePictureRequest request)
     {
         try
         {
-            if (file == null || file.Length == 0)
+            if (request.File == null || request.File.Length == 0)
             {
                 return BadRequest(new { message = "File is required" });
             }
@@ -275,7 +276,7 @@ public class UserController : ControllerBase
 
             // Upload profile picture
             var fileUploadService = HttpContext.RequestServices.GetRequiredService<IFileUploadService>();
-            string profilePictureUrl = await fileUploadService.UploadProfilePictureAsync(file, user.UserName);
+            string profilePictureUrl = await fileUploadService.UploadProfilePictureAsync(request.File, user.UserName);
 
             // Update user's profile picture URL
             var updatedUser = await _userService.UpdateProfilePictureAsync(userId, profilePictureUrl);
@@ -296,4 +297,10 @@ public class UserController : ControllerBase
     }
 
     // Role operations
+}
+
+// Request DTO for profile picture upload
+public class UploadProfilePictureRequest
+{
+    public IFormFile File { get; set; }
 }

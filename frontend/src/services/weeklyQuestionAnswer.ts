@@ -2,13 +2,19 @@ import { api, API_CONFIG } from '@/lib/axios'
 
 const WEEKLY_QUESTION_ANSWER_ENDPOINT = API_CONFIG.ENDPOINTS.WEEKLY_QUESTION_ANSWER
 
+export interface WeeklyQuestionResponseDTO {
+  weeklyQuestionId: number
+  weeklyQuestionText: string
+  order: number
+}
+
 export interface WeeklyQuestionAnswerResponseDTO {
   weeklyQuestionAnswerId: number
   userId: number
   weeklyQuestionId: number
   weeklyQuestionAnswerText: string | null
   user?: unknown
-  weeklyQuestion?: unknown
+  weeklyQuestion?: WeeklyQuestionResponseDTO
 }
 
 export interface AnswerWeeklyQuestionRequest {

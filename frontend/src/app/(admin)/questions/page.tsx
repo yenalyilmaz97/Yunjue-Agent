@@ -282,6 +282,27 @@ const QuestionsPage = () => {
                   width: '150px',
                   sortable: true,
                 },
+                {
+                  key: 'actions',
+                  header: 'Actions',
+                  width: '180px',
+                  render: (r) => {
+                    const g = r as QuestionGroup
+                    return (
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedUser(g)
+                          setShowModal(true)
+                        }}
+                      >
+                        <Icon icon="mingcute:edit-line" className="me-1" />
+                        Answer Questions
+                      </Button>
+                    )
+                  },
+                },
               ]}
             />
           )}

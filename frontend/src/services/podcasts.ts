@@ -63,6 +63,10 @@ export const podcastService = {
     const updateData: EditPodcastEpisodeRequest = { episodeId: id, ...episodeData }
     return api.put<PodcastEpisode>(`${EPISODES_ENDPOINT}/episodes`, updateData)
   },
+  async updateEpisodeWithFiles(formData: FormData): Promise<PodcastEpisode> {
+    // Content-Type will be automatically set by axios interceptor for FormData
+    return api.put<PodcastEpisode>(`${EPISODES_ENDPOINT}/episodes/with-files`, formData)
+  },
   async deleteEpisode(id: number): Promise<boolean> {
     await api.delete(`${EPISODES_ENDPOINT}/episodes/${id}`)
     return true

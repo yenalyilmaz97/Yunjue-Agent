@@ -65,6 +65,11 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1",
         Description = "KeciApp Backend API for Development"
     });
+    
+    // Handle file uploads in Swagger
+    c.OperationFilter<KeciApp.API.Filters.FileUploadOperationFilter>();
+    c.ParameterFilter<KeciApp.API.Filters.FileUploadParameterFilter>();
+    c.SchemaFilter<KeciApp.API.Filters.FileUploadSchemaFilter>();
 });
 
 // Add Entity Framework DbContext
