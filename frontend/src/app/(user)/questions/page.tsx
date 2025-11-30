@@ -272,43 +272,73 @@ const QuestionsPage = () => {
                     {selectedSeries.questions.map((question) => (
                       <Col xs={12} key={question.questionId}>
                         <Card
-                          className={`h-100 shadow-sm ${
-                            question.isAnswered ? 'border-success border-opacity-50' : 'border-danger border-opacity-50'
-                          }`}
+                          className="h-100 shadow-sm"
                           style={{
-                            transition: 'all 0.2s',
+                            transition: 'all 0.2s ease',
+                            borderColor: question.isAnswered 
+                              ? 'rgba(var(--bs-primary-rgb), 0.3)' 
+                              : 'rgba(var(--bs-danger-rgb), 0.3)',
+                            borderWidth: '1px',
+                            backgroundColor: 'var(--bs-body-bg)'
                           }}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.transform = 'translateY(-2px)'
-                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+                            e.currentTarget.style.boxShadow = question.isAnswered
+                              ? '0 4px 12px rgba(var(--bs-primary-rgb), 0.15)'
+                              : '0 4px 12px rgba(var(--bs-danger-rgb), 0.15)'
+                            e.currentTarget.style.borderColor = question.isAnswered
+                              ? 'rgba(var(--bs-primary-rgb), 0.5)'
+                              : 'rgba(var(--bs-danger-rgb), 0.5)'
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.transform = 'translateY(0)'
-                            e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+                            e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)'
+                            e.currentTarget.style.borderColor = question.isAnswered
+                              ? 'rgba(var(--bs-primary-rgb), 0.3)'
+                              : 'rgba(var(--bs-danger-rgb), 0.3)'
                           }}
                         >
                           <CardBody className="p-3">
                             {/* Soru Başlığı ve Durum */}
                             <div className="d-flex align-items-start gap-2 mb-3">
                               <div
-                                className={`rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 ${
-                                  question.isAnswered ? 'bg-success bg-opacity-10' : 'bg-danger bg-opacity-10'
-                                }`}
-                                style={{ width: '40px', height: '40px' }}
+                                className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                style={{ 
+                                  width: '40px', 
+                                  height: '40px',
+                                  backgroundColor: question.isAnswered 
+                                    ? 'rgba(var(--bs-primary-rgb), 0.1)' 
+                                    : 'rgba(var(--bs-danger-rgb), 0.1)'
+                                }}
                               >
                                 <Icon
                                   icon={question.isAnswered ? 'mingcute:check-fill' : 'mingcute:time-line'}
-                                  className={question.isAnswered ? 'text-success' : 'text-danger'}
-                                  style={{ fontSize: '1.25rem' }}
+                                  style={{ 
+                                    fontSize: '1.25rem',
+                                    color: question.isAnswered ? 'var(--bs-primary)' : 'var(--bs-danger)'
+                                  }}
                                 />
                               </div>
                               <div className="flex-grow-1 min-w-0">
-                                <div className="d-flex align-items-center gap-2 mb-2 flex-wrap">
-                                  <h6 className="mb-0 fw-semibold flex-grow-1">{question.questionText}</h6>
+                                <div className="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                  <h6 
+                                    className="mb-0 fw-semibold flex-grow-1"
+                                    style={{ fontSize: '0.95rem', lineHeight: '1.4' }}
+                                  >
+                                    {question.questionText}
+                                  </h6>
                                   <Badge
-                                    bg={question.isAnswered ? 'success' : 'danger'}
                                     className="flex-shrink-0"
-                                    style={{ fontSize: '0.7rem', padding: '0.3rem 0.6rem' }}
+                                    style={{ 
+                                      fontSize: '0.7rem', 
+                                      padding: '0.3rem 0.6rem',
+                                      backgroundColor: question.isAnswered 
+                                        ? 'rgba(var(--bs-primary-rgb), 0.1)' 
+                                        : 'rgba(var(--bs-danger-rgb), 0.1)',
+                                      color: question.isAnswered ? 'var(--bs-primary)' : 'var(--bs-danger)',
+                                      border: `1px solid ${question.isAnswered ? 'rgba(var(--bs-primary-rgb), 0.2)' : 'rgba(var(--bs-danger-rgb), 0.2)'}`,
+                                      fontWeight: '500'
+                                    }}
                                   >
                                     {question.isAnswered ? (
                                       <>
@@ -342,30 +372,55 @@ const QuestionsPage = () => {
                             {/* Cevap Bölümü */}
                             {question.isAnswered && question.answer && (
                               <Card
-                                className="bg-success bg-opacity-5 border-success border-opacity-25 mt-3"
-                                style={{ borderWidth: '1px' }}
+                                className="mt-3"
+                                style={{ 
+                                  borderWidth: '1px',
+                                  backgroundColor: 'rgba(var(--bs-primary-rgb), 0.05)',
+                                  borderColor: 'rgba(var(--bs-primary-rgb), 0.2)'
+                                }}
                               >
                                 <CardBody className="p-2 p-md-3">
                                   <div className="d-flex align-items-start gap-2">
                                     <div
-                                      className="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                                      style={{ width: '32px', height: '32px' }}
+                                      className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                      style={{ 
+                                        width: '28px', 
+                                        height: '28px',
+                                        backgroundColor: 'rgba(var(--bs-primary-rgb), 0.1)',
+                                        color: 'var(--bs-primary)'
+                                      }}
                                     >
-                                      <Icon icon="mingcute:check-fill" style={{ fontSize: '1rem' }} />
+                                      <Icon icon="mingcute:check-fill" style={{ fontSize: '0.875rem' }} />
                                     </div>
-                                    <div className="flex-grow-1">
-                                      <div className="d-flex align-items-center gap-2 mb-2 flex-wrap">
-                                        <span className="fw-semibold small text-success d-flex align-items-center">
-                                          <Icon icon="mingcute:message-2-line" className="me-1" style={{ fontSize: '0.875rem' }} />
+                                    <div className="flex-grow-1 min-w-0">
+                                      <div className="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                        <span 
+                                          className="fw-semibold small d-flex align-items-center"
+                                          style={{ 
+                                            color: 'var(--bs-primary)',
+                                            fontSize: '0.8rem'
+                                          }}
+                                        >
+                                          <Icon icon="mingcute:message-2-line" className="me-1" style={{ fontSize: '0.75rem' }} />
                                           Cevap
                                         </span>
                                         {question.answer.updatedAt && (
-                                          <span className="text-muted small">
+                                          <span 
+                                            className="text-muted small"
+                                            style={{ fontSize: '0.75rem' }}
+                                          >
                                             {formatDateTime(question.answer.updatedAt)}
                                           </span>
                                         )}
                                       </div>
-                                      <p className="text-dark mb-0" style={{ lineHeight: '1.6', fontSize: '0.875rem' }}>
+                                      <p 
+                                        className="mb-0" 
+                                        style={{ 
+                                          lineHeight: '1.5', 
+                                          fontSize: '0.85rem',
+                                          color: 'var(--bs-body-color)'
+                                        }}
+                                      >
                                         {question.answer.answerText}
                                       </p>
                                     </div>
@@ -376,15 +431,31 @@ const QuestionsPage = () => {
 
                             {/* Alt Butonlar */}
                             {question.episodeId && (
-                              <div className="mt-3 pt-2 border-top">
+                              <div className="mt-2 pt-2 border-top">
                                 <Button
                                   variant="outline-primary"
                                   size="sm"
                                   onClick={() => handleContentClick(question)}
                                   className="w-100 w-sm-auto"
-                                  style={{ fontSize: '0.75rem' }}
+                                  style={{ 
+                                    fontSize: '0.8rem',
+                                    padding: '0.375rem 0.75rem',
+                                    borderColor: 'rgba(var(--bs-primary-rgb), 0.3)',
+                                    color: 'var(--bs-primary)',
+                                    transition: 'all 0.2s ease'
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor = 'var(--bs-primary)'
+                                    e.currentTarget.style.borderColor = 'var(--bs-primary)'
+                                    e.currentTarget.style.color = '#ffffff'
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor = 'transparent'
+                                    e.currentTarget.style.borderColor = 'rgba(var(--bs-primary-rgb), 0.3)'
+                                    e.currentTarget.style.color = 'var(--bs-primary)'
+                                  }}
                                 >
-                                  <Icon icon="mingcute:arrow-right-line" className="me-1" />
+                                  <Icon icon="mingcute:arrow-right-line" className="me-1" style={{ fontSize: '0.875rem' }} />
                                   Bölüme Git
                                 </Button>
                               </div>

@@ -29,7 +29,11 @@
 html[data-bs-theme="dark"],
 [data-bs-theme="dark"] {
 
-    --#{$prefix}border-color: #2f3944;
+    --#{$prefix}border-color: #3a3a3a;  // Medium dark gray
+
+    // Primary color override for dark mode - use red instead of burgundy
+    --#{$prefix}primary: #dc3545;  // Modern red for dark theme
+    --#{$prefix}primary-rgb: 220, 53, 69;
 
     --#{$prefix}light: #{$body-tertiary-bg-dark};
     --#{$prefix}dark: #{$body-tertiary-color-dark};
@@ -40,8 +44,8 @@ html[data-bs-theme="dark"],
     // Heading Variable
     --#{$prefix}headings-color: #{$body-color-dark};
 
-    --#{$prefix}input-border-color: #3a4551;
-    --#{$prefix}input-focus-border-color: #4a5663;
+    --#{$prefix}input-border-color: #3a3a3a;  // Medium dark gray
+    --#{$prefix}input-focus-border-color: #dc3545;  // Red accent on focus
 }
 
 
@@ -49,7 +53,11 @@ html[data-bs-theme="dark"],
 html[data-bs-theme="dark"],
 [data-bs-theme="dark"] {
 
-    --#{$prefix}border-color:                   #272f37;
+    --#{$prefix}border-color:                   #3a3a3a;  // Medium dark gray
+
+    // Primary color override for dark mode - use red instead of burgundy
+    --#{$prefix}primary: #dc3545;  // Modern red for dark theme
+    --#{$prefix}primary-rgb: 220, 53, 69;
 
     --#{$prefix}light:                           #{$body-tertiary-bg-dark};
     --#{$prefix}dark:                            #{$body-tertiary-color-dark};
@@ -60,62 +68,62 @@ html[data-bs-theme="dark"],
     // Heading Variable
     --#{$prefix}headings-color:                  #{$body-color-dark};
 
-    --#{$prefix}input-border-color:             #3a4551;
-    --#{$prefix}input-focus-border-color:       #4a5663;
+    --#{$prefix}input-border-color:             #3a3a3a;  // Medium dark gray
+    --#{$prefix}input-focus-border-color:       #dc3545;  // Red accent on focus
 }
 
 
-/* Main sidebar Light */
+/* Main sidebar Light - Modern elegant theme */
 html[data-sidebar-color="light"]{
     --#{$prefix}sidebar-bg:                               #ffffff;
-    --#{$prefix}sidebar-item-color:                       #6e708c;
-    --#{$prefix}sidebar-item-hover-bg:                    #f4f3f6;
-    --#{$prefix}sidebar-item-hover-color:                 #3d4756;
-    --#{$prefix}sidebar-border-color:                     #eaedf1;
+    --#{$prefix}sidebar-item-color:                       #3a3a3a;  // Dark gray for readability
+    --#{$prefix}sidebar-item-hover-bg:                    #f5f5f5;  // Light gray hover
+    --#{$prefix}sidebar-item-hover-color:                 #8b1538;  // Burgundy on hover
+    --#{$prefix}sidebar-border-color:                     #e9ecef;  // Light gray border
 }
 
 
-/* Main sidebar Dark */
+/* Main sidebar Dark - Modern elegant theme */
 html[data-sidebar-color="dark"] {
-    --#{$prefix}sidebar-bg:                               #393f4a;
-    --#{$prefix}sidebar-item-color:                       #afb9cf;
-    --#{$prefix}sidebar-item-hover-bg:                    #4697ce;
-    --#{$prefix}sidebar-item-hover-color:                 #{$white};
-    --#{$prefix}sidebar-border-color:                     #272f37;
+    --#{$prefix}sidebar-bg:                               #2d2d2d;  // Dark gray background
+    --#{$prefix}sidebar-item-color:                       #e0e0e0;  // Light gray text
+    --#{$prefix}sidebar-item-hover-bg:                    #3a3a3a;  // Medium dark gray hover
+    --#{$prefix}sidebar-item-hover-color:                 #dc3545;  // Red accent on hover
+    --#{$prefix}sidebar-border-color:                     #3a3a3a;  // Medium dark gray border
 }
 
 
-/* Main sidebar Dark (Dark Mode Only) */
+/* Main sidebar Dark (Dark Mode Only) - Modern elegant theme */
 html[data-bs-theme="dark"][data-sidebar-color="dark"],
 html[data-bs-theme="dark"][data-sidebar-color="light"] {
-    --#{$prefix}sidebar-bg:                               #1d2329;
-    --#{$prefix}sidebar-item-color:                       #afb9cf;
-    --#{$prefix}sidebar-item-hover-bg:                    #2a3139;
-    --#{$prefix}sidebar-item-hover-color:                 #{$white};
-    --#{$prefix}sidebar-border-color:                     #272f37;
+    --#{$prefix}sidebar-bg:                               #1a1a1a;  // Deep black-gray
+    --#{$prefix}sidebar-item-color:                       #e0e0e0;  // Light gray text
+    --#{$prefix}sidebar-item-hover-bg:                    #2d2d2d;  // Dark gray hover
+    --#{$prefix}sidebar-item-hover-color:                 #dc3545;  // Red accent on hover
+    --#{$prefix}sidebar-border-color:                     #3a3a3a;  // Medium dark gray border
 }
 
 
-/* Topbar Light */
+/* Topbar Light - Modern elegant theme */
 html[data-topbar-color="light"] {
     --#{$prefix}topbar-bg:                                 #ffffff;
-    --#{$prefix}topbar-item-color:                         #707793;
-    --#{$prefix}topbar-search-bg:                          #f8f7fa;
+    --#{$prefix}topbar-item-color:                         #3a3a3a;  // Dark gray for readability
+    --#{$prefix}topbar-search-bg:                          #f5f5f5;  // Light gray search background
 }
 
 
-/* Topbar Dark */
+/* Topbar Dark - Modern elegant theme */
 html[data-topbar-color="dark"] {
-    --#{$prefix}topbar-bg:                                 #393f4a;
-    --#{$prefix}topbar-item-color:                         #afb9cf;
-    --#{$prefix}topbar-search-bg:                          #424957;
+    --#{$prefix}topbar-bg:                                 #2d2d2d;  // Dark gray background
+    --#{$prefix}topbar-item-color:                         #e0e0e0;  // Light gray text
+    --#{$prefix}topbar-search-bg:                          #3a3a3a;  // Medium dark gray search background
 }
 
 
-/* Topbar Dark (Dark Mode Only) */
+/* Topbar Dark (Dark Mode Only) - Modern elegant theme */
 html[data-bs-theme="dark"][data-topbar-color="dark"], 
 html[data-bs-theme="dark"][data-topbar-color="light"] {
-    --#{$prefix}topbar-bg:                                 #1d2329;
-    --#{$prefix}topbar-item-color:                         #afb9cf;
-    --#{$prefix}topbar-search-bg:                          #232a31;
+    --#{$prefix}topbar-bg:                                 #1a1a1a;  // Deep black-gray
+    --#{$prefix}topbar-item-color:                         #e0e0e0;  // Light gray text
+    --#{$prefix}topbar-search-bg:                          #2d2d2d;  // Dark gray search background
 }

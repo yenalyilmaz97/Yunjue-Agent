@@ -34,7 +34,7 @@
  .app-sidebar {
      top: 0;
      bottom: 0;
-     z-index: 1010;
+     z-index: 1000;  // Reduced to allow content to be above
      margin-left: 0;
      position: fixed;
      transition: all 0.3s ease-in-out;

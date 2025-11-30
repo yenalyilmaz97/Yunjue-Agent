@@ -110,7 +110,7 @@ const Chart = () => {
         borderRadius: 3,
       },
     },
-    colors: ['#7e67fe', '#17c553', '#7942ed'],
+    colors: ['#8b1538', '#17c553', '#a02040'],  // Burgundy and maroon instead of purple
     tooltip: {
       shared: true,
       y: [

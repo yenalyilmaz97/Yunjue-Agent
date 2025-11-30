@@ -25,7 +25,7 @@ const StatCard = ({ count, icon, series, title }: CardsType) => {
     markers: {
       size: 0,
     },
-    colors: ['#7e67fe'],
+    colors: ['#8b1538'],  // Burgundy instead of purple
     tooltip: {
       fixed: {
         enabled: false,

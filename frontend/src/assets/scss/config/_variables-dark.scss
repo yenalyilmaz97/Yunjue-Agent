@@ -7,14 +7,15 @@
 //
 
 // scss-docs-start sass-dark-mode-vars
-$primary-text-emphasis-dark:                 tint-color($primary, 40%);
-$secondary-text-emphasis-dark:               tint-color($secondary, 40%);
+// Dark theme uses red tones for primary instead of burgundy
+$primary-text-emphasis-dark:                 #dc3545;  // Modern red
+$secondary-text-emphasis-dark:               #c0c0c0;  // Light gray
 $success-text-emphasis-dark:                 tint-color($success, 40%);
 $info-text-emphasis-dark:                    tint-color($info, 40%);
 $warning-text-emphasis-dark:                 tint-color($warning, 40%);
-$danger-text-emphasis-dark:                  tint-color($danger, 40%);
-$light-text-emphasis-dark:                   $gray-100;
-$dark-text-emphasis-dark:                    $gray-300;
+$danger-text-emphasis-dark:                  #ff4757;  // Bright red
+$light-text-emphasis-dark:                   #f0f0f0;  // Very light gray
+$dark-text-emphasis-dark:                    #c0c0c0;  // Light gray
 // scss-docs-end theme-text-dark-variables
 
 // scss-docs-start theme-bg-subtle-dark-variables
@@ -39,23 +40,24 @@ $light-border-subtle-dark:          $gray-700;
 $dark-border-subtle-dark:           $gray-500;
 // scss-docs-end theme-border-subtle-dark-variables
 
-$body-color-dark:                   #aab8c5;
-$body-bg-dark:                      #191e23;
+// Modern elegant dark theme colors
+$body-color-dark:                   #e0e0e0;  // Light gray for excellent readability
+$body-bg-dark:                      #1a1a1a;  // Deep black-gray background
 
-$body-secondary-color-dark:         #8391a2;
-$body-secondary-bg-dark:            #1d2329;
+$body-secondary-color-dark:         #c0c0c0;  // Medium light gray
+$body-secondary-bg-dark:            #2d2d2d;  // Dark gray
 
-$body-tertiary-color-dark:          #f1f1f1;
-$body-tertiary-bg-dark:             #242b33;
+$body-tertiary-color-dark:          #f5f5f5;  // Very light gray
+$body-tertiary-bg-dark:             #3a3a3a;  // Medium dark gray
 
-$body-emphasis-color-dark:          #dee2e6;
+$body-emphasis-color-dark:          #f0f0f0;  // Almost white for emphasis
 
-$border-color-dark:                 #272f37;
-$border-color-translucent-dark:     #8391a2;
+$border-color-dark:                 #3a3a3a;  // Medium dark gray borders
+$border-color-translucent-dark:     #6c757d;  // Medium gray translucent
 
-$headings-color-dark:               $body-color-dark;
-$link-color-dark:                   #afb9cf;
-$link-hover-color-dark:             shift-color($link-color-dark, -$link-shade-percentage);
+$headings-color-dark:               #f0f0f0;  // Very light gray for headings
+$link-color-dark:                   #dc3545;  // Red accent for links
+$link-hover-color-dark:             #ff4757;  // Brighter red on hover
 $code-color-dark:                   tint-color($code-color, 40%);
 $mark-color-dark:                   $body-color-dark;
 $mark-bg-dark:                      $yellow-800;

@@ -699,14 +699,16 @@ const PodcastsPage = () => {
                           onMouseEnter={(e) => {
                             if (prevEpisode) {
                               e.currentTarget.style.transform = 'translateY(-2px)'
-                              e.currentTarget.style.boxShadow = '0 4px 8px rgba(13, 110, 253, 0.2)'
-                              e.currentTarget.style.backgroundColor = 'rgba(13, 110, 253, 0.05)'
+                              e.currentTarget.style.boxShadow = '0 4px 12px rgba(var(--bs-primary-rgb), 0.2)'
+                              e.currentTarget.style.backgroundColor = 'rgba(var(--bs-primary-rgb), 0.1)'
+                              e.currentTarget.style.borderColor = 'var(--bs-primary)'
                             }
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.transform = 'translateY(0)'
                             e.currentTarget.style.boxShadow = 'none'
                             e.currentTarget.style.backgroundColor = 'transparent'
+                            e.currentTarget.style.borderColor = 'var(--bs-border-color)'
                           }}
                           onTouchStart={(e) => {
                             if (prevEpisode) {
@@ -748,12 +750,14 @@ const PodcastsPage = () => {
                           onMouseEnter={(e) => {
                             if (nextEpisode) {
                               e.currentTarget.style.transform = 'translateY(-2px)'
-                              e.currentTarget.style.boxShadow = '0 4px 12px rgba(13, 110, 253, 0.3)'
+                              e.currentTarget.style.boxShadow = '0 4px 12px rgba(var(--bs-primary-rgb), 0.3)'
+                              e.currentTarget.style.backgroundColor = 'var(--bs-primary)'
                             }
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.transform = 'translateY(0)'
                             e.currentTarget.style.boxShadow = 'none'
+                            e.currentTarget.style.backgroundColor = 'var(--bs-primary)'
                           }}
                           onTouchStart={(e) => {
                             if (nextEpisode) {
@@ -798,7 +802,15 @@ const PodcastsPage = () => {
                     />
                     <span>Not ve Soru</span>
                     {existingNote && (
-                      <span className="badge bg-success ms-1" style={{ fontSize: '0.65rem' }}>
+                      <span 
+                        className="badge ms-1" 
+                        style={{ 
+                          fontSize: '0.65rem',
+                          backgroundColor: 'rgba(var(--bs-primary-rgb), 0.1)',
+                          color: 'var(--bs-primary)',
+                          border: '1px solid rgba(var(--bs-primary-rgb), 0.2)'
+                        }}
+                      >
                         Not Var
                       </span>
                     )}
@@ -813,24 +825,47 @@ const PodcastsPage = () => {
                           <Card
                             className="border h-100 shadow-sm"
                             style={{
-                              backgroundColor: '#f8f9fa',
-                              transition: 'all 0.2s',
+                              backgroundColor: 'var(--bs-body-bg)',
+                              transition: 'all 0.2s ease',
+                              borderColor: 'var(--bs-border-color)',
                             }}
                             onMouseEnter={(e) => {
                               e.currentTarget.style.transform = 'translateY(-2px)'
-                              e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)'
+                              e.currentTarget.style.boxShadow = '0 4px 12px rgba(var(--bs-primary-rgb), 0.1)'
+                              e.currentTarget.style.borderColor = 'rgba(var(--bs-primary-rgb), 0.3)'
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.transform = 'translateY(0)'
-                              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+                              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)'
+                              e.currentTarget.style.borderColor = 'var(--bs-border-color)'
                             }}
                           >
                             <CardBody className="p-2 p-md-3">
                               <div className="d-flex align-items-center gap-2 mb-2">
-                                <Icon icon="mingcute:notebook-3-line" className="text-primary" style={{ fontSize: '1.25rem' }} />
-                                <h6 className="mb-0 fw-semibold">Notlarım</h6>
+                                <Icon 
+                                  icon="mingcute:notebook-3-line" 
+                                  style={{ 
+                                    fontSize: '1.1rem',
+                                    color: 'var(--bs-primary)'
+                                  }} 
+                                />
+                                <h6 
+                                  className="mb-0 fw-semibold"
+                                  style={{ fontSize: '0.95rem' }}
+                                >
+                                  Notlarım
+                                </h6>
                                 {existingNote && (
-                                  <span className="badge bg-success ms-auto" style={{ fontSize: '0.7rem' }}>
+                                  <span 
+                                    className="badge ms-auto" 
+                                    style={{ 
+                                      fontSize: '0.7rem',
+                                      backgroundColor: 'rgba(var(--bs-primary-rgb), 0.1)',
+                                      color: 'var(--bs-primary)',
+                                      border: '1px solid rgba(var(--bs-primary-rgb), 0.2)',
+                                      fontWeight: '500'
+                                    }}
+                                  >
                                     <Icon icon="mingcute:check-fill" className="me-1" style={{ fontSize: '0.7rem' }} />
                                     Kaydedildi
                                   </span>
@@ -850,18 +885,22 @@ const PodcastsPage = () => {
                                   onChange={(e) => setNoteTitle(e.target.value)}
                                   size="sm"
                                   className="mb-2"
-                                  style={{ fontSize: '0.875rem' }}
+                                  style={{ 
+                                    fontSize: '0.85rem',
+                                    borderColor: 'var(--bs-border-color)'
+                                  }}
                                 />
                                 <Form.Control
                                   as="textarea"
-                                  rows={4}
+                                  rows={3}
                                   placeholder="Bu bölüm hakkında notlarınızı yazın..."
                                   value={noteText}
                                   onChange={(e) => setNoteText(e.target.value)}
                                   style={{
                                     resize: 'none',
-                                    fontSize: '0.875rem',
-                                    minHeight: '80px',
+                                    fontSize: '0.85rem',
+                                    minHeight: '70px',
+                                    borderColor: 'var(--bs-border-color)'
                                   }}
                                 />
                               </Form.Group>
@@ -902,43 +941,107 @@ const PodcastsPage = () => {
                           <Card
                             className="border h-100 shadow-sm"
                             style={{
-                              backgroundColor: '#fff3cd',
-                              transition: 'all 0.2s',
+                              backgroundColor: 'var(--bs-body-bg)',
+                              transition: 'all 0.2s ease',
+                              borderColor: 'var(--bs-border-color)',
                             }}
                             onMouseEnter={(e) => {
                               e.currentTarget.style.transform = 'translateY(-2px)'
-                              e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)'
+                              e.currentTarget.style.boxShadow = '0 4px 12px rgba(var(--bs-warning-rgb), 0.1)'
+                              e.currentTarget.style.borderColor = 'rgba(var(--bs-warning-rgb), 0.3)'
                             }}
                             onMouseLeave={(e) => {
                               e.currentTarget.style.transform = 'translateY(0)'
-                              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+                              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)'
+                              e.currentTarget.style.borderColor = 'var(--bs-border-color)'
                             }}
                           >
                             <CardBody className="p-2 p-md-3">
                               <div className="d-flex align-items-center gap-2 mb-2">
-                                <Icon icon="mingcute:question-line" className="text-warning" style={{ fontSize: '1.25rem' }} />
-                                <h6 className="mb-0 fw-semibold">Soru Sor</h6>
+                                <Icon 
+                                  icon="mingcute:question-line" 
+                                  style={{ 
+                                    fontSize: '1.1rem',
+                                    color: 'var(--bs-warning)'
+                                  }} 
+                                />
+                                <h6 
+                                  className="mb-0 fw-semibold"
+                                  style={{ fontSize: '0.95rem' }}
+                                >
+                                  Soru Sor
+                                </h6>
                                 {existingQuestion ? (
-                                  <span className="badge bg-success ms-auto" style={{ fontSize: '0.7rem' }}>
+                                  <span 
+                                    className="badge ms-auto" 
+                                    style={{ 
+                                      fontSize: '0.7rem',
+                                      backgroundColor: 'rgba(var(--bs-primary-rgb), 0.1)',
+                                      color: 'var(--bs-primary)',
+                                      border: '1px solid rgba(var(--bs-primary-rgb), 0.2)',
+                                      fontWeight: '500'
+                                    }}
+                                  >
                                     <Icon icon="mingcute:check-fill" className="me-1" style={{ fontSize: '0.7rem' }} />
                                     Soru Gönderildi
                                   </span>
                                 ) : (
-                                  <span className="badge bg-warning text-dark ms-auto" style={{ fontSize: '0.7rem' }}>
+                                  <span 
+                                    className="badge ms-auto" 
+                                    style={{ 
+                                      fontSize: '0.7rem',
+                                      backgroundColor: 'rgba(var(--bs-warning-rgb), 0.1)',
+                                      color: 'var(--bs-warning)',
+                                      border: '1px solid rgba(var(--bs-warning-rgb), 0.2)',
+                                      fontWeight: '500'
+                                    }}
+                                  >
                                     Admin'e Gönderilir
                                   </span>
                                 )}
                               </div>
                               {existingQuestion ? (
                                 <>
-                                  <div className="alert alert-info py-2 px-2 mb-2" style={{ fontSize: '0.8rem' }}>
-                                    <Icon icon="mingcute:information-line" className="me-1" style={{ fontSize: '0.875rem' }} />
+                                  <div 
+                                    className="py-2 px-2 mb-2 rounded"
+                                    style={{ 
+                                      fontSize: '0.8rem',
+                                      backgroundColor: 'rgba(var(--bs-info-rgb), 0.1)',
+                                      border: '1px solid rgba(var(--bs-info-rgb), 0.2)',
+                                      color: 'var(--bs-body-color)'
+                                    }}
+                                  >
+                                    <Icon 
+                                      icon="mingcute:information-line" 
+                                      className="me-1" 
+                                      style={{ 
+                                        fontSize: '0.875rem',
+                                        color: 'var(--bs-info)'
+                                      }} 
+                                    />
                                     Bu bölüm için daha önce soru gönderilmiş. Sorunuz admin tarafından inceleniyor.
                                   </div>
-                                  <div className="border rounded p-2 bg-light">
+                                  <div 
+                                    className="border rounded p-2"
+                                    style={{
+                                      backgroundColor: 'rgba(var(--bs-primary-rgb), 0.03)',
+                                      borderColor: 'rgba(var(--bs-primary-rgb), 0.1)'
+                                    }}
+                                  >
                                     <div className="d-flex align-items-center gap-2 mb-1">
-                                      <Icon icon="mingcute:question-line" className="text-warning" style={{ fontSize: '1rem' }} />
-                                      <span className="fw-semibold small">Gönderilen Soru</span>
+                                      <Icon 
+                                        icon="mingcute:question-line" 
+                                        style={{ 
+                                          fontSize: '0.9rem',
+                                          color: 'var(--bs-warning)'
+                                        }} 
+                                      />
+                                      <span 
+                                        className="fw-semibold small"
+                                        style={{ fontSize: '0.85rem' }}
+                                      >
+                                        Gönderilen Soru
+                                      </span>
                                       {existingQuestion.createdAt && (
                                         <span className="text-muted small ms-auto">
                                           {new Date(existingQuestion.createdAt).toLocaleDateString('tr-TR', {
@@ -953,12 +1056,36 @@ const PodcastsPage = () => {
                                       {existingQuestion.questionText}
                                     </p>
                                     {existingQuestion.isAnswered && existingQuestion.answer && (
-                                      <div className="mt-2 pt-2 border-top">
+                                      <div 
+                                        className="mt-2 pt-2 border-top rounded p-2"
+                                        style={{
+                                          backgroundColor: 'rgba(var(--bs-primary-rgb), 0.05)',
+                                          borderColor: 'rgba(var(--bs-primary-rgb), 0.2) !important'
+                                        }}
+                                      >
                                         <div className="d-flex align-items-center gap-2 mb-1">
-                                          <Icon icon="mingcute:check-fill" className="text-success" style={{ fontSize: '0.875rem' }} />
-                                          <span className="fw-semibold small text-success">Cevap</span>
+                                          <Icon 
+                                            icon="mingcute:check-fill" 
+                                            style={{ 
+                                              fontSize: '0.875rem',
+                                              color: 'var(--bs-primary)'
+                                            }} 
+                                          />
+                                          <span 
+                                            className="fw-semibold small"
+                                            style={{ color: 'var(--bs-primary)' }}
+                                          >
+                                            Cevap
+                                          </span>
                                         </div>
-                                        <p className="text-dark small mb-0" style={{ lineHeight: '1.6', fontSize: '0.875rem' }}>
+                                        <p 
+                                          className="small mb-0" 
+                                          style={{ 
+                                            lineHeight: '1.6', 
+                                            fontSize: '0.875rem',
+                                            color: 'var(--bs-body-color)'
+                                          }}
+                                        >
                                           {existingQuestion.answer.answerText}
                                         </p>
                                       </div>
@@ -1039,36 +1166,59 @@ const PodcastsPage = () => {
                   {seriesList.map((series) => (
                     <button
                       key={series.seriesId}
-                      className={`list-group-item list-group-item-action border-0 px-0 py-2 ${
+                      className={`list-group-item list-group-item-action border-0 px-2 py-2 ${
                         selectedSeries?.seriesId === series.seriesId ? 'active' : ''
                       }`}
                       onClick={() => handleSeriesSelect(series)}
                       style={{
                         cursor: 'pointer',
                         borderRadius: '8px',
-                        transition: 'all 0.2s',
+                        transition: 'all 0.2s ease',
+                        backgroundColor: selectedSeries?.seriesId === series.seriesId ? 'var(--bs-primary)' : 'transparent',
+                        color: selectedSeries?.seriesId === series.seriesId ? '#ffffff' : 'inherit',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (selectedSeries?.seriesId !== series.seriesId) {
+                          e.currentTarget.style.backgroundColor = 'var(--bs-primary)'
+                          e.currentTarget.style.backgroundColor = 'rgba(var(--bs-primary-rgb), 0.1)'
+                          e.currentTarget.style.color = 'var(--bs-primary)'
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (selectedSeries?.seriesId !== series.seriesId) {
+                          e.currentTarget.style.backgroundColor = 'transparent'
+                          e.currentTarget.style.color = 'inherit'
+                        }
                       }}
                     >
                       <div className="d-flex align-items-center gap-2">
                         <Icon
                           icon={series.isVideo ? 'mingcute:video-line' : 'mingcute:headphone-line'}
-                          className={selectedSeries?.seriesId === series.seriesId ? 'text-white' : 'text-primary'}
-                          style={{ fontSize: '1.5rem', flexShrink: 0 }}
+                          style={{ 
+                            fontSize: '1.25rem', 
+                            flexShrink: 0,
+                            color: selectedSeries?.seriesId === series.seriesId ? '#ffffff' : 'var(--bs-primary)',
+                            transition: 'color 0.2s ease'
+                          }}
                         />
-                        <div className="flex-grow-1 text-start">
+                        <div className="flex-grow-1 text-start min-w-0">
                           <div
-                            className={`fw-semibold ${
-                              selectedSeries?.seriesId === series.seriesId ? 'text-white' : ''
-                            }`}
+                            className="fw-semibold text-truncate"
+                            style={{ 
+                              color: selectedSeries?.seriesId === series.seriesId ? '#ffffff' : 'inherit',
+                              fontSize: '0.9rem'
+                            }}
                           >
                             {series.title}
                           </div>
                           {series.description && (
                             <div
-                              className={`small text-truncate ${
-                                selectedSeries?.seriesId === series.seriesId ? 'text-white-50' : 'text-muted'
-                              }`}
-                              style={{ maxWidth: '200px' }}
+                              className="small text-truncate"
+                              style={{ 
+                                maxWidth: '200px',
+                                color: selectedSeries?.seriesId === series.seriesId ? 'rgba(255, 255, 255, 0.8)' : 'var(--bs-secondary)',
+                                fontSize: '0.8rem'
+                              }}
                             >
                               {series.description}
                             </div>
@@ -1125,26 +1275,39 @@ const PodcastsPage = () => {
                           <span className="small fw-semibold text-muted">Son Dinlenen</span>
                         </div>
                         <div
-                          className="card border border-primary"
-                          style={{ cursor: 'pointer', transition: 'all 0.2s' }}
+                          className="card border"
+                          style={{ 
+                            cursor: 'pointer', 
+                            transition: 'all 0.2s ease',
+                            borderColor: 'rgba(var(--bs-primary-rgb), 0.3)',
+                            backgroundColor: 'var(--bs-body-bg)'
+                          }}
                           onClick={() => handleEpisodeClick(episodes[0])}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#f8f9fa'
+                            e.currentTarget.style.backgroundColor = 'rgba(var(--bs-primary-rgb), 0.05)'
+                            e.currentTarget.style.borderColor = 'var(--bs-primary)'
                             e.currentTarget.style.transform = 'translateY(-2px)'
-                            e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)'
+                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(var(--bs-primary-rgb), 0.15)'
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = 'white'
+                            e.currentTarget.style.backgroundColor = 'var(--bs-body-bg)'
+                            e.currentTarget.style.borderColor = 'rgba(var(--bs-primary-rgb), 0.3)'
                             e.currentTarget.style.transform = 'translateY(0)'
-                            e.currentTarget.style.boxShadow = 'none'
+                            e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)'
                           }}
                         >
-                          <CardBody className="p-3">
+                          <CardBody className="p-2 p-md-3">
                             <Row className="align-items-center g-2">
                                     <Col xs="auto">
                                       <div
-                                        className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                                        style={{ width: '48px', height: '48px' }}
+                                        className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                        style={{ 
+                                          width: '44px', 
+                                          height: '44px',
+                                          backgroundColor: 'var(--bs-primary)',
+                                          color: '#ffffff',
+                                          transition: 'transform 0.2s ease'
+                                        }}
                                       >
                                         <Icon
                                           icon={
@@ -1166,7 +1329,19 @@ const PodcastsPage = () => {
                                   <div className="text-muted small text-truncate">{episodes[0].description}</div>
                                 )}
                                 <div className="d-flex align-items-center flex-wrap gap-2 gap-md-3 mt-1">
-                                  <span className="badge bg-primary">Bölüm {episodes[0].sequenceNumber}</span>
+                                  <span 
+                                    className="badge"
+                                    style={{
+                                      backgroundColor: 'rgba(var(--bs-primary-rgb), 0.1)',
+                                      color: 'var(--bs-primary)',
+                                      border: '1px solid rgba(var(--bs-primary-rgb), 0.2)',
+                                      fontSize: '0.75rem',
+                                      fontWeight: '500',
+                                      padding: '0.25rem 0.5rem'
+                                    }}
+                                  >
+                                    Bölüm {episodes[0].sequenceNumber}
+                                  </span>
                                   {episodes[0].duration && (
                                     <span className="text-muted small d-flex align-items-center">
                                       <Icon icon="mingcute:time-line" className="me-1" />
@@ -1205,17 +1380,24 @@ const PodcastsPage = () => {
                                 <div
                                   key={episode.episodesId}
                                   className="list-group-item border rounded mb-2"
-                                  style={{ cursor: 'pointer', transition: 'all 0.2s' }}
+                                  style={{ 
+                                    cursor: 'pointer', 
+                                    transition: 'all 0.2s ease',
+                                    backgroundColor: 'var(--bs-body-bg)',
+                                    borderColor: 'var(--bs-border-color)'
+                                  }}
                                   onClick={() => handleEpisodeClick(episode)}
                                   onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#f8f9fa'
-                                    e.currentTarget.style.borderColor = '#0d6efd'
+                                    e.currentTarget.style.backgroundColor = 'rgba(var(--bs-primary-rgb), 0.05)'
+                                    e.currentTarget.style.borderColor = 'var(--bs-primary)'
                                     e.currentTarget.style.transform = 'translateX(4px)'
+                                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(var(--bs-primary-rgb), 0.1)'
                                   }}
                                   onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor = 'white'
-                                    e.currentTarget.style.borderColor = '#dee2e6'
+                                    e.currentTarget.style.backgroundColor = 'var(--bs-body-bg)'
+                                    e.currentTarget.style.borderColor = 'var(--bs-border-color)'
                                     e.currentTarget.style.transform = 'translateX(0)'
+                                    e.currentTarget.style.boxShadow = 'none'
                                   }}
                                 >
                                   <Row className="align-items-center g-2">
@@ -1244,7 +1426,19 @@ const PodcastsPage = () => {
                                         <div className="text-muted small text-truncate">{episode.description}</div>
                                       )}
                                       <div className="d-flex align-items-center flex-wrap gap-2 gap-md-3 mt-1">
-                                        <span className="badge bg-secondary">Bölüm {episode.sequenceNumber}</span>
+                                        <span 
+                                          className="badge"
+                                          style={{
+                                            backgroundColor: 'rgba(var(--bs-secondary-rgb), 0.1)',
+                                            color: 'var(--bs-secondary)',
+                                            border: '1px solid rgba(var(--bs-secondary-rgb), 0.2)',
+                                            fontSize: '0.75rem',
+                                            fontWeight: '500',
+                                            padding: '0.25rem 0.5rem'
+                                          }}
+                                        >
+                                          Bölüm {episode.sequenceNumber}
+                                        </span>
                                         {episode.duration && (
                                           <span className="text-muted small d-flex align-items-center">
                                             <Icon icon="mingcute:time-line" className="me-1" />
