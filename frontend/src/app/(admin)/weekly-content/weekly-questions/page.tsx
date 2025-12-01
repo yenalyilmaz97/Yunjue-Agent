@@ -5,8 +5,10 @@ import type { WeeklyQuestion } from '@/types/keci'
 import { Card, CardBody, CardHeader, CardTitle, Button } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 import DataTable from '@/components/table/DataTable'
+import { useI18n } from '@/i18n/context'
 
 const page = () => {
+  const { t } = useI18n()
   const [items, setItems] = useState<WeeklyQuestion[]>([])
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
@@ -27,19 +29,19 @@ const page = () => {
 
   return (
     <>
-      <PageTitle subName="Content" title="Weekly Questions" />
+      <PageTitle subName={t('pages.content')} title={t('weeklyContent.weeklyQuestions.title')} />
       <Card>
         <CardHeader className="d-flex align-items-center justify-content-between">
-          <CardTitle as={'h5'}>Weekly Questions</CardTitle>
+          <CardTitle as={'h5'}>{t('weeklyContent.weeklyQuestions.list')}</CardTitle>
           <div className="d-flex align-items-center gap-2 ms-auto">
             <input
               className="form-control form-control-sm"
-              placeholder="Search weekly question..."
+              placeholder={t('weeklyContent.weeklyQuestions.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{ width: 260 }}
             />
-            <Button variant="primary" size="sm" onClick={() => navigate('/admin/content/weekly-questions/create')}>Add New</Button>
+            <Button variant="primary" size="sm" onClick={() => navigate('/admin/content/weekly-questions/create')}>{t('weeklyContent.weeklyQuestions.addNew')}</Button>
           </div>
         </CardHeader>
         <CardBody>
@@ -50,27 +52,27 @@ const page = () => {
             hideSearch
             searchQuery={search}
             onSearchQueryChange={setSearch}
-            searchPlaceholder="Search weekly question..."
+            searchPlaceholder={t('weeklyContent.weeklyQuestions.searchPlaceholder')}
             searchKeys={['weeklyQuestionText', 'weeklyQuestionId']}
-            actionsHeader="Actions"
+            actionsHeader={t('common.actions')}
             renderRowActions={(row) => {
               const q = row as WeeklyQuestion
               return (
                 <div className="d-inline-flex gap-2">
-                  <Button size="sm" variant="outline-secondary" onClick={() => navigate('/admin/content/weekly-questions/create', { state: { mode: 'edit', item: q } })}>Edit</Button>
+                  <Button size="sm" variant="outline-secondary" onClick={() => navigate('/admin/content/weekly-questions/create', { state: { mode: 'edit', item: q } })}>{t('common.edit')}</Button>
                   <Button size="sm" variant="outline-danger" onClick={async () => {
-                    if (confirm('Delete this weekly question?')) {
+                    if (confirm(t('weeklyContent.weeklyQuestions.deleteConfirm'))) {
                       await contentService.deleteWeeklyQuestion(q.weeklyQuestionId)
                       const data = await contentService.getAllWeeklyQuestions()
                       setItems(data)
                     }
-                  }}>Delete</Button>
+                  }}>{t('common.delete')}</Button>
                 </div>
               )
             }}
             columns={[
-              { key: 'weeklyQuestionId', header: 'ID', width: '80px', sortable: true },
-              { key: 'weeklyQuestionText', header: 'Title', sortable: true },
+              { key: 'weeklyQuestionId', header: t('common.id') || 'ID', width: '80px', sortable: true },
+              { key: 'weeklyQuestionText', header: t('weeklyContent.weeklyQuestions.question'), sortable: true },
             ]}
           />
         </CardBody>

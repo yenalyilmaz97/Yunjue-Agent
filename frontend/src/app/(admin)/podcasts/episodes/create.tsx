@@ -83,7 +83,7 @@ const EpisodeCreateEditPage = () => {
         const fileType = getFileType(fileObj.name)
 
         if (!fileType) {
-          alert(`Unsupported file type: ${fileObj.name}. Please upload audio, video, or image files.`)
+          alert(t('podcasts.episodes.unsupportedFileType', { fileName: fileObj.name }))
           return
         }
 
