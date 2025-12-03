@@ -174,6 +174,36 @@ public class UserSeriesAccessController : ControllerBase
         }
     }
 
+    [HttpPost("userseriesaccess/bulk-grant")]
+    [AuthorizeRoles("admin", "superadmin")]
+    public async Task<ActionResult<BulkGrantAccessResponseDTO>> BulkGrantAccess()
+    {
+        try
+        {
+            var result = await _userSeriesAccessService.BulkGrantAccessToAllUsersAsync();
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("userseriesaccess/increment-sequence")]
+    [AuthorizeRoles("admin", "superadmin")]
+    public async Task<ActionResult<BulkGrantAccessResponseDTO>> IncrementAccessibleSequence()
+    {
+        try
+        {
+            var result = await _userSeriesAccessService.IncrementAccessibleSequenceForCompletedEpisodesAsync();
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpDelete("userseriesaccess/revoke")]
     public async Task<ActionResult> RevokeAccess([FromBody] RevokeAccessRequest request)
     {

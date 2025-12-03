@@ -2,15 +2,17 @@ import { useEffect, useRef, useState } from 'react'
 import { Icon } from '@iconify/react'
 import { Button } from 'react-bootstrap'
 import { saveEpisodeProgress, getResumeTime, clearEpisodeProgress } from '@/utils/episodeProgress'
+import { userProgressService } from '@/services'
 
 interface ModernAudioPlayerProps {
   src: string
   title?: string
   episodeId?: number
+  userId?: number
   onTimeUpdate?: (currentTime: number, duration: number) => void
 }
 
-const ModernAudioPlayer = ({ src, title, episodeId, onTimeUpdate }: ModernAudioPlayerProps) => {
+const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: ModernAudioPlayerProps) => {
   const audioRef = useRef<HTMLAudioElement>(null)
   const progressBarRef = useRef<HTMLDivElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -20,6 +22,7 @@ const ModernAudioPlayer = ({ src, title, episodeId, onTimeUpdate }: ModernAudioP
   const [showVolumeControl, setShowVolumeControl] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const saveProgressIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const completedRef = useRef(false) // Track if completion request has been sent
 
   useEffect(() => {
     const audio = audioRef.current
@@ -38,6 +41,33 @@ const ModernAudioPlayer = ({ src, title, episodeId, onTimeUpdate }: ModernAudioP
       setCurrentTime(audio.currentTime)
       if (onTimeUpdate) {
         onTimeUpdate(audio.currentTime, audio.duration || 0)
+      }
+
+      // Check if 85% of episode is completed
+      if (episodeId && userId && audio.duration > 0 && !completedRef.current) {
+        const progressPercentage = (audio.currentTime / audio.duration) * 100
+        if (progressPercentage >= 85) {
+          completedRef.current = true
+          // Mark episode as completed
+          userProgressService
+            .createOrUpdateUserProgress({
+              userId,
+              episodeId,
+              isCompleted: true,
+            })
+            .then(() => {
+              // Successfully marked as completed
+              console.log(`Episode ${episodeId} marked as completed`)
+            })
+            .catch((error) => {
+              console.error('Error marking episode as completed:', error)
+              // Only reset flag on actual errors (not if already completed)
+              // Backend will handle duplicate completion gracefully
+              if (error?.response?.status !== 400) {
+                completedRef.current = false
+              }
+            })
+        }
       }
     }
 
@@ -61,6 +91,19 @@ const ModernAudioPlayer = ({ src, title, episodeId, onTimeUpdate }: ModernAudioP
       // Clear progress when episode is completed
       if (episodeId) {
         clearEpisodeProgress(episodeId)
+      }
+      // Mark as completed if not already marked
+      if (episodeId && userId && !completedRef.current) {
+        completedRef.current = true
+        userProgressService
+          .createOrUpdateUserProgress({
+            userId,
+            episodeId,
+            isCompleted: true,
+          })
+          .catch((error) => {
+            console.error('Error marking episode as completed:', error)
+          })
       }
     }
 
@@ -97,7 +140,12 @@ const ModernAudioPlayer = ({ src, title, episodeId, onTimeUpdate }: ModernAudioP
         clearInterval(saveProgressIntervalRef.current)
       }
     }
-  }, [onTimeUpdate, episodeId])
+  }, [onTimeUpdate, episodeId, userId])
+
+  // Reset completed flag when episode changes
+  useEffect(() => {
+    completedRef.current = false
+  }, [episodeId])
 
   const togglePlayPause = async () => {
     const audio = audioRef.current

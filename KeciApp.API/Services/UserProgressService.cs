@@ -61,6 +61,13 @@ public class UserProgressService : IUserProgressService
 
         if (existingProgress != null)
         {
+            // If user is trying to mark as completed but it's already completed, skip the update
+            if (request.IsCompleted && existingProgress.isCompleted)
+            {
+                // Already completed, return existing progress without updating
+                return _mapper.Map<UserProgressResponseDTO>(existingProgress);
+            }
+
             // Update existing progress
             existingProgress.isCompleted = request.IsCompleted;
             if (request.IsCompleted)

@@ -645,6 +645,7 @@ const PodcastsPage = () => {
                       src={getAudioUrl(currentEpisode) || ''}
                       title={currentEpisode.title}
                       episodeId={currentEpisode.episodesId}
+                      userId={user?.id ? parseInt(user.id) : undefined}
                     />
                   )}
                   {contentType === 'pdf' && (
