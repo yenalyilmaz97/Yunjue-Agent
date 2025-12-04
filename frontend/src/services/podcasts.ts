@@ -57,7 +57,9 @@ export const podcastService = {
 
   async createEpisodeWithFiles(formData: FormData): Promise<PodcastEpisode> {
     // Content-Type will be automatically set by axios interceptor for FormData
-    return api.post<PodcastEpisode>(`${EPISODES_ENDPOINT}/episodes`, formData)
+    return api.post<PodcastEpisode>(`${EPISODES_ENDPOINT}/episodes`, formData, {
+      timeout: 300000, // 5 minutes for large file uploads
+    })
   },
   async updateEpisode(id: number, episodeData: Omit<EditPodcastEpisodeRequest, 'episodeId'>): Promise<PodcastEpisode> {
     const updateData: EditPodcastEpisodeRequest = { episodeId: id, ...episodeData }
@@ -65,7 +67,9 @@ export const podcastService = {
   },
   async updateEpisodeWithFiles(formData: FormData): Promise<PodcastEpisode> {
     // Content-Type will be automatically set by axios interceptor for FormData
-    return api.put<PodcastEpisode>(`${EPISODES_ENDPOINT}/episodes/with-files`, formData)
+    return api.put<PodcastEpisode>(`${EPISODES_ENDPOINT}/episodes/with-files`, formData, {
+      timeout: 300000, // 5 minutes for large file uploads
+    })
   },
   async deleteEpisode(id: number): Promise<boolean> {
     await api.delete(`${EPISODES_ENDPOINT}/episodes/${id}`)

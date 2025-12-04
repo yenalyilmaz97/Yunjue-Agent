@@ -156,6 +156,7 @@ export const contentService = {
 	async createArticleWithFile(formData: FormData): Promise<Article> {
 		return api.post<Article>(`${ARTICLE_ENDPOINT}/articles`, formData, {
 			headers: { 'Content-Type': 'multipart/form-data' },
+			timeout: 300000, // 5 minutes for large file uploads
 		})
 	},
 
@@ -173,6 +174,7 @@ export const contentService = {
 		form.append('file', file)
 		return api.post<Article>(`${ARTICLE_ENDPOINT}/articles/${articleId}/cover`, form, {
 			headers: { 'Content-Type': 'multipart/form-data' },
+			timeout: 300000, // 5 minutes for large file uploads
 		})
 	},
 
@@ -181,6 +183,7 @@ export const contentService = {
 		form.append('file', file)
 		return api.post<{ url: string }>(`${ARTICLE_ENDPOINT}/articles/asset`, form, {
 			headers: { 'Content-Type': 'multipart/form-data' },
+			timeout: 300000, // 5 minutes for large file uploads
 		})
 	},
 }

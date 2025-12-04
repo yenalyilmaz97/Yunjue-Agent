@@ -404,18 +404,46 @@ const PodcastsPage = () => {
   }
 
   const getGalleryImages = (episode: PodcastEpisode): string[] => {
-    if (!episode.content?.images) return []
-    // PDF'leri filtrele, sadece görselleri döndür
-    return episode.content.images.filter((url) => !url.toLowerCase().endsWith('.pdf'))
+    if (!episode.content?.images || !Array.isArray(episode.content.images)) return []
+    // PDF'leri ve boş/null değerleri filtrele, sadece geçerli görselleri döndür
+    return episode.content.images.filter((url) => {
+      if (!url || typeof url !== 'string') return false
+      const trimmedUrl = url.trim()
+      if (trimmedUrl === '' || trimmedUrl === 'null' || trimmedUrl === 'undefined') return false
+      // PDF'leri filtrele
+      return !trimmedUrl.toLowerCase().endsWith('.pdf')
+    })
   }
 
   // İçerik tipini tespit et
   type ContentType = 'audio' | 'video' | 'pdf' | 'gallery' | 'none'
   const getContentType = (episode: PodcastEpisode): ContentType => {
-    if (episode.content?.video) return 'video'
-    if (episode.content?.audio || episode.audioLink) return 'audio'
-    if (getPdfUrl(episode)) return 'pdf'
-    if (getGalleryImages(episode).length > 0) return 'gallery'
+    // Video kontrolü - null, undefined, boş string kontrolü
+    const hasVideo = episode.content?.video && 
+                     episode.content.video !== null && 
+                     episode.content.video !== 'null' && 
+                     episode.content.video.trim() !== ''
+    
+    // Audio kontrolü - null, undefined, boş string kontrolü
+    const hasAudio = (episode.content?.audio && 
+                      episode.content.audio !== null && 
+                      episode.content.audio !== 'null' && 
+                      episode.content.audio.trim() !== '') ||
+                     (episode.audioLink && 
+                      episode.audioLink !== null && 
+                      episode.audioLink !== 'null' && 
+                      episode.audioLink.trim() !== '')
+    
+    // Öncelik sırası: video > audio > pdf > gallery > none
+    if (hasVideo) return 'video'
+    if (hasAudio) return 'audio'
+    
+    const pdfUrl = getPdfUrl(episode)
+    if (pdfUrl) return 'pdf'
+    
+    const galleryImages = getGalleryImages(episode)
+    if (galleryImages.length > 0) return 'gallery'
+    
     return 'none'
   }
 
@@ -898,7 +926,7 @@ const PodcastsPage = () => {
                                   value={noteText}
                                   onChange={(e) => setNoteText(e.target.value)}
                                   style={{
-                                    resize: 'none',
+                                    resize: 'vertical',
                                     fontSize: '0.85rem',
                                     minHeight: '70px',
                                     borderColor: 'var(--bs-border-color)'
@@ -1103,7 +1131,7 @@ const PodcastsPage = () => {
                                       value={questionText}
                                       onChange={(e) => setQuestionText(e.target.value)}
                                       style={{
-                                        resize: 'none',
+                                        resize: 'vertical',
                                         fontSize: '0.875rem',
                                         minHeight: '80px',
                                       }}

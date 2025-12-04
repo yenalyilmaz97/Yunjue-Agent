@@ -1,10 +1,7 @@
 server {
     server_name app.keciyibesle.com;
 
-    # Increase max body size for file uploads
-    client_max_body_size 100M;
-
-    # Let's Encrypt HTTP-01 challenge
+    # Let’s Encrypt HTTP-01 challenge
     location ^~ /.well-known/acme-challenge/ {
         root /var/www/letsencrypt;
         allow all;
@@ -13,16 +10,10 @@ server {
     root /var/www/keciapp/frontend;
     index index.html;
 
-    # Static dosyalar için - assets klasörü root'tan servis edilmeli
-    # Bu, /user/dashboard gibi path'lerde de /assets/ path'ini doğru bulmasını sağlar
-    location /assets/ {
-        alias /var/www/keciapp/frontend/assets/;
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-        access_log off;
+    location / {
+        try_files $uri /index.html;
     }
 
-    # API proxy
     location /api/ {
         client_max_body_size 100M;
         proxy_pass http://127.0.0.1:5000;
@@ -34,14 +25,7 @@ server {
         proxy_request_buffering off;
     }
 
-    # SPA routing - tüm path'ler index.html'e yönlendirilmeli
-    # /user path'i için de aynı kural geçerli
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-
-    # Static dosyalar için genel kural (fallback)
-    location ~* \.(js|css|png|jpg|jpeg|gif|svg|ico|woff2|woff|ttf|eot)$ {
+    location ~* \.(js|css|png|jpg|jpeg|gif|svg|ico|woff2)$ {
         expires 7d;
         add_header Cache-Control "public, max-age=604800";
         try_files $uri =404;
