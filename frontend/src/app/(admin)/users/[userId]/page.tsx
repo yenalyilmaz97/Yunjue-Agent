@@ -28,6 +28,14 @@ const UserDetailPage = () => {
   const [questions, setQuestions] = useState<Question[]>([])
   const [weeklyAnswers, setWeeklyAnswers] = useState<WeeklyQuestionAnswerResponseDTO[]>([])
   const [showResetModal, setShowResetModal] = useState(false)
+  const [showDetailModal, setShowDetailModal] = useState(false)
+  const [detailContent, setDetailContent] = useState<{ 
+    title: string
+    text: string
+    type: 'note' | 'question' | 'weeklyAnswer'
+    weeklyQuestion?: string
+    weeklyAnswer?: string
+  } | null>(null)
 
   const resetSchema = yup.object({
     newPassword: yup.string().min(6, t('users.passwordMin')).required(t('users.enterNewPasswordRequired')),
@@ -86,6 +94,22 @@ const UserDetailPage = () => {
   }
 
   const closeResetModal = () => setShowResetModal(false)
+
+  const openDetailModal = (
+    title: string, 
+    text: string, 
+    type: 'note' | 'question' | 'weeklyAnswer',
+    weeklyQuestion?: string,
+    weeklyAnswer?: string
+  ) => {
+    setDetailContent({ title, text, type, weeklyQuestion, weeklyAnswer })
+    setShowDetailModal(true)
+  }
+
+  const closeDetailModal = () => {
+    setShowDetailModal(false)
+    setDetailContent(null)
+  }
 
   const submitReset = handleResetSubmit(async (data) => {
     if (!user) return
@@ -233,6 +257,28 @@ const UserDetailPage = () => {
                     header: t('users.createdAt'),
                     render: (r) => new Date((r as Note).createdAt).toLocaleDateString(),
                   },
+                  {
+                    key: 'actions',
+                    header: t('common.actions'),
+                    width: '120px',
+                    render: (r) => {
+                      const n = r as Note
+                      return (
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            openDetailModal(n.title || t('users.note'), n.noteText, 'note')
+                          }}
+                          style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                        >
+                          <IconifyIcon icon="mdi:eye" className="me-1" style={{ fontSize: '0.875rem' }} />
+                          {t('common.detail')}
+                        </Button>
+                      )
+                    },
+                  },
                 ]}
               />
           )}
@@ -275,6 +321,28 @@ const UserDetailPage = () => {
                     header: t('users.createdAt'),
                     render: (r) => new Date((r as Question).createdAt).toLocaleDateString(),
                   },
+                  {
+                    key: 'actions',
+                    header: t('common.actions'),
+                    width: '120px',
+                    render: (r) => {
+                      const q = r as Question
+                      return (
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            openDetailModal(t('questions.questionText'), q.questionText, 'question')
+                          }}
+                          style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                        >
+                          <IconifyIcon icon="mdi:eye" className="me-1" style={{ fontSize: '0.875rem' }} />
+                          {t('common.detail')}
+                        </Button>
+                      )
+                    },
+                  },
                 ]}
               />
           )}
@@ -315,6 +383,39 @@ const UserDetailPage = () => {
                       return text.length > 150 ? `${text.substring(0, 150)}...` : text || '-'
                     },
                   },
+                  {
+                    key: 'actions',
+                    header: t('common.actions'),
+                    width: '120px',
+                    render: (r) => {
+                      const answer = r as WeeklyQuestionAnswerResponseDTO
+                      const question = answer.weeklyQuestion
+                      const questionText = question && 'weeklyQuestionText' in question 
+                        ? (question.weeklyQuestionText as string) 
+                        : ''
+                      const answerText = answer.weeklyQuestionAnswerText || ''
+                      return (
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            openDetailModal(
+                              t('users.weeklyAnswers'),
+                              '',
+                              'weeklyAnswer',
+                              questionText,
+                              answerText
+                            )
+                          }}
+                          style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                        >
+                          <IconifyIcon icon="mdi:eye" className="me-1" style={{ fontSize: '0.875rem' }} />
+                          {t('common.detail')}
+                        </Button>
+                      )
+                    },
+                  },
                 ]}
               />
           )}
@@ -336,6 +437,48 @@ const UserDetailPage = () => {
             <Button type="submit" variant="primary" disabled={isResetSubmitting}>{isResetSubmitting ? t('users.resetting') : t('users.reset')}</Button>
           </Modal.Footer>
         </Form>
+      </Modal>
+
+      {/* Detail Modal */}
+      <Modal show={showDetailModal} onHide={closeDetailModal} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>{detailContent?.title || t('common.detail')}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {detailContent?.type === 'weeklyAnswer' ? (
+            <div>
+              {detailContent.weeklyQuestion && (
+                <div className="mb-4">
+                  <h6 className="fw-semibold mb-2 d-flex align-items-center">
+                    <IconifyIcon icon="mdi:help-circle" className="me-2" style={{ fontSize: '1.1rem', color: 'var(--bs-primary)' }} />
+                    {t('questions.questionText')}
+                  </h6>
+                  <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: '1.6', padding: '12px', backgroundColor: '#f8f9fa', borderRadius: '6px' }}>
+                    {detailContent.weeklyQuestion}
+                  </div>
+                </div>
+              )}
+              {detailContent.weeklyAnswer && (
+                <div>
+                  <h6 className="fw-semibold mb-2 d-flex align-items-center">
+                    <IconifyIcon icon="mdi:message-text" className="me-2" style={{ fontSize: '1.1rem', color: 'var(--bs-success)' }} />
+                    {t('users.answer')}
+                  </h6>
+                  <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: '1.6', padding: '12px', backgroundColor: '#f8f9fa', borderRadius: '6px' }}>
+                    {detailContent.weeklyAnswer}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: '1.6' }}>
+              {detailContent?.text || ''}
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="light" onClick={closeDetailModal}>{t('common.close')}</Button>
+        </Modal.Footer>
       </Modal>
     </>
   )
