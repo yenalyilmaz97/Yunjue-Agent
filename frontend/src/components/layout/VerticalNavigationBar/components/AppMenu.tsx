@@ -6,6 +6,8 @@ import { Fragment, MouseEvent, useCallback, useEffect, useState } from 'react'
 import { Collapse } from 'react-bootstrap'
 import { Link, useLocation } from 'react-router-dom'
 import { useI18n } from '@/i18n/context'
+import { useLayoutContext } from '@/context/useLayoutContext'
+import useViewPort from '@/hooks/useViewPort'
 
 const MenuItemWithChildren = ({ item, className, linkClassName, subMenuClassName, activeMenuItems, toggleMenu }: SubMenus) => {
   const { t } = useI18n()
@@ -123,6 +125,8 @@ const MenuItem = ({ item, className, linkClassName }: SubMenus) => {
 
 const MenuItemLink = ({ item, className }: SubMenus) => {
   const { t } = useI18n()
+  const { toggleBackdrop } = useLayoutContext()
+  const { width } = useViewPort()
   
   const getLabel = (label: string) => {
     // Map specific labels to translation keys
@@ -164,8 +168,23 @@ const MenuItemLink = ({ item, className }: SubMenus) => {
     return translated !== translationKey ? translated : label
   }
 
+  const handleClick = () => {
+    // Close sidebar on mobile when a menu item is clicked
+    if (width <= 768) {
+      const htmlTag = document.getElementsByTagName('html')[0]
+      if (htmlTag.classList.contains('sidebar-enable')) {
+        toggleBackdrop()
+      }
+    }
+  }
+
   return (
-    <Link to={item.url ?? ''} target={item.target} className={clsx(className, { disabled: item.isDisabled })}>
+    <Link 
+      to={item.url ?? ''} 
+      target={item.target} 
+      className={clsx(className, { disabled: item.isDisabled })}
+      onClick={handleClick}
+    >
       {item.icon && (
         <span className="nav-icon">
           <IconifyIcon icon={item.icon} width={18} height={18} aria-hidden />

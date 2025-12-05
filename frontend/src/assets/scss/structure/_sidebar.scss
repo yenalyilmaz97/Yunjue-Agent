@@ -531,25 +531,120 @@
      }
  }
  
- // SideNav Hidden (Mobile View)
- html[data-sidebar-size='hidden'] {
-     .app-sidebar {
-         margin-left: calc($sidebar-width * -1);
-     }
- 
-     .page-content {
-         margin-left: 0;
-     }
- 
-     &.sidebar-enable {
-         .app-sidebar {
-             margin-left: 0;
-             z-index: 1055;
-         }
-     }
- }
- 
- // Sidenav Dark and Brand
+// SideNav Hidden (Mobile View)
+html[data-sidebar-size='hidden'] {
+    .app-sidebar {
+        margin-left: calc($sidebar-width * -1);
+    }
+
+    .page-content {
+        margin-left: 0;
+    }
+
+    &.sidebar-enable {
+        .app-sidebar {
+            margin-left: 0;
+            z-index: 1055;
+        }
+    }
+}
+
+// Mobile styles (max-width: 768px)
+@media (max-width: 768px) {
+    // Ensure backdrop is behind sidebar
+    .offcanvas-backdrop {
+        z-index: 1040 !important;
+    }
+    
+    // Hide logo on mobile
+    .app-sidebar {
+        .logo-box {
+            display: none !important;
+        }
+        
+        .scrollbar {
+            height: 100% !important; // Full height when logo is hidden
+        }
+    }
+    
+    // Hidden state on mobile
+    html[data-sidebar-size='hidden'] {
+        .app-sidebar {
+            margin-left: calc($sidebar-width * -1);
+            z-index: 1000;
+        }
+        
+        .page-content {
+            margin-left: 0;
+        }
+        
+        &.sidebar-enable {
+            .app-sidebar {
+                margin-left: 0;
+                z-index: 1060 !important; // Higher than backdrop (1040) and modal (1055)
+                background: $sidebar-bg !important; // Ensure background is visible
+            }
+        }
+    }
+    
+    // Condensed state on mobile - treat as hidden
+    html[data-sidebar-size='condensed'] {
+        .app-sidebar {
+            margin-left: calc($sidebar-width * -1);
+            z-index: 1000;
+            
+            .logo-box {
+                display: none !important;
+            }
+            
+            .scrollbar {
+                height: 100% !important;
+            }
+        }
+        
+        .page-content {
+            margin-left: 0;
+        }
+        
+        &.sidebar-enable {
+            .app-sidebar {
+                margin-left: 0;
+                z-index: 1060 !important; // Higher than backdrop (1040) and modal (1055)
+                background: $sidebar-bg !important; // Ensure background is visible
+            }
+        }
+    }
+    
+    // Default state on mobile - treat as hidden
+    html[data-sidebar-size='default'] {
+        .app-sidebar {
+            margin-left: calc($sidebar-width * -1);
+            z-index: 1000;
+            
+            .logo-box {
+                display: none !important;
+            }
+            
+            .scrollbar {
+                height: 100% !important;
+            }
+        }
+        
+        .page-content {
+            margin-left: 0;
+        }
+        
+        &.sidebar-enable {
+            .app-sidebar {
+                margin-left: 0;
+                z-index: 1060 !important;
+                background: $sidebar-bg !important;
+            }
+        }
+    }
+}
+
+// Sidenav Dark and Brand
  html[data-bs-theme='dark'],
  html[data-sidebar-color='dark'],
  html[data-sidebar-color='brand'] {
