@@ -20,8 +20,8 @@ const page = () => {
             </div>
             <div className="topbar-center">
               <Link to={dashboardUrl} className="topbar-logo">
-                <img src={logoDark} className="topbar-logo-dark" alt="logo" height={28} />
-                <img src={logoLight} className="topbar-logo-light" alt="logo" height={28} />
+                <img src={logoDark} className="topbar-logo-dark" alt="logo" height={36} />
+                <img src={logoLight} className="topbar-logo-light" alt="logo" height={36} />
               </Link>
             </div>
             <div className="d-flex align-items-center gap-2 topbar-right">

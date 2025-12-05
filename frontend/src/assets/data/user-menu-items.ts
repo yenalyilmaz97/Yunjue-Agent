@@ -38,7 +38,7 @@ export const USER_MENU_ITEMS: MenuItemType[] = [
   {
     key: 'notes',
     label: 'Notes',
-    icon: 'mingcute:notebook-3-line',
+    icon: 'mingcute:notebook-line',
     url: '/notes',
   },
   {
