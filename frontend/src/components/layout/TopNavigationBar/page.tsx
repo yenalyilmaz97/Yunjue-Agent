@@ -1,7 +1,6 @@
 import LeftSideBarToggle from './components/LeftSideBarToggle'
 import ProfileDropdown from './components/ProfileDropdown'
 import { Container } from 'react-bootstrap'
-import Notifications from './components/Notifications'
 import logoDark from '@/assets/images/logo-dark.png'
 import logoLight from '@/assets/images/logo-light.png'
 import { Link } from 'react-router-dom'
@@ -22,7 +21,6 @@ const page = () => {
               </Link>
             </div>
             <div className="d-flex align-items-center gap-2 topbar-right">
-              <Notifications />
               <ProfileDropdown />
             </div>
           </div>

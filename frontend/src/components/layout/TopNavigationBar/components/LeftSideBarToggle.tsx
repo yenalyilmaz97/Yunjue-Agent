@@ -3,6 +3,7 @@ import { useLayoutContext } from '@/context/useLayoutContext'
 import useViewPort from '@/hooks/useViewPort'
 import { useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
+import { notificationsData } from '@/assets/data/topbar'
 
 const LeftSideBarToggle = () => {
   const {
@@ -81,10 +82,18 @@ const LeftSideBarToggle = () => {
     }
   }, [pathname, width])
 
+  const notificationCount = notificationsData.length
+
   return (
     <div className="topbar-item">
-      <button type="button" onClick={handleMenuSize} className="button-toggle-menu topbar-button">
+      <button type="button" onClick={handleMenuSize} className="button-toggle-menu topbar-button position-relative">
         <IconifyIcon icon="solar:hamburger-menu-outline" width={24} height={24} className="fs-24  align-middle" />
+        {notificationCount > 0 && (
+          <span className="position-absolute topbar-badge fs-10 translate-middle badge bg-danger rounded-pill" style={{ top: '8px', right: '8px' }}>
+            {notificationCount}
+            <span className="visually-hidden">unread notifications</span>
+          </span>
+        )}
       </button>
     </div>
   )

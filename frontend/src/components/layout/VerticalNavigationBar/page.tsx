@@ -3,6 +3,7 @@ import { useAuthContext } from '@/context/useAuthContext'
 import SimplebarReactClient from '@/components/wrapper/SimplebarReactClient'
 import LogoBox from '@/components/wrapper/LogoBox'
 import AppMenu from './components/AppMenu'
+import SidebarNotifications from './components/SidebarNotifications'
 
 const page = () => {
   const { user } = useAuthContext()
@@ -12,7 +13,10 @@ const page = () => {
     <div className="app-sidebar">
       <LogoBox />
       <SimplebarReactClient className="scrollbar" data-simplebar>
-        <AppMenu menuItems={menuItems} />
+        <div className="sidebar-content-wrapper">
+          <AppMenu menuItems={menuItems} />
+          <SidebarNotifications />
+        </div>
       </SimplebarReactClient>
     </div>
   )
