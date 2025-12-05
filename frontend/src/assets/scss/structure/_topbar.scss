@@ -9,7 +9,7 @@
      transition: all 0.3s ease-in-out;
      height: $topbar-height;
      background-color: $topbar-bg;
-     padding-left: $sidebar-width;
+     padding-left: 0; // Removed sidebar-width padding
      border-bottom: $card-border-width solid $card-border-color;
 
      .navbar-header {
@@ -17,8 +17,53 @@
           margin: 0 auto;
           align-items: center;
           justify-content: space-between;
-          padding: 0 10px;
+          padding: 0 15px;
+          position: relative;
      }
+     
+     // Remove container padding for hamburger to start from left
+     > div > .container-fluid {
+          padding-left: 0;
+          padding-right: 15px;
+     }
+
+     // Topbar sections
+     .topbar-left {
+          flex: 0 0 auto;
+     }
+     
+     .topbar-center {
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+          flex: 0 0 auto;
+     }
+     
+     .topbar-right {
+          flex: 0 0 auto;
+          margin-left: auto;
+     }
+
+     // Topbar Logo
+     .topbar-logo {
+          display: flex;
+          align-items: center;
+          text-decoration: none;
+          height: $topbar-height;
+          
+          .topbar-logo-dark {
+               display: block;
+               height: 28px;
+               width: auto;
+          }
+          
+          .topbar-logo-light {
+               display: none;
+               height: 28px;
+               width: auto;
+          }
+     }
+     
 
      // Search
      .app-search {
@@ -128,6 +173,16 @@
                     display: block;
                }
           }
+          
+          .topbar-logo {
+               .topbar-logo-dark {
+                    display: none;
+               }
+               
+               .topbar-logo-light {
+                    display: block;
+               }
+          }
      }
 }
 
@@ -143,6 +198,34 @@ html[data-sidebar-size="hidden"] {
 @media (max-width: 375px) {
      .app-topbar {
           padding: 0 0.5 * $spacer !important;
+     }
+}
+
+@media (max-width: 768px) {
+     .app-topbar {
+          height: $topbar-height;
+          
+          .navbar-header {
+               padding: 0 10px;
+          }
+          
+          .topbar-center {
+               left: 50%;
+               transform: translateX(-50%);
+               position: absolute;
+          }
+          
+          .topbar-logo {
+               img {
+                    height: 24px !important;
+               }
+          }
+          
+          .topbar-right {
+               display: flex !important;
+               align-items: center;
+               gap: 8px;
+          }
      }
 }
 

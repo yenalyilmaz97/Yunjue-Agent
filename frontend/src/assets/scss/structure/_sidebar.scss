@@ -376,15 +376,15 @@
          }
      }
  
-     .app-topbar {
-         padding-left: $sidebar-width-sm;
-     }
- 
-     .page-content {
-         margin-left: $sidebar-width-sm;
-         min-height: 1300px;
-     }
- }
+    .app-topbar {
+        padding-left: 0; // Removed sidebar-width-sm padding
+    }
+
+    .page-content {
+        margin-left: $sidebar-width-sm;
+        min-height: 1300px;
+    }
+}
  
  // Sidebar sm hover Toggle Menu Button
  .button-sm-hover {

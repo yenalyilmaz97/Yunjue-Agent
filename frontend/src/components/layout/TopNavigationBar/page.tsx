@@ -1,9 +1,10 @@
 import LeftSideBarToggle from './components/LeftSideBarToggle'
 import ProfileDropdown from './components/ProfileDropdown'
-import ThemeModeToggle from './components/ThemeModeToggle'
 import { Container } from 'react-bootstrap'
-import IconifyIcon from '@/components/wrapper/IconifyIcon'
 import Notifications from './components/Notifications'
+import logoDark from '@/assets/images/logo-dark.png'
+import logoLight from '@/assets/images/logo-light.png'
+import { Link } from 'react-router-dom'
 
 const page = () => {
   return (
@@ -11,17 +12,16 @@ const page = () => {
       <div>
         <Container fluid>
           <div className="navbar-header">
-            <div className="d-flex align-items-center gap-2">
+            <div className="d-flex align-items-center gap-2 topbar-left">
               <LeftSideBarToggle />
-              <form className="app-search d-none d-md-block me-auto">
-                <div className="position-relative">
-                  <input type="search" className="form-control" placeholder="admin,widgets..." autoComplete="off" />
-                  <IconifyIcon icon="solar:magnifer-outline" className="search-widget-icon" />
-                </div>
-              </form>
             </div>
-            <div className="d-flex align-items-center gap-2">
-              <ThemeModeToggle />
+            <div className="topbar-center">
+              <Link to="/dashboards" className="topbar-logo">
+                <img src={logoDark} className="topbar-logo-dark" alt="logo" height={28} />
+                <img src={logoLight} className="topbar-logo-light" alt="logo" height={28} />
+              </Link>
+            </div>
+            <div className="d-flex align-items-center gap-2 topbar-right">
               <Notifications />
               <ProfileDropdown />
             </div>
