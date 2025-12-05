@@ -3,6 +3,7 @@ import { ApexOptions } from 'apexcharts'
 import ReactApexChart from 'react-apexcharts'
 import { Card, CardBody, Col, Row } from 'react-bootstrap'
 import { cardsData, CardsType } from '../data'
+import { themeColors } from '@/context/constants'
 
 const StatCard = ({ count, icon, series, title }: CardsType) => {
   const salesChart: ApexOptions = {
@@ -25,7 +26,7 @@ const StatCard = ({ count, icon, series, title }: CardsType) => {
     markers: {
       size: 0,
     },
-    colors: ['#8b1538'],  // Burgundy instead of purple
+    colors: [themeColors.burgundy],  // Burgundy instead of purple
     tooltip: {
       fixed: {
         enabled: false,

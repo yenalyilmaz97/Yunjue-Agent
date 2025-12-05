@@ -22,6 +22,25 @@
     
     --#{$prefix}input-border-color:             #d8dfe7;
     --#{$prefix}input-focus-border-color:       #b0b0bb;
+    
+    // Dark red gradient colors
+    --#{$prefix}dark-red-900:                   #{$dark-red-900};
+    --#{$prefix}dark-red-800:                   #{$dark-red-800};
+    --#{$prefix}dark-red-700:                   #{$dark-red-700};
+    --#{$prefix}dark-red-600:                   #{$dark-red-600};
+    --#{$prefix}dark-red-500:                   #{$dark-red-500};
+    
+    // Named color variables
+    --#{$prefix}burgundy:                       #{$burgundy};
+    --#{$prefix}maroon:                         #{$maroon};
+    
+    // Gradient backgrounds
+    --#{$prefix}gradient-aphorism:              linear-gradient(135deg, #{$dark-red-900} 0%, #{$dark-red-800} 40%, #{$burgundy} 70%, #{$dark-red-800} 100%);
+    --#{$prefix}gradient-affirmation:            linear-gradient(135deg, #{$dark-red-700} 0%, #{$dark-red-600} 40%, #{$dark-red-500} 70%, #{$dark-red-600} 100%);
+    --#{$prefix}gradient-card-header:           linear-gradient(135deg, #{$dark-red-800} 0%, #{$burgundy} 100%);
+    --#{$prefix}gradient-audio-player:           linear-gradient(135deg, #{$burgundy} 0%, #{$maroon} 100%);
+    --#{$prefix}gradient-audio-progress:         linear-gradient(90deg, #{$burgundy} 0%, #{$maroon} 100%);
+    --#{$prefix}gradient-audio-waveform:         linear-gradient(180deg, #{$burgundy} 0%, #{$maroon} 100%);
 }
 
 

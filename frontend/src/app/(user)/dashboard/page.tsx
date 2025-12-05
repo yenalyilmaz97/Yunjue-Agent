@@ -33,6 +33,11 @@ const DashboardPage = () => {
     <>
       <PageTitle subName="Keçıyı Besle" title="User Dashboard" />
       
+      {/* En Son Açılan İçerik - Mobilde HeroSlider'dan önce, desktop'ta DailyContentCard'dan sonra */}
+      <div className="d-block d-lg-none mb-4">
+        <LastUnlockedContent />
+      </div>
+
       {/* Hero Slider - Mobil öncelikli, her zaman göster */}
       <div className="d-block d-lg-none">
         <HeroSlider />
@@ -55,8 +60,10 @@ const DashboardPage = () => {
         )}
       </div>
 
-      {/* En Son Açılan İçerik - HeroSlider'dan sonra göster */}
-      <LastUnlockedContent />
+      {/* En Son Açılan İçerik - Desktop'ta DailyContentCard'dan sonra göster */}
+      <div className="d-none d-lg-block">
+        <LastUnlockedContent />
+      </div>
 
       {/* Haftalık Görevler Tablosu */}
       <WeeklyTasksTable />

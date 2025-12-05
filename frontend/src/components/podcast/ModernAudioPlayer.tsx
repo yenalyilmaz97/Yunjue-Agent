@@ -258,7 +258,7 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
               height: '48px',
               borderRadius: '50%',
               border: 'none',
-              background: 'linear-gradient(135deg, #8b1538 0%, #a02040 100%)',
+              background: 'var(--bs-gradient-audio-player)',
               boxShadow: isPlaying
                 ? '0 8px 20px rgba(139, 21, 56, 0.4)'
                 : '0 4px 12px rgba(139, 21, 56, 0.3)',
@@ -400,7 +400,7 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
                   left: 0,
                   height: '100%',
                   width: `${progressPercentage}%`,
-                  background: 'linear-gradient(90deg, #8b1538 0%, #a02040 100%)',
+                  background: 'var(--bs-gradient-audio-progress)',
                   borderRadius: '10px',
                   transition: isDragging ? 'none' : 'width 0.1s linear',
                   boxShadow: '0 2px 4px rgba(139, 21, 56, 0.3)',
@@ -418,7 +418,7 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
                     background: 'white',
                     borderRadius: '50%',
                     boxShadow: '0 2px 6px rgba(139, 21, 56, 0.4)',
-                    border: '2px solid #8b1538',
+                    border: '2px solid var(--bs-burgundy)',
                   }}
                 />
               </div>
@@ -534,7 +534,7 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
                 style={{
                   width: '2px',
                   height: '100%',
-                  background: 'linear-gradient(180deg, #8b1538 0%, #a02040 100%)',
+                  background: 'var(--bs-gradient-audio-waveform)',
                   borderRadius: '2px',
                   animation: `waveform ${0.5 + (i % 3) * 0.2}s ease-in-out infinite`,
                   animationDelay: `${i * 0.05}s`,
@@ -563,7 +563,7 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
           appearance: none;
           width: 14px;
           height: 14px;
-          background: linear-gradient(135deg, #8b1538 0%, #a02040 100%);
+          background: var(--bs-gradient-audio-player);
           border-radius: 50%;
           cursor: pointer;
           box-shadow: 0 2px 4px rgba(126, 103, 254, 0.3);
@@ -572,7 +572,7 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
         input[type="range"]::-moz-range-thumb {
           width: 14px;
           height: 14px;
-          background: linear-gradient(135deg, #8b1538 0%, #a02040 100%);
+          background: var(--bs-gradient-audio-player);
           border-radius: 50%;
           cursor: pointer;
           border: none;

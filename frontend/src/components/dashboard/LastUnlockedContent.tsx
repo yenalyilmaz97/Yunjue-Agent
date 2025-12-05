@@ -149,7 +149,7 @@ const LastUnlockedContent = () => {
           e.currentTarget.style.transform = 'translateY(0)'
           e.currentTarget.style.boxShadow = ''
         }}>
-        <CardHeader className="bg-primary text-white">
+        <CardHeader className="text-white" style={{ background: 'var(--bs-gradient-card-header)' }}>
           <CardTitle as={'h5'} className="mb-0 d-flex align-items-center">
             <i className="bx bx-lock-open me-2"></i>
             En Son Açılan İçerik

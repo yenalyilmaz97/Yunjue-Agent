@@ -141,29 +141,29 @@ const WeeklyTasksTable = () => {
         <Card>
           <CardBody>
             <TabContainer activeKey={activeTab} onSelect={(k) => setActiveTab(k || 'music')}>
-              <Nav variant="tabs" className="border-bottom">
+              <Nav variant="tabs" className="border-bottom weekly-tasks-nav">
                 <NavItem>
-                  <NavLink eventKey="music">
+                  <NavLink eventKey="music" style={{ color: 'inherit' }}>
                     <i className="bx bx-music me-2"></i>
-                    <span className="d-none d-sm-inline">{t('dashboard.music')}</span>
+                    <span>{t('dashboard.music')}</span>
                   </NavLink>
                 </NavItem>
                 <NavItem>
-                  <NavLink eventKey="movie">
+                  <NavLink eventKey="movie" style={{ color: 'inherit' }}>
                     <i className="bx bx-movie me-2"></i>
-                    <span className="d-none d-sm-inline">{t('dashboard.movie')}</span>
+                    <span>{t('dashboard.movie')}</span>
                   </NavLink>
                 </NavItem>
                 <NavItem>
-                  <NavLink eventKey="task">
+                  <NavLink eventKey="task" style={{ color: 'inherit' }}>
                     <i className="bx bx-task me-2"></i>
-                    <span className="d-none d-sm-inline">{t('dashboard.task')}</span>
+                    <span>{t('dashboard.task')}</span>
                   </NavLink>
                 </NavItem>
                 <NavItem>
-                  <NavLink eventKey="question">
+                  <NavLink eventKey="question" style={{ color: 'inherit' }}>
                     <i className="bx bx-question-mark me-2"></i>
-                    <span className="d-none d-sm-inline">{t('dashboard.question')}</span>
+                    <span>{t('dashboard.question')}</span>
                   </NavLink>
                 </NavItem>
               </Nav>
