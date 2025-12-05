@@ -8,15 +8,17 @@ import TextAreaFormInput from '@/components/from/TextAreaFormInput'
 import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useI18n } from '@/i18n/context'
 
 type FormFields = { title: string; description: string; isVideo: boolean; isActive?: boolean }
 
 const SeriesCreateEditPage = () => {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const location = useLocation()
   const schema: yup.ObjectSchema<FormFields> = yup.object({
-    title: yup.string().trim().required('Please enter title'),
-    description: yup.string().trim().required('Please enter description'),
+    title: yup.string().trim().required(t('forms.enterTitle')),
+    description: yup.string().trim().required(t('forms.enterDescription')),
     isVideo: yup.boolean().required(),
     isActive: yup.boolean().optional(),
   })
@@ -47,19 +49,19 @@ const SeriesCreateEditPage = () => {
 
   return (
     <>
-      <PageTitle subName="Podcasts" title={isEdit ? 'Edit Series' : 'Create Series'} />
+      <PageTitle subName={t('pages.podcasts')} title={isEdit ? t('podcasts.series.edit') : t('podcasts.series.create')} />
       <Card>
         <CardHeader>
-          <CardTitle as={'h5'}>{isEdit ? 'Edit Series' : 'New Series'}</CardTitle>
+          <CardTitle as={'h5'}>{isEdit ? t('podcasts.series.edit') : t('podcasts.series.new')}</CardTitle>
         </CardHeader>
         <CardBody>
           <Form onSubmit={onSubmit} className="needs-validation" noValidate>
             <Row className="g-3">
               <Col md={6}>
-                <TextFormInput control={control} name="title" label="Title" placeholder="Title" />
+                <TextFormInput control={control} name="title" label={t('podcasts.series.name')} placeholder={t('podcasts.series.name')} />
               </Col>
               <Col md={12}>
-                <TextAreaFormInput control={control} name="description" rows={4} label="Description" placeholder="Description" />
+                <TextAreaFormInput control={control} name="description" rows={4} label={t('podcasts.series.description')} placeholder={t('podcasts.series.description')} />
               </Col>
               <Col md={6}>
                 <Controller
@@ -69,7 +71,7 @@ const SeriesCreateEditPage = () => {
                     <Form.Check
                       type="switch"
                       id="isVideo"
-                      label="Video Series"
+                      label={t('podcasts.series.isVideo')}
                       checked={!!field.value}
                       onChange={(e) => field.onChange(e.target.checked)}
                     />
@@ -85,7 +87,7 @@ const SeriesCreateEditPage = () => {
                       <Form.Check
                         type="switch"
                         id="isActive"
-                        label="Active"
+                        label={t('podcasts.series.isActive')}
                         checked={!!field.value}
                         onChange={(e) => field.onChange(e.target.checked)}
                       />
@@ -95,8 +97,8 @@ const SeriesCreateEditPage = () => {
               )}
             </Row>
             <div className="d-flex justify-content-end gap-2 mt-3">
-              <Button type="button" variant="light" onClick={() => navigate('/admin/podcasts/series')}>Cancel</Button>
-              <Button type="submit" variant="primary" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Create'}</Button>
+              <Button type="button" variant="light" onClick={() => navigate('/admin/podcasts/series')}>{t('common.cancel')}</Button>
+              <Button type="submit" variant="primary" disabled={isSubmitting}>{isSubmitting ? t('common.saving') : isEdit ? t('common.update') : t('common.create')}</Button>
             </div>
           </Form>
         </CardBody>

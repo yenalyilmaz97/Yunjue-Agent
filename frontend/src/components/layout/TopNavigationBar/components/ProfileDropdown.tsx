@@ -1,5 +1,6 @@
 import IconifyIcon from '@/components/wrapper/IconifyIcon'
 import { useAuthContext } from '@/context/useAuthContext'
+import { useLayoutContext } from '@/context/useLayoutContext'
 import { Dropdown, DropdownHeader, DropdownItem, DropdownMenu, DropdownToggle } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
@@ -9,7 +10,9 @@ import { Icon } from '@iconify/react'
 
 const ProfileDropdown = () => {
   const { removeSession, user: authUser } = useAuthContext()
+  const { theme, changeTheme } = useLayoutContext()
   const [user, setUser] = useState<User | null>(null)
+  const isDark = theme === 'dark'
 
   useEffect(() => {
     const loadUser = async () => {
@@ -61,6 +64,17 @@ const ProfileDropdown = () => {
         <DropdownItem as={Link} to="/profile">
           <IconifyIcon icon="solar:user-outline" className="align-middle me-2 fs-18" />
           <span className="align-middle">My Account</span>
+        </DropdownItem>
+        <DropdownItem 
+          onClick={() => changeTheme(isDark ? 'light' : 'dark')}
+          style={{ cursor: 'pointer' }}
+        >
+          {isDark ? (
+            <IconifyIcon icon="ri:sun-line" className="align-middle me-2 fs-18" />
+          ) : (
+            <IconifyIcon icon="ri:moon-line" className="align-middle me-2 fs-18" />
+          )}
+          <span className="align-middle">{isDark ? 'Light Mode' : 'Dark Mode'}</span>
         </DropdownItem>
         <DropdownItem href="">
           <IconifyIcon icon="solar:wallet-outline" className="align-middle me-2 fs-18" />

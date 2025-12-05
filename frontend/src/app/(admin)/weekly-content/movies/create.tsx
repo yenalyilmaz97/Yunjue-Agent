@@ -7,12 +7,14 @@ import TextFormInput from '@/components/from/TextFormInput'
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useI18n } from '@/i18n/context'
 
 const CreateMoviePage = () => {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const location = useLocation()
   const schema = yup.object({
-    movieTitle: yup.string().trim().required('Please enter movie title'),
+    movieTitle: yup.string().trim().required(t('weeklyContent.movies.enterTitleRequired')),
   })
 
   const { control, handleSubmit, reset, formState } = useForm<{ movieTitle: string}>({
@@ -41,10 +43,10 @@ const CreateMoviePage = () => {
 
   return (
     <>
-      <PageTitle subName="Content" title="Create Movie" />
+      <PageTitle subName={t('pages.content')} title={isEdit ? t('weeklyContent.movies.edit') : t('weeklyContent.movies.create')} />
       <Card>
         <CardHeader>
-          <CardTitle as={'h5'}>{isEdit ? 'Edit Movie' : 'New Movie'}</CardTitle>
+          <CardTitle as={'h5'}>{isEdit ? t('weeklyContent.movies.edit') : t('weeklyContent.movies.new')}</CardTitle>
         </CardHeader>
         <CardBody>
           <Form onSubmit={onSubmit} className="needs-validation" noValidate>
@@ -53,14 +55,14 @@ const CreateMoviePage = () => {
                 <TextFormInput
                   control={control}
                   name="movieTitle"
-                  label="Title"
-                  placeholder="Enter movie title"
+                  label={t('weeklyContent.movies.titleLabel')}
+                  placeholder={t('weeklyContent.movies.enterTitle')}
                 />
               </Col>
             </Row>
             <div className="d-flex justify-content-end gap-2 mt-3">
-              <Button type="button" variant="light" onClick={() => navigate('/admin/content/movies')}>Cancel</Button>
-              <Button type="submit" variant="primary" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Create'}</Button>
+              <Button type="button" variant="light" onClick={() => navigate('/admin/content/movies')}>{t('common.cancel')}</Button>
+              <Button type="submit" variant="primary" disabled={isSubmitting}>{isSubmitting ? t('common.saving') : isEdit ? t('common.update') : t('common.create')}</Button>
             </div>
           </Form>
         </CardBody>

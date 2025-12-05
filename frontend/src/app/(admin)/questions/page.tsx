@@ -7,6 +7,7 @@ import DataTable from '@/components/table/DataTable'
 import QuestionModal, { type QuestionGroup } from '@/components/questions/QuestionModal'
 import { Icon } from '@iconify/react'
 import { useNavigate } from 'react-router-dom'
+import { useI18n } from '@/i18n/context'
 
 interface UserWithQuestionCount extends User {
   unansweredCount: number
@@ -14,6 +15,7 @@ interface UserWithQuestionCount extends User {
 }
 
 const QuestionsPage = () => {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const [allQuestions, setAllQuestions] = useState<Question[]>([])
   const [allUsers, setAllUsers] = useState<User[]>([])
@@ -126,10 +128,10 @@ const QuestionsPage = () => {
 
   return (
     <>
-      <PageTitle subName="Questions" title="User Questions" />
+      <PageTitle subName={t('pages.questions')} title={t('questions.userQuestions')} />
       <Card>
         <CardHeader>
-          <CardTitle as={'h5'}>User Questions</CardTitle>
+          <CardTitle as={'h5'}>{t('questions.userQuestions')}</CardTitle>
         </CardHeader>
         <CardBody>
           <div className="mb-3">
@@ -139,21 +141,21 @@ const QuestionsPage = () => {
                 onClick={() => setActiveTab('users')}
               >
                 <Icon icon="mingcute:user-line" className="me-1" />
-                All Users ({usersWithQuestionCount.length})
+                {t('questions.allUsers')} ({usersWithQuestionCount.length})
               </Button>
               <Button
                 variant={activeTab === 'unanswered' ? 'primary' : 'outline-primary'}
                 onClick={() => setActiveTab('unanswered')}
               >
                 <Icon icon="mingcute:time-line" className="me-1" />
-                Unanswered ({unansweredQuestions.length})
+                {t('questions.unansweredQuestions')} ({unansweredQuestions.length})
               </Button>
               <Button
                 variant={activeTab === 'answered' ? 'primary' : 'outline-primary'}
                 onClick={() => setActiveTab('answered')}
               >
                 <Icon icon="mingcute:check-line" className="me-1" />
-                Answered ({answeredQuestions.length})
+                {t('questions.answeredQuestions')} ({answeredQuestions.length})
               </Button>
             </div>
           </div>
@@ -167,7 +169,7 @@ const QuestionsPage = () => {
               columns={[
                 {
                   key: 'userName',
-                  header: 'User',
+                  header: t('access.seriesAccess.user'),
                   render: (r) => {
                     const u = r as UserWithQuestionCount
                     return (
@@ -188,7 +190,7 @@ const QuestionsPage = () => {
                 },
                 {
                   key: 'unansweredCount',
-                  header: 'Unanswered Questions',
+                  header: t('questions.unansweredQuestions'),
                   width: '180px',
                   sortable: true,
                   render: (r) => {
@@ -209,7 +211,7 @@ const QuestionsPage = () => {
                 },
                 {
                   key: 'totalCount',
-                  header: 'Total Questions',
+                  header: t('questions.totalQuestions'),
                   width: '150px',
                   sortable: true,
                   render: (r) => {
@@ -224,7 +226,7 @@ const QuestionsPage = () => {
                 },
                 {
                   key: 'actions',
-                  header: 'Actions',
+                  header: t('common.actions'),
                   width: '150px',
                   render: (r) => {
                     const u = r as UserWithQuestionCount
@@ -248,7 +250,7 @@ const QuestionsPage = () => {
                         disabled={userUnansweredQuestions.length === 0}
                       >
                         <Icon icon="mingcute:eye-line" className="me-1" />
-                        {userUnansweredQuestions.length > 0 ? 'View Questions' : 'No Questions'}
+                        {userUnansweredQuestions.length > 0 ? t('questions.viewQuestions') : t('questions.noQuestions')}
                       </Button>
                     )
                   },
@@ -266,7 +268,7 @@ const QuestionsPage = () => {
               columns={[
                 {
                   key: 'userName',
-                  header: 'User',
+                  header: t('access.seriesAccess.user'),
                   render: (r) => {
                     const g = r as QuestionGroup
                     return (
@@ -278,9 +280,30 @@ const QuestionsPage = () => {
                 },
                 {
                   key: 'questions.length',
-                  header: 'Question Count',
+                  header: t('questions.questionCount'),
                   width: '150px',
                   sortable: true,
+                },
+                {
+                  key: 'actions',
+                  header: t('common.actions'),
+                  width: '180px',
+                  render: (r) => {
+                    const g = r as QuestionGroup
+                    return (
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedUser(g)
+                          setShowModal(true)
+                        }}
+                      >
+                        <Icon icon="mingcute:edit-line" className="me-1" />
+                        {t('questions.answerQuestions')}
+                      </Button>
+                    )
+                  },
                 },
               ]}
             />
@@ -295,7 +318,7 @@ const QuestionsPage = () => {
               columns={[
                 {
                   key: 'userName',
-                  header: 'User',
+                  header: t('access.seriesAccess.user'),
                   render: (r) => {
                     const g = r as QuestionGroup
                     return (
@@ -307,7 +330,7 @@ const QuestionsPage = () => {
                 },
                 {
                   key: 'questions.length',
-                  header: 'Question Count',
+                  header: t('questions.questionCount'),
                   width: '150px',
                   sortable: true,
                 },

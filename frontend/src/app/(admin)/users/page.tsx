@@ -10,18 +10,20 @@ import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useNavigate } from 'react-router-dom'
+import { useI18n } from '@/i18n/context'
 
 const page = () => {
+  const { t } = useI18n()
   const [items, setItems] = useState<User[]>([])
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
   const [resetUser, setResetUser] = useState<User | null>(null)
   const resetSchema = yup.object({
-    newPassword: yup.string().min(6, 'Password should be at least 6 characters').required('Please enter new password'),
+    newPassword: yup.string().min(6, t('users.passwordMin')).required(t('users.enterNewPasswordRequired')),
     confirmNewPassword: yup
       .string()
-      .oneOf([yup.ref('newPassword')], 'Passwords must match')
-      .required('Please confirm new password'),
+      .oneOf([yup.ref('newPassword')], t('users.passwordMatch'))
+      .required(t('users.confirmNewPasswordRequired')),
   })
   const {
     control: resetControl,
@@ -48,7 +50,7 @@ const page = () => {
   }, [])
 
   const handleDelete = async (userId: number) => {
-    if (!confirm('Bu kullanıcıyı silmek istediğinize emin misiniz?')) return
+    if (!confirm(t('users.deleteConfirm'))) return
     await userService.deleteUser(userId)
     setItems((prev) => prev.filter((u) => u.userId !== userId))
   }
@@ -69,19 +71,19 @@ const page = () => {
 
   return (
     <>
-      <PageTitle subName="Users" title="All Users" />
+      <PageTitle subName={t('pages.users')} title={t('users.allUsers')} />
       <Card>
         <CardHeader className="d-flex align-items-center justify-content-between gap-2 flex-wrap">
-          <CardTitle as={'h5'} className="mb-0">Users</CardTitle>
+          <CardTitle as={'h5'} className="mb-0">{t('users.list')}</CardTitle>
           <input
             className="form-control form-control-sm ms-auto"
-            placeholder="Search users..."
+            placeholder={t('users.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{ width: 260 }}
           />
           <Button size="sm" variant="primary" onClick={() => navigate('/admin/users/create')}>
-            <IconifyIcon icon="mdi:plus" className="me-1" /> Add New
+            <IconifyIcon icon="mdi:plus" className="me-1" /> {t('users.addNew')}
           </Button>
         </CardHeader>
         <CardBody>
@@ -93,18 +95,18 @@ const page = () => {
             searchQuery={search}
             searchKeys={['userId', 'userName', 'email', 'firstName', 'lastName', 'city', 'phone', 'roleName']}
             columns={[
-              { key: 'userId', header: 'ID', width: '80px', sortable: true },
-              { key: 'userName', header: 'Username', sortable: true },
-              { key: 'email', header: 'Email', sortable: true },
+              { key: 'userId', header: t('common.id') || 'ID', width: '80px', sortable: true },
+              { key: 'userName', header: t('users.userName'), sortable: true },
+              { key: 'email', header: t('users.email'), sortable: true },
               {
                 key: 'actions',
-                header: 'Actions',
+                header: t('common.actions'),
                 width: '120px',
                 render: (r) => {
                   const u = r as User
                   return (
                     <Button variant="outline-primary" size="sm" onClick={() => navigate(`/admin/users/${u.userId}`)}>
-                      <IconifyIcon icon="mdi:eye" className="me-1" /> Detail
+                      <IconifyIcon icon="mdi:eye" className="me-1" /> {t('users.detail')}
                     </Button>
                   )
                 },
@@ -115,26 +117,26 @@ const page = () => {
               <Row className="g-3 align-items-center">
                 <Col md={8}>
                   <div className="d-flex flex-wrap gap-3 small">
-                    <div><strong>First Name:</strong> {u.firstName || '-'}</div>
-                    <div><strong>Last Name:</strong> {u.lastName || '-'}</div>
-                    <div><strong>Role:</strong> {u.roleName || '-'}</div>
-                    <div><strong>City:</strong> {u.city || '-'}</div>
-                    <div><strong>Phone:</strong> {u.phone || '-'}</div>
-                    <div><strong>Subscription End:</strong> {new Date(u.subscriptionEnd).toLocaleDateString()}</div>
-                    <div><strong>Date of Birth:</strong> {new Date(u.dateOfBirth).toLocaleDateString()}</div>
-                    <div><strong>Gender:</strong> {u.gender ? 'Female' : 'Male'}</div>
-                    {u.description && <div><strong>Description:</strong> {u.description}</div>}
+                    <div><strong>{t('users.firstName')}:</strong> {u.firstName || '-'}</div>
+                    <div><strong>{t('users.lastName')}:</strong> {u.lastName || '-'}</div>
+                    <div><strong>{t('users.role')}:</strong> {u.roleName || '-'}</div>
+                    <div><strong>{t('users.city')}:</strong> {u.city || '-'}</div>
+                    <div><strong>{t('users.phone')}:</strong> {u.phone || '-'}</div>
+                    <div><strong>{t('users.subscriptionEnd')}:</strong> {new Date(u.subscriptionEnd).toLocaleDateString()}</div>
+                    <div><strong>{t('users.dateOfBirth')}:</strong> {new Date(u.dateOfBirth).toLocaleDateString()}</div>
+                    <div><strong>{t('users.gender')}:</strong> {u.gender ? t('users.female') : t('users.male')}</div>
+                    {u.description && <div><strong>{t('users.description')}:</strong> {u.description}</div>}
                   </div>
                 </Col>
                 <Col md={4} className="d-flex justify-content-end gap-2">
                   <Button variant="outline-primary" size="sm" onClick={() => navigate('/admin/users/create', { state: { mode: 'edit', item: u } })}>
-                    <IconifyIcon icon="mdi:pencil" className="me-1" /> Edit
+                    <IconifyIcon icon="mdi:pencil" className="me-1" /> {t('common.edit')}
                   </Button>
                   <Button variant="outline-warning" size="sm" onClick={() => openResetModal(u)}>
-                    <IconifyIcon icon="mdi:key-reset" className="me-1" /> Reset Password
+                    <IconifyIcon icon="mdi:key-reset" className="me-1" /> {t('users.resetPassword')}
                   </Button>
                   <Button variant="outline-danger" size="sm" onClick={() => handleDelete(u.userId)}>
-                    <IconifyIcon icon="mdi:delete" className="me-1" /> Delete
+                    <IconifyIcon icon="mdi:delete" className="me-1" /> {t('common.delete')}
                   </Button>
                 </Col>
               </Row>
@@ -146,16 +148,16 @@ const page = () => {
       <Modal show={!!resetUser} onHide={closeResetModal} centered>
         <Form onSubmit={submitReset}>
           <Modal.Header closeButton>
-            <Modal.Title>Şifre Sıfırla</Modal.Title>
+            <Modal.Title>{t('users.resetPasswordTitle')}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <p className="mb-3">Kullanıcı: <strong>{resetUser?.firstName} {resetUser?.lastName}</strong></p>
-            <PasswordFormInput control={resetControl} name="newPassword" label="Yeni Şifre" placeholder="Yeni şifre" />
-            <PasswordFormInput control={resetControl} name="confirmNewPassword" label="Yeni Şifre (Tekrar)" placeholder="Yeni şifre (tekrar)" />
+            <p className="mb-3">{t('users.user')}: <strong>{resetUser?.firstName} {resetUser?.lastName}</strong></p>
+            <PasswordFormInput control={resetControl} name="newPassword" label={t('users.newPassword')} placeholder={t('users.newPasswordPlaceholder')} />
+            <PasswordFormInput control={resetControl} name="confirmNewPassword" label={t('users.newPasswordRepeat')} placeholder={t('users.newPasswordRepeatPlaceholder')} />
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="light" onClick={closeResetModal}>Vazgeç</Button>
-            <Button type="submit" variant="primary" disabled={isResetSubmitting}>{isResetSubmitting ? 'Gönderiliyor...' : 'Sıfırla'}</Button>
+            <Button variant="light" onClick={closeResetModal}>{t('users.cancel')}</Button>
+            <Button type="submit" variant="primary" disabled={isResetSubmitting}>{isResetSubmitting ? t('users.submitting') : t('users.reset')}</Button>
           </Modal.Footer>
         </Form>
       </Modal>

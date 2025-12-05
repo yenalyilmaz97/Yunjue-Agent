@@ -13,4 +13,6 @@ public interface IUserSeriesAccessService
     Task<UserSeriesAccessStatsDTO> GetUserSeriesAccessStatsAsync();
     Task<UserSeriesAccessResponseDTO> GrantAccessAsync(GrantAccessRequest request);
     Task RevokeAccessAsync(RevokeAccessRequest request);
+    Task<BulkGrantAccessResponseDTO> BulkGrantAccessToAllUsersAsync();
+    Task<BulkGrantAccessResponseDTO> IncrementAccessibleSequenceForCompletedEpisodesAsync();
 }

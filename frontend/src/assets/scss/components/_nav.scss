@@ -17,12 +17,112 @@
     li {
         a {
             border-color: transparent !important;
+            color: var(--#{$prefix}body-color) !important;
             // padding: 0.375rem 1rem;
         }
 
         a.active {
             border-bottom: $border-width solid $primary !important;
             margin-bottom: 1px;
+            color: $primary !important;
+        }
+    }
+    
+    .nav-link {
+        color: var(--#{$prefix}body-color) !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        
+        span {
+            color: inherit !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        &:hover {
+            color: var(--#{$prefix}link-hover-color) !important;
+        }
+        
+        &.active {
+            color: $primary !important;
+            
+            span {
+                color: $primary !important;
+            }
+        }
+    }
+}
+
+// Weekly Tasks Nav - Dynamic font size and single line
+.weekly-tasks-nav {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    
+    &::-webkit-scrollbar {
+        height: 4px;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background: var(--#{$prefix}border-color);
+        border-radius: 2px;
+    }
+    
+    .nav-item {
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+    }
+    
+    .nav-link {
+        font-size: clamp(0.75rem, 2vw, 0.95rem) !important;
+        padding: 0.5rem clamp(0.5rem, 1.5vw, 1rem) !important;
+        white-space: nowrap !important;
+        display: flex !important;
+        align-items: center !important;
+        
+        i {
+            font-size: clamp(1rem, 2.5vw, 1.25rem) !important;
+            flex-shrink: 0;
+        }
+        
+        span {
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            margin-left: 0.25rem;
+        }
+        
+        // Mobile: smaller font and padding
+        @media (max-width: 576px) {
+            font-size: 0.75rem !important;
+            padding: 0.4rem 0.6rem !important;
+            
+            i {
+                font-size: 1rem !important;
+                margin-right: 0.25rem !important;
+            }
+            
+            span {
+                font-size: 0.75rem !important;
+            }
+        }
+        
+        // Tablet: medium font
+        @media (min-width: 577px) and (max-width: 768px) {
+            font-size: 0.85rem !important;
+            padding: 0.45rem 0.75rem !important;
+        }
+        
+        // Desktop: normal font
+        @media (min-width: 769px) {
+            font-size: 0.95rem !important;
+            padding: 0.5rem 1rem !important;
         }
     }
 }

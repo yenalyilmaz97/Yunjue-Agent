@@ -96,3 +96,38 @@ public class CreatePodcastEpisodeWithFilesRequest
     public bool? IsVideo { get; set; }
 }
 
+// Request DTO for file upload support in update
+public class EditPodcastEpisodeWithFilesRequest
+{
+    [Required]
+    public int EpisodeId { get; set; }
+
+    [Required]
+    public int SeriesId { get; set; }
+
+    [Required]
+    [StringLength(50, ErrorMessage = "Başlık en fazla 50 karakter olabilir")]
+    public string Title { get; set; }
+
+    [StringLength(1000, ErrorMessage = "Açıklama en fazla 1000 karakter olabilir")]
+    public string? Description { get; set; }
+
+    // File uploads (optional - if not provided, existing content will be kept)
+    public IFormFile? AudioFile { get; set; }
+    public IFormFile? VideoFile { get; set; }
+    public List<IFormFile>? ImageFiles { get; set; }
+
+    // Direct URLs (optional if files are provided)
+    public string? AudioUrl { get; set; }
+    public string? VideoUrl { get; set; }
+    public List<string>? ImageUrls { get; set; }
+    public string? ImageUrlsJson { get; set; } // For JSON string from FormData
+
+    [Required]
+    public int SequenceNumber { get; set; }
+
+    [Required]
+    public bool IsActive { get; set; }
+    public bool? IsVideo { get; set; }
+}
+

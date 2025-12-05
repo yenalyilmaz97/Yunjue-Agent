@@ -10,5 +10,6 @@ public interface IUserSeriesAccessRepository
     Task<UserSeriesAccess> CreateUserSeriesAccessAsync(UserSeriesAccess access);
     Task<UserSeriesAccess> UpdateUserSeriesAccessAsync(UserSeriesAccess access);
     Task DeleteUserSeriesAccessAsync(int accessId);
+    Task<IEnumerable<UserSeriesAccess>> BulkCreateUserSeriesAccessAsync(IEnumerable<UserSeriesAccess> accesses);
 
 }

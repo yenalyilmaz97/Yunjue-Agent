@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useAuthContext } from '@/context/useAuthContext'
 import { notesService, podcastService } from '@/services'
 import type { Note } from '@/types/keci'
-import { Card, CardBody, Row, Col, Spinner, Button } from 'react-bootstrap'
+import { Card, CardBody, Row, Col, Spinner, Button, Collapse } from 'react-bootstrap'
 import { Icon } from '@iconify/react'
 import { useNavigate } from 'react-router-dom'
 
@@ -19,6 +19,7 @@ const NotesPage = () => {
   const [groupedNotes, setGroupedNotes] = useState<GroupedNotes[]>([])
   const [selectedSeries, setSelectedSeries] = useState<GroupedNotes | null>(null)
   const [loading, setLoading] = useState(true)
+  const [expandedNotes, setExpandedNotes] = useState<Set<number>>(new Set())
 
   // Notları yükle ve serilere göre grupla
   useEffect(() => {
@@ -105,10 +106,38 @@ const NotesPage = () => {
   }
 
   const handleNoteClick = (note: Note) => {
-    if (note.episodeId) {
+    // Kartı aç/kapat
+    const newExpanded = new Set(expandedNotes)
+    if (newExpanded.has(note.noteId)) {
+      newExpanded.delete(note.noteId)
+    } else {
+      newExpanded.add(note.noteId)
+    }
+    setExpandedNotes(newExpanded)
+  }
+
+  const handleGoToEpisode = async (note: Note, e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (note.episodeId && note.seriesTitle) {
+      // Note'un seri ID'sini bul
+      let seriesId = selectedSeries?.seriesId
+      if (!seriesId || selectedSeries?.seriesTitle !== note.seriesTitle) {
+        // Eğer seçili seri bu note'un serisi değilse, seriyi bul
+        try {
+          const allSeries = await podcastService.getAllSeries()
+          const series = allSeries.find((s) => s.title === note.seriesTitle)
+          if (series) {
+            seriesId = series.seriesId
+          }
+        } catch (error) {
+          console.error('Error finding series:', error)
+        }
+      }
+      
       navigate('/podcasts', {
         state: {
           episodeId: note.episodeId,
+          seriesId: seriesId,
         },
       })
     }
@@ -225,68 +254,90 @@ const NotesPage = () => {
                   </div>
                 ) : (
                   <div className="list-group">
-                    {selectedSeries.notes.map((note) => (
-                      <div
-                        key={note.noteId}
-                        className="list-group-item border rounded mb-2 p-3"
-                        style={{
-                          cursor: note.episodeId ? 'pointer' : 'default',
-                          transition: 'all 0.2s',
-                        }}
-                        onClick={() => note.episodeId && handleNoteClick(note)}
-                        onMouseEnter={(e) => {
-                          if (note.episodeId) {
+                    {selectedSeries.notes.map((note) => {
+                      const isExpanded = expandedNotes.has(note.noteId)
+                      return (
+                        <div
+                          key={note.noteId}
+                          className="list-group-item border rounded mb-2 p-0"
+                          style={{
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            overflow: 'hidden',
+                          }}
+                          onClick={() => handleNoteClick(note)}
+                          onMouseEnter={(e) => {
                             e.currentTarget.style.backgroundColor = '#f8f9fa'
                             e.currentTarget.style.borderColor = '#0d6efd'
-                            e.currentTarget.style.transform = 'translateX(4px)'
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = 'white'
-                          e.currentTarget.style.borderColor = '#dee2e6'
-                          e.currentTarget.style.transform = 'translateX(0)'
-                        }}
-                      >
-                        <div className="d-flex align-items-start gap-2 mb-2">
-                          <div
-                            className="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                            style={{ width: '36px', height: '36px' }}
-                          >
-                            <Icon icon="mingcute:notebook-3-line" style={{ fontSize: '1.1rem' }} />
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'white'
+                            e.currentTarget.style.borderColor = '#dee2e6'
+                          }}
+                        >
+                          {/* Card Header - Always Visible */}
+                          <div className="p-3">
+                            <div className="d-flex align-items-start gap-2 mb-2">
+                              <div
+                                className="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                style={{ width: '36px', height: '36px' }}
+                              >
+                                <Icon icon="mingcute:notebook-3-line" style={{ fontSize: '1.1rem' }} />
+                              </div>
+                              <div className="flex-grow-1 min-w-0">
+                                <div className="d-flex align-items-center justify-content-between gap-2">
+                                  <h6 className="mb-1 fw-semibold">{note.title || note.episodeTitle || 'Not'}</h6>
+                                  <Icon
+                                    icon={isExpanded ? 'mingcute:up-line' : 'mingcute:down-line'}
+                                    style={{ fontSize: '1.2rem', color: 'var(--bs-primary)', flexShrink: 0 }}
+                                  />
+                                </div>
+                                {note.episodeTitle && note.episodeTitle !== note.title && (
+                                  <p className="text-muted small mb-1">Bölüm: {note.episodeTitle}</p>
+                                )}
+                                {!isExpanded && (
+                                  <p className="text-muted small mb-0" style={{ fontSize: '0.875rem', lineHeight: '1.5' }}>
+                                    {note.noteText.length > 150 ? `${note.noteText.substring(0, 150)}...` : note.noteText}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            <div className="d-flex align-items-center justify-content-between mt-2 pt-2 border-top">
+                              <span className="text-muted small">
+                                <Icon icon="mingcute:time-line" className="me-1" style={{ fontSize: '0.875rem' }} />
+                                <span className="d-none d-sm-inline">{formatDateTime(note.updatedAt || note.createdAt)}</span>
+                                <span className="d-inline d-sm-none">{formatDate(note.updatedAt || note.createdAt)}</span>
+                              </span>
+                              {note.episodeId && (
+                                <Button
+                                  variant="outline-primary"
+                                  size="sm"
+                                  onClick={(e) => handleGoToEpisode(note, e)}
+                                  style={{ fontSize: '0.75rem' }}
+                                >
+                                  <Icon icon="mingcute:arrow-right-line" className="me-1" />
+                                  Bölüme Git
+                                </Button>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex-grow-1 min-w-0">
-                            <h6 className="mb-1 fw-semibold">{note.title || note.episodeTitle || 'Not'}</h6>
-                            {note.episodeTitle && note.episodeTitle !== note.title && (
-                              <p className="text-muted small mb-1">Bölüm: {note.episodeTitle}</p>
-                            )}
-                            <p className="text-muted small mb-0" style={{ fontSize: '0.875rem', lineHeight: '1.5' }}>
-                              {note.noteText.length > 150 ? `${note.noteText.substring(0, 150)}...` : note.noteText}
-                            </p>
-                          </div>
+                          
+                          {/* Expanded Content */}
+                          <Collapse in={isExpanded}>
+                            <div>
+                              <div className="px-3 pb-3 border-top bg-light">
+                                <div className="pt-3">
+                                  <h6 className="small fw-semibold mb-2 text-muted">Not Detayı</h6>
+                                  <p className="mb-0" style={{ fontSize: '0.875rem', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
+                                    {note.noteText}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </Collapse>
                         </div>
-                        <div className="d-flex align-items-center justify-content-between mt-2 pt-2 border-top">
-                          <span className="text-muted small">
-                            <Icon icon="mingcute:time-line" className="me-1" style={{ fontSize: '0.875rem' }} />
-                            <span className="d-none d-sm-inline">{formatDateTime(note.updatedAt || note.createdAt)}</span>
-                            <span className="d-inline d-sm-none">{formatDate(note.updatedAt || note.createdAt)}</span>
-                          </span>
-                          {note.episodeId && (
-                            <Button
-                              variant="outline-primary"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleNoteClick(note)
-                              }}
-                              style={{ fontSize: '0.75rem' }}
-                            >
-                              <Icon icon="mingcute:arrow-right-line" className="me-1" />
-                              Bölüme Git
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 )}
               </CardBody>

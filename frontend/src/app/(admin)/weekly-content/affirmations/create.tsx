@@ -7,12 +7,14 @@ import TextAreaFormInput from '@/components/from/TextAreaFormInput'
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useI18n } from '@/i18n/context'
 
 const CreateAffirmationPage = () => {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const location = useLocation()
   const schema = yup.object({
-    affirmationText: yup.string().trim().required('Please enter affirmation'),
+    affirmationText: yup.string().trim().required(t('weeklyContent.affirmations.enterTextRequired')),
   })
 
   const { control, handleSubmit, reset, formState } = useForm<{ affirmationText: string}>({
@@ -41,10 +43,10 @@ const CreateAffirmationPage = () => {
 
   return (
     <>
-      <PageTitle subName="Content" title="Create Affirmation" />
+      <PageTitle subName={t('pages.content')} title={isEdit ? t('weeklyContent.affirmations.edit') : t('weeklyContent.affirmations.create')} />
       <Card>
         <CardHeader>
-          <CardTitle as={'h5'}>{isEdit ? 'Edit Affirmation' : 'New Affirmation'}</CardTitle>
+          <CardTitle as={'h5'}>{isEdit ? t('weeklyContent.affirmations.edit') : t('weeklyContent.affirmations.new')}</CardTitle>
         </CardHeader>
         <CardBody>
           <Form onSubmit={onSubmit} className="needs-validation" noValidate>
@@ -54,14 +56,14 @@ const CreateAffirmationPage = () => {
                   control={control}
                   name="affirmationText"
                   rows={3}
-                  label="Text"
-                  placeholder="Enter affirmation"
+                  label={t('weeklyContent.affirmations.text')}
+                  placeholder={t('weeklyContent.affirmations.enterText')}
                 />
               </Col>
             </Row>
             <div className="d-flex justify-content-end gap-2 mt-3">
-              <Button type="button" variant="light" onClick={() => navigate('/admin/content/affirmations')}>Cancel</Button>
-              <Button type="submit" variant="primary" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Create'}</Button>
+              <Button type="button" variant="light" onClick={() => navigate('/admin/content/affirmations')}>{t('common.cancel')}</Button>
+              <Button type="submit" variant="primary" disabled={isSubmitting}>{isSubmitting ? t('common.saving') : isEdit ? t('common.update') : t('common.create')}</Button>
             </div>
           </Form>
         </CardBody>

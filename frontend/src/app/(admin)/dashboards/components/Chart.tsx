@@ -3,6 +3,7 @@ import ReactApexChart from 'react-apexcharts'
 import CountryMap from './CountryMap'
 import { Card, CardBody, CardHeader, Col, Row } from 'react-bootstrap'
 import SaleChart from './SaleChart'
+import { themeColors } from '@/context/constants'
 
 const Chart = () => {
   const salesChart: ApexOptions = {
@@ -110,7 +111,7 @@ const Chart = () => {
         borderRadius: 3,
       },
     },
-    colors: ['#7e67fe', '#17c553', '#7942ed'],
+    colors: [themeColors.burgundy, themeColors.green, themeColors.maroon],  // Burgundy and maroon instead of purple
     tooltip: {
       shared: true,
       y: [

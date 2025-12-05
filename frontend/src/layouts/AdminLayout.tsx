@@ -5,6 +5,7 @@ import { Container } from 'react-bootstrap'
 
 const TopNavigationBar = lazy(() => import('@/components/layout/TopNavigationBar/page'))
 const VerticalNavigationBar = lazy(() => import('@/components/layout/VerticalNavigationBar/page'))
+const BottomNavigationBar = lazy(() => import('@/components/layout/BottomNavigationBar/page'))
 
 const AdminLayout = ({ children }: ChildrenType) => {
   return (
@@ -18,6 +19,9 @@ const AdminLayout = ({ children }: ChildrenType) => {
         <Container fluid>{children}</Container>
         <Footer />
       </div>
+      <Suspense>
+        <BottomNavigationBar />
+      </Suspense>
     </div>
   )
 }

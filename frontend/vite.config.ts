@@ -10,5 +10,5 @@ export default defineConfig({
       "@": resolve(__dirname, "src"),
     },
   },
-  base: "",
+  base: "/", // Absolute path - tüm asset'ler root'tan yüklenecek
 })

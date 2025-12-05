@@ -5,8 +5,10 @@ import type { UserAssignmentSummary } from '@/types/keci'
 import { Card, CardBody, CardHeader, CardTitle, Button } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 import DataTable from '@/components/table/DataTable'
+import { useI18n } from '@/i18n/context'
 
 const page = () => {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const [items, setItems] = useState<UserAssignmentSummary[]>([])
   const [loading, setLoading] = useState(false)
@@ -40,14 +42,14 @@ const page = () => {
 
   return (
     <>
-      <PageTitle subName="Access" title="Weekly Assignment" />
+      <PageTitle subName={t('pages.access') || t('sidebar.access')} title={t('access.weeklyAssignment.title')} />
       <Card>
         <CardHeader className="d-flex align-items-center justify-content-between gap-2 flex-wrap">
-          <CardTitle as={'h5'} className="mb-0">User Weekly Assignments</CardTitle>
+          <CardTitle as={'h5'} className="mb-0">{t('access.weeklyAssignment.list')}</CardTitle>
           <div className="d-flex align-items-center gap-2 ms-auto">
             <input
               className="form-control form-control-sm"
-              placeholder="Search user/week..."
+              placeholder={t('access.weeklyAssignment.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{ width: 260 }}
@@ -68,41 +70,41 @@ const page = () => {
               const s = row as any
               return (
                 <div className="d-inline-flex gap-2">
-                  <Button size="sm" variant="outline-secondary" onClick={() => navigate('/admin/access/weekly/edit', { state: { user: s.user } })}>Edit</Button>
+                  <Button size="sm" variant="outline-secondary" onClick={() => navigate('/admin/access/weekly/edit', { state: { user: s.user } })}>{t('common.edit')}</Button>
                 </div>
               )
             }}
-            actionsHeader="Actions"
+            actionsHeader={t('common.actions')}
             columns={[
-              { key: 'user.userName', header: 'User', sortable: true, render: (r) => `${(r as any).user.firstName} ${(r as any).user.lastName} (${(r as any).user.userName})` },
-              { key: 'user.email', header: 'Email' },
-              { key: 'currentAssignment.assignedWeekNumber', header: 'Week', width: '100px' },
-              { key: 'currentAssignment.assignedYear', header: 'Year', width: '100px' },
-              { key: 'currentAssignment.isOverride', header: 'Override', width: '120px', render: (r) => ((r as any).currentAssignment?.isOverride ? 'Yes' : 'No') },
+              { key: 'user.userName', header: t('access.weeklyAssignment.user'), sortable: true, render: (r) => `${(r as any).user.firstName} ${(r as any).user.lastName} (${(r as any).user.userName})` },
+              { key: 'user.email', header: t('users.email') },
+              { key: 'currentAssignment.assignedWeekNumber', header: t('access.weeklyAssignment.week'), width: '100px' },
+              { key: 'currentAssignment.assignedYear', header: t('access.weeklyAssignment.year'), width: '100px' },
+              { key: 'currentAssignment.isOverride', header: t('access.weeklyAssignment.override'), width: '120px', render: (r) => ((r as any).currentAssignment?.isOverride ? t('common.yes') : t('common.no')) },
             ]}
             renderAccordionContent={(row) => {
               const s = row as any
               return (
                 <div className="row g-3">
                   <div className="col-md-4">
-                    <strong>User</strong>
-                    <div>ID: {s.user.userId}</div>
-                    <div>Email: {s.user.email}</div>
+                    <strong>{t('access.weeklyAssignment.user')}</strong>
+                    <div>{t('common.id')}: {s.user.userId}</div>
+                    <div>{t('users.email')}: {s.user.email}</div>
                   </div>
                   <div className="col-md-5">
-                    <strong>Assignment</strong>
+                    <strong>{t('access.weeklyAssignment.assignment')}</strong>
                     {s.currentAssignment ? (
                       <>
-                        <div>Week: {s.currentAssignment.assignedWeekNumber}</div>
-                        <div>Year: {s.currentAssignment.assignedYear}</div>
-                        <div>Override: {s.currentAssignment.isOverride ? 'Yes' : 'No'}</div>
+                        <div>{t('access.weeklyAssignment.week')}: {s.currentAssignment.assignedWeekNumber}</div>
+                        <div>{t('access.weeklyAssignment.year')}: {s.currentAssignment.assignedYear}</div>
+                        <div>{t('access.weeklyAssignment.override')}: {s.currentAssignment.isOverride ? t('common.yes') : t('common.no')}</div>
                       </>
                     ) : (
-                      <div>Following calendar week</div>
+                      <div>{t('access.weeklyAssignment.followingCalendarWeek')}</div>
                     )}
                   </div>
                   <div className="col-md-3 d-flex align-items-start gap-2 justify-content-end">
-                    <Button size="sm" variant="outline-secondary" onClick={() => navigate('/admin/access/weekly/edit', { state: { user: s.user } })}>Edit</Button>
+                    <Button size="sm" variant="outline-secondary" onClick={() => navigate('/admin/access/weekly/edit', { state: { user: s.user } })}>{t('common.edit')}</Button>
                     {/* <Button size="sm" variant="outline-danger">Remove</Button> */}
                   </div>
                 </div>

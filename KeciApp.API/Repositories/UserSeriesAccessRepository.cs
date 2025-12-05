@@ -67,4 +67,26 @@ public class UserSeriesAccessRepository : IUserSeriesAccessRepository
             await _context.SaveChangesAsync();
         }
     }
+
+    public async Task<IEnumerable<UserSeriesAccess>> BulkCreateUserSeriesAccessAsync(IEnumerable<UserSeriesAccess> accesses)
+    {
+        var accessList = accesses.ToList();
+        if (!accessList.Any())
+            return Enumerable.Empty<UserSeriesAccess>();
+
+        // Set UpdatedAt for all accesses
+        var now = DateTime.UtcNow;
+        foreach (var access in accessList)
+        {
+            access.UpdatedAt = now;
+        }
+
+        // Bulk insert all accesses at once
+        // Service layer has already filtered out existing accesses,
+        // so this should succeed in most cases
+        await _context.UserSeriesAccesses.AddRangeAsync(accessList);
+        await _context.SaveChangesAsync();
+
+        return accessList;
+    }
 }

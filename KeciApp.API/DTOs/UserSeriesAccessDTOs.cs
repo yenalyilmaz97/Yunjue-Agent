@@ -64,3 +64,12 @@ public class UserSeriesAccessStatsDTO
     public double AverageAccessibleSequence { get; set; }
 }
 
+public class BulkGrantAccessResponseDTO
+{
+    public int TotalUsers { get; set; }
+    public int TotalSeries { get; set; }
+    public int GrantedCount { get; set; }
+    public int SkippedCount { get; set; }
+    public string Message { get; set; } = string.Empty;
+}
+

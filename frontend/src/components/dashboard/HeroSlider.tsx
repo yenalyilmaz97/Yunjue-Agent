@@ -168,7 +168,7 @@ const HeroSlider = () => {
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
           }}>
           <CarouselItem>
-            <div className="p-3 p-md-4 position-relative d-flex flex-column" style={{ minHeight: '250px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+            <div className="p-3 p-md-4 position-relative d-flex flex-column" style={{ minHeight: '250px', background: 'var(--bs-gradient-aphorism)' }}>
               <AphorismCard aphorism={dailyContent.aphorism} isInSlider={true} />
               {/* Favorite Button for Aphorism - Bottom Center */}
               <div className="d-flex justify-content-center mt-auto pb-2">
@@ -231,7 +231,7 @@ const HeroSlider = () => {
             </div>
           </CarouselItem>
           <CarouselItem>
-            <div className="p-3 p-md-4 position-relative d-flex flex-column" style={{ minHeight: '250px', background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
+            <div className="p-3 p-md-4 position-relative d-flex flex-column" style={{ minHeight: '250px', background: 'var(--bs-gradient-affirmation)' }}>
               <AffirmationCard affirmation={dailyContent.affirmation} isInSlider={true} />
               {/* Favorite Button for Affirmation - Bottom Center */}
               <div className="d-flex justify-content-center mt-auto pt-2">
@@ -302,7 +302,7 @@ const HeroSlider = () => {
   if (hasAphorism) {
     return (
       <div className="hero-slider-container mb-4">
-        <div className="p-3 p-md-4 position-relative d-flex flex-column" style={{ minHeight: '250px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
+        <div className="p-3 p-md-4 position-relative d-flex flex-column" style={{ minHeight: '250px', background: 'var(--bs-gradient-aphorism)', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
           <AphorismCard aphorism={dailyContent.aphorism} isInSlider={true} />
           {/* Favorite Button for Aphorism - Bottom Center */}
           <div className="d-flex justify-content-center mt-auto pt-2">
@@ -370,7 +370,7 @@ const HeroSlider = () => {
   if (hasAffirmation) {
     return (
       <div className="hero-slider-container mb-4">
-        <div className="p-3 p-md-4 position-relative d-flex flex-column" style={{ minHeight: '250px', background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
+        <div className="p-3 p-md-4 position-relative d-flex flex-column" style={{ minHeight: '250px', background: 'var(--bs-gradient-affirmation)', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
           <AffirmationCard affirmation={dailyContent.affirmation} isInSlider={true} />
           {/* Favorite Button for Affirmation - Bottom Center */}
           <div className="d-flex justify-content-center mt-auto pt-2">

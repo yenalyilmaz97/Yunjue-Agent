@@ -9,8 +9,10 @@ import TextFormInput from '@/components/from/TextFormInput'
 import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useI18n } from '@/i18n/context'
 
 const GrantSeriesAccessPage = () => {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const [users, setUsers] = useState<User[]>([])
   const [series, setSeries] = useState<PodcastSeries[]>([])
@@ -20,7 +22,7 @@ const GrantSeriesAccessPage = () => {
   const [selectedSeriesIds, setSelectedSeriesIds] = useState<Set<number>>(new Set())
 
   const schema: yup.ObjectSchema<{ userId: number; sequences?: Record<string, number> }> = yup.object({
-    userId: yup.number().typeError('Please select user').required('Please select user'),
+    userId: yup.number().typeError(t('access.seriesAccess.selectUserTypeError')).required(t('access.seriesAccess.selectUserRequired')),
     sequences: yup.mixed<Record<string, number>>().optional().default({}),
   })
 
@@ -75,19 +77,19 @@ const GrantSeriesAccessPage = () => {
 
   return (
     <>
-      <PageTitle subName="Access" title="Grant Series Access" />
+      <PageTitle subName={t('pages.access') || t('sidebar.access')} title={t('access.seriesAccess.grant')} />
       <Card>
         <CardHeader>
-          <CardTitle as={'h5'}>Grant Access</CardTitle>
+          <CardTitle as={'h5'}>{t('access.seriesAccess.grantAccess')}</CardTitle>
         </CardHeader>
         <CardBody>
           {loading ? (
-            <div className="d-flex align-items-center gap-2"><Spinner size="sm" /> Loading...</div>
+            <div className="d-flex align-items-center gap-2"><Spinner size="sm" /> {t('access.seriesAccess.loading')}</div>
           ) : (
             <Form onSubmit={grant}>
               <Row className="g-3">
                 <Col md={6}>
-                  <Form.Label>User</Form.Label>
+                  <Form.Label>{t('access.seriesAccess.user')}</Form.Label>
                   <Controller
                     control={control}
                     name="userId"
@@ -101,7 +103,7 @@ const GrantSeriesAccessPage = () => {
                         }}
                         required
                       >
-                        <option value="" disabled>Select user...</option>
+                        <option value="" disabled>{t('access.seriesAccess.selectUser')}</option>
                         {users.map((u) => (
                           <option key={u.userId} value={u.userId}>
                             {u.firstName} {u.lastName} ({u.userName}) - {u.email}
@@ -116,7 +118,7 @@ const GrantSeriesAccessPage = () => {
                     data={filteredSeries}
                     isLoading={false}
                     rowKey={(r) => (r as PodcastSeries).seriesId}
-                    searchPlaceholder="Search series..."
+                    searchPlaceholder={t('access.seriesAccess.searchSeries')}
                     searchKeys={['title']}
                     columns={[
                       {
@@ -138,10 +140,10 @@ const GrantSeriesAccessPage = () => {
                           )
                         },
                       },
-                      { key: 'title', header: 'Series Title' },
+                      { key: 'title', header: t('access.seriesAccess.seriesTitle') },
                       {
                         key: 'allowed',
-                        header: 'Allowed Episode #',
+                        header: t('access.seriesAccess.allowedEpisodeNumber'),
                         width: '220px',
                         render: (row) => {
                           const s = row as PodcastSeries
@@ -165,9 +167,9 @@ const GrantSeriesAccessPage = () => {
                 </Col>
               </Row>
               <div className="d-flex justify-content-end gap-2 mt-3">
-                <Button type="button" variant="light" onClick={() => navigate('/admin/access/series')}>Cancel</Button>
+                <Button type="button" variant="light" onClick={() => navigate('/admin/access/series')}>{t('common.cancel')}</Button>
                 <Button type="submit" variant="primary" disabled={submitting || !selectedUserId || selectedSeriesIds.size === 0}>
-                  {submitting ? 'Granting...' : 'Grant Access'}
+                  {submitting ? t('access.seriesAccess.granting') : t('access.seriesAccess.grantAccess')}
                 </Button>
               </div>
             </Form>

@@ -46,26 +46,38 @@ $footer-color: var(--#{$prefix}link-color);
 //
 
 // scss-docs-start gray-color-variables
+// Modern elegant gray scale - Light theme
 $white: #ffffff;
-$gray-100: #f8f9fa;
-$gray-200: #eef2f7;
-$gray-300: #d8dfe7;
-$gray-400: #b0b0bb;
-$gray-500: #8486a7;
-$gray-600: #687d92;
-$gray-700: #424e5a;
-$gray-800: #36404a;
-$gray-900: #21252e;
+$gray-100: #f5f5f5;  // Very light gray (almost white)
+$gray-200: #e9ecef;  // Light gray
+$gray-300: #dee2e6;  // Medium light gray
+$gray-400: #adb5bd;  // Medium gray
+$gray-500: #6c757d;  // Medium dark gray
+$gray-600: #495057;  // Dark gray
+$gray-700: #3a3a3a;  // Darker gray (near black)
+$gray-800: #2d2d2d;  // Very dark gray
+$gray-900: #1a1a1a;  // Almost black
 $black: #000000;
 // scss-docs-end gray-color-variables
 
 
 // scss-docs-start color-variables
+// Modern elegant color palette
 $blue: #1a80f8;
 $indigo: #53389f;
 $purple: #7e67fe;
 $pink: #ff86c8;
-$red: #ed321f;
+// Red/Burgundy tones for modern theme
+$red: #dc3545;        // Modern red
+$burgundy: #8b1538;   // Elegant burgundy
+$maroon: #a02040;     // Rich maroon
+
+// Dark red gradient tones (used in sliders and cards)
+$dark-red-900: #5a0e0e;  // Darkest red (aphorism gradient start)
+$dark-red-800: #6b1a1a;  // Dark red (aphorism gradient mid/end)
+$dark-red-700: #6b0f0f;  // Dark red (affirmation gradient start)
+$dark-red-600: #7a1f1f;  // Medium dark red (affirmation gradient mid/end)
+$dark-red-500: #9b1e3d;  // Medium red (affirmation gradient peak)
 $orange: #f0934e;
 $yellow: #fb9f68;
 $green: #21d760;
@@ -74,19 +86,20 @@ $cyan: #1ab0f8;
 // scss-docs-end color-variables
 
 // scss-docs-start theme-color-variables
-$primary: $purple;
-$secondary: $gray-700;
+// Primary: Elegant burgundy for light theme
+$primary: $burgundy;  // #8b1538 - Elegant burgundy
+$secondary: $gray-600;  // Dark gray for secondary elements
 $blue: $blue;
 $indigo: $indigo;
 $purple: $purple;
 $pink: $pink;
-$danger: $red;
+$danger: $red;        // Modern red for danger
 $orange: $orange;
 $warning: $orange;
 $success: $green;
 $info: $cyan;
-$light: $gray-200;
-$dark: $gray-900;
+$light: $gray-100;   // Very light gray
+$dark: $gray-800;     // Very dark gray (near black)
 // scss-docs-end theme-color-variables
 
 // scss-docs-start gray-colors-map
@@ -471,13 +484,14 @@ $position-values: (
 // Body
 //
 
-$body-bg: #f8f7fa;
-$body-color: #5d7186;
+// Modern elegant body colors - Light theme
+$body-bg: #f8f9fa;      // Clean white-gray background
+$body-color: #2d2d2d;   // Dark gray text for excellent readability
 $body-text-align: null;
 
-// Dark Mode
-$body-dark-bg: #22282e;
-$body-dark-color: #aab8c5;
+// Dark Mode - Modern elegant dark theme
+$body-dark-bg: #1a1a1a;      // Deep black-gray background
+$body-dark-color: #e0e0e0;   // Light gray text for excellent readability
 
 $body-secondary-color: $gray-600;
 $body-secondary-bg: $white;

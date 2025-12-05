@@ -8,6 +8,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useI18n } from '@/i18n/context'
 
 type FormFields = {
   weekOrder: number
@@ -18,6 +19,7 @@ type FormFields = {
 }
 
 const CreateWeeklyContentPage = () => {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const location = useLocation()
   const [musics, setMusics] = useState<Music[]>([])
@@ -26,11 +28,11 @@ const CreateWeeklyContentPage = () => {
   const [weeklyQuestions, setWeeklyQuestions] = useState<WeeklyQuestion[]>([])
 
   const schema = yup.object({
-    weekOrder: yup.number().required('Please enter week order').min(1, 'Week order must be at least 1'),
-    musicId: yup.number().required('Please select music').min(1, 'Please select music'),
-    movieId: yup.number().required('Please select movie').min(1, 'Please select movie'),
-    taskId: yup.number().required('Please select task').min(1, 'Please select task'),
-    weeklyQuestionId: yup.number().required('Please select weekly question').min(1, 'Please select weekly question'),
+    weekOrder: yup.number().required(t('weeklyContent.enterWeekOrder')).min(1, t('weeklyContent.weekOrderMin')),
+    musicId: yup.number().required(t('weeklyContent.selectMusicRequired')).min(1, t('weeklyContent.selectMusicRequired')),
+    movieId: yup.number().required(t('weeklyContent.selectMovieRequired')).min(1, t('weeklyContent.selectMovieRequired')),
+    taskId: yup.number().required(t('weeklyContent.selectTaskRequired')).min(1, t('weeklyContent.selectTaskRequired')),
+    weeklyQuestionId: yup.number().required(t('weeklyContent.selectWeeklyQuestionRequired')).min(1, t('weeklyContent.selectWeeklyQuestionRequired')),
   })
 
   const { control, handleSubmit, reset, formState } = useForm<FormFields>({
@@ -95,10 +97,10 @@ const CreateWeeklyContentPage = () => {
 
   return (
     <>
-      <PageTitle subName="Content" title="Edit Weekly Content" />
+      <PageTitle subName={t('pages.content')} title={t('weeklyContent.edit')} />
       <Card>
         <CardHeader>
-          <CardTitle as={'h5'}>Edit Weekly Content</CardTitle>
+          <CardTitle as={'h5'}>{t('weeklyContent.edit')}</CardTitle>
         </CardHeader>
         <CardBody>
           <Form onSubmit={onSubmit} className="needs-validation" noValidate>
@@ -109,7 +111,7 @@ const CreateWeeklyContentPage = () => {
                   name="weekOrder"
                   render={({ field, fieldState }) => (
                     <>
-                      <label className="form-label">Week Order</label>
+                      <label className="form-label">{t('weeklyContent.weekOrder')}</label>
                       <input
                         type="number"
                         className={`form-control ${fieldState.error ? 'is-invalid' : ''}`}
@@ -127,9 +129,9 @@ const CreateWeeklyContentPage = () => {
                   name="musicId"
                   render={({ field, fieldState }) => (
                     <>
-                      <label className="form-label">Music</label>
+                      <label className="form-label">{t('weeklyContent.musicTable')}</label>
                       <select className={`form-select ${fieldState.error ? 'is-invalid' : ''}`} {...field} onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)} value={field.value || ''}>
-                        <option value="">Select Music</option>
+                        <option value="">{t('weeklyContent.selectMusic')}</option>
                         {musics.map((m) => (
                           <option key={m.musicId} value={m.musicId}>
                             {m.musicTitle}
@@ -147,9 +149,9 @@ const CreateWeeklyContentPage = () => {
                   name="movieId"
                   render={({ field, fieldState }) => (
                     <>
-                      <label className="form-label">Movie</label>
+                      <label className="form-label">{t('weeklyContent.movieTable')}</label>
                       <select className={`form-select ${fieldState.error ? 'is-invalid' : ''}`} {...field} onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)} value={field.value || ''}>
-                        <option value="">Select Movie</option>
+                        <option value="">{t('weeklyContent.selectMovie')}</option>
                         {movies.map((m) => (
                           <option key={m.movieId} value={m.movieId}>
                             {m.movieTitle}
@@ -167,9 +169,9 @@ const CreateWeeklyContentPage = () => {
                   name="taskId"
                   render={({ field, fieldState }) => (
                     <>
-                      <label className="form-label">Task</label>
+                      <label className="form-label">{t('weeklyContent.taskTable')}</label>
                       <select className={`form-select ${fieldState.error ? 'is-invalid' : ''}`} {...field} onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)} value={field.value || ''}>
-                        <option value="">Select Task</option>
+                        <option value="">{t('weeklyContent.selectTask')}</option>
                         {tasks.map((t) => (
                           <option key={t.taskId} value={t.taskId}>
                             {t.taskDescription}
@@ -187,9 +189,9 @@ const CreateWeeklyContentPage = () => {
                   name="weeklyQuestionId"
                   render={({ field, fieldState }) => (
                     <>
-                      <label className="form-label">Weekly Question</label>
+                      <label className="form-label">{t('weeklyContent.weeklyQuestions.title')}</label>
                       <select className={`form-select ${fieldState.error ? 'is-invalid' : ''}`} {...field} onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)} value={field.value || ''}>
-                        <option value="">Select Weekly Question</option>
+                        <option value="">{t('weeklyContent.selectWeeklyQuestion')}</option>
                         {weeklyQuestions.map((q) => (
                           <option key={q.weeklyQuestionId} value={q.weeklyQuestionId}>
                             {q.weeklyQuestionText}
@@ -203,9 +205,9 @@ const CreateWeeklyContentPage = () => {
               </Col>
             </Row>
             <div className="d-flex justify-content-end gap-2 mt-3">
-              <Button type="button" variant="light" onClick={() => navigate('/admin/content/weekly-content')}>Cancel</Button>
+              <Button type="button" variant="light" onClick={() => navigate('/admin/content/weekly-content')}>{t('common.cancel')}</Button>
               <Button type="submit" variant="primary" disabled={isSubmitting || !isEdit}>
-                {isSubmitting ? 'Saving...' : 'Update'}
+                {isSubmitting ? t('common.saving') : t('common.update')}
               </Button>
             </div>
           </Form>

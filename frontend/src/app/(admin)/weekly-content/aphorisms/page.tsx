@@ -5,8 +5,10 @@ import type { Aphorism } from '@/types/keci'
 import { Card, CardBody, CardHeader, CardTitle, Button } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 import { DataTable } from '@/components/table/DataTable'
+import { useI18n } from '@/i18n/context'
 
 const page = () => {
+  const { t } = useI18n()
   const [items, setItems] = useState<Aphorism[]>([])
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
@@ -27,19 +29,19 @@ const page = () => {
 
   return (
     <>
-      <PageTitle subName="Content" title="Aphorisms" />
+      <PageTitle subName={t('pages.content')} title={t('weeklyContent.aphorisms.title')} />
       <Card>
         <CardHeader className="d-flex align-items-center justify-content-between">
-          <CardTitle as={'h5'}>Aphorisms</CardTitle>
+          <CardTitle as={'h5'}>{t('weeklyContent.aphorisms.list')}</CardTitle>
           <div className="d-flex align-items-center gap-2 ms-auto">
             <input
               className="form-control form-control-sm"
-              placeholder="Search aphorism..."
+              placeholder={t('weeklyContent.aphorisms.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{ width: 260 }}
             />
-            <Button variant="primary" size="sm" onClick={() => navigate('/admin/content/aphorisms/create')}>Add New</Button>
+            <Button variant="primary" size="sm" onClick={() => navigate('/admin/content/aphorisms/create')}>{t('weeklyContent.aphorisms.addNew')}</Button>
           </div>
         </CardHeader>
         <CardBody>
@@ -50,27 +52,27 @@ const page = () => {
             hideSearch
             searchQuery={search}
             onSearchQueryChange={setSearch}
-            searchPlaceholder="Search aphorism..."
+            searchPlaceholder={t('weeklyContent.aphorisms.searchPlaceholder')}
             searchKeys={['aphorismText', 'order']}
-            actionsHeader="Actions"
+            actionsHeader={t('common.actions')}
             renderRowActions={(row) => {
               const a = row as Aphorism
               return (
                 <div className="d-inline-flex gap-2">
-                  <Button size="sm" variant="outline-secondary" onClick={() => navigate('/admin/content/aphorisms/create', { state: { mode: 'edit', item: a } })}>Edit</Button>
+                  <Button size="sm" variant="outline-secondary" onClick={() => navigate('/admin/content/aphorisms/create', { state: { mode: 'edit', item: a } })}>{t('common.edit')}</Button>
                   <Button size="sm" variant="outline-danger" onClick={async () => {
-                    if (confirm('Delete this aphorism?')) {
+                    if (confirm(t('weeklyContent.aphorisms.deleteConfirm'))) {
                       await contentService.deleteAphorism(a.aphorismId)
                       const data = await contentService.getAllAphorisms()
                       setItems(data)
                     }
-                  }}>Delete</Button>
+                  }}>{t('common.delete')}</Button>
                 </div>
               )
             }}
             columns={[
-              { key: 'order', header: 'Sira', width: '80px', sortable: true },
-              { key: 'aphorismText', header: 'Title', sortable: true },
+              { key: 'order', header: t('weeklyContent.aphorisms.order'), width: '80px', sortable: true },
+              { key: 'aphorismText', header: t('weeklyContent.aphorisms.titleColumn'), sortable: true },
             ]}
           />
         </CardBody>

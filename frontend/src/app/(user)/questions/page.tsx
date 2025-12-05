@@ -19,6 +19,7 @@ const QuestionsPage = () => {
   const [groupedQuestions, setGroupedQuestions] = useState<GroupedQuestions[]>([])
   const [selectedSeries, setSelectedSeries] = useState<GroupedQuestions | null>(null)
   const [loading, setLoading] = useState(true)
+  const [expandedQuestions, setExpandedQuestions] = useState<Set<number>>(new Set())
 
   // Soruları yükle ve serilere göre grupla
   useEffect(() => {
@@ -104,11 +105,36 @@ const QuestionsPage = () => {
     setSelectedSeries(series)
   }
 
-  const handleContentClick = (question: Question) => {
-    if (question.episodeId) {
+  const handleQuestionClick = (question: Question) => {
+    // Kartı aç/kapat
+    const newExpanded = new Set(expandedQuestions)
+    if (newExpanded.has(question.questionId)) {
+      newExpanded.delete(question.questionId)
+    } else {
+      newExpanded.add(question.questionId)
+    }
+    setExpandedQuestions(newExpanded)
+  }
+
+  const handleGoToEpisode = async (question: Question, e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (question.episodeId && question.seriesTitle) {
+      // Question'un seri ID'sini bul
+      let seriesId: number | undefined
+      try {
+        const allSeries = await podcastService.getAllSeries()
+        const series = allSeries.find((s) => s.title === question.seriesTitle)
+        if (series) {
+          seriesId = series.seriesId
+        }
+      } catch (error) {
+        console.error('Error finding series:', error)
+      }
+      
       navigate('/podcasts', {
         state: {
           episodeId: question.episodeId,
+          seriesId: seriesId,
         },
       })
     } else if (question.articleId) {
@@ -268,132 +294,208 @@ const QuestionsPage = () => {
                     <p className="mt-2 mb-0">Bu seride henüz soru bulunmamaktadır.</p>
                   </div>
                 ) : (
-                  <Row className="g-3">
-                    {selectedSeries.questions.map((question) => (
-                      <Col xs={12} key={question.questionId}>
-                        <Card
-                          className={`h-100 shadow-sm ${
-                            question.isAnswered ? 'border-success border-opacity-50' : 'border-danger border-opacity-50'
-                          }`}
+                  <div className="list-group">
+                    {selectedSeries.questions.map((question) => {
+                      const isExpanded = expandedQuestions.has(question.questionId)
+                      return (
+                        <div
+                          key={question.questionId}
+                          className="list-group-item border rounded mb-2 p-0"
                           style={{
+                            cursor: 'pointer',
                             transition: 'all 0.2s',
+                            overflow: 'hidden',
+                            borderColor: question.isAnswered 
+                              ? 'rgba(var(--bs-primary-rgb), 0.3)' 
+                              : 'rgba(var(--bs-danger-rgb), 0.3)',
                           }}
+                          onClick={() => handleQuestionClick(question)}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'translateY(-2px)'
-                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+                            e.currentTarget.style.backgroundColor = '#f8f9fa'
+                            e.currentTarget.style.borderColor = question.isAnswered 
+                              ? 'rgba(var(--bs-primary-rgb), 0.5)' 
+                              : 'rgba(var(--bs-danger-rgb), 0.5)'
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'translateY(0)'
-                            e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+                            e.currentTarget.style.backgroundColor = 'white'
+                            e.currentTarget.style.borderColor = question.isAnswered 
+                              ? 'rgba(var(--bs-primary-rgb), 0.3)' 
+                              : 'rgba(var(--bs-danger-rgb), 0.3)'
                           }}
                         >
-                          <CardBody className="p-3">
-                            {/* Soru Başlığı ve Durum */}
-                            <div className="d-flex align-items-start gap-2 mb-3">
+                          {/* Card Header - Always Visible */}
+                          <div className="p-3">
+                            <div className="d-flex align-items-start gap-2 mb-2">
                               <div
-                                className={`rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 ${
-                                  question.isAnswered ? 'bg-success bg-opacity-10' : 'bg-danger bg-opacity-10'
-                                }`}
-                                style={{ width: '40px', height: '40px' }}
+                                className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                style={{ 
+                                  width: '36px', 
+                                  height: '36px',
+                                  backgroundColor: question.isAnswered 
+                                    ? 'rgba(var(--bs-primary-rgb), 0.1)' 
+                                    : 'rgba(var(--bs-danger-rgb), 0.1)'
+                                }}
                               >
                                 <Icon
                                   icon={question.isAnswered ? 'mingcute:check-fill' : 'mingcute:time-line'}
-                                  className={question.isAnswered ? 'text-success' : 'text-danger'}
-                                  style={{ fontSize: '1.25rem' }}
+                                  style={{ 
+                                    fontSize: '1.1rem',
+                                    color: question.isAnswered ? 'var(--bs-primary)' : 'var(--bs-danger)'
+                                  }}
                                 />
                               </div>
                               <div className="flex-grow-1 min-w-0">
-                                <div className="d-flex align-items-center gap-2 mb-2 flex-wrap">
-                                  <h6 className="mb-0 fw-semibold flex-grow-1">{question.questionText}</h6>
-                                  <Badge
-                                    bg={question.isAnswered ? 'success' : 'danger'}
-                                    className="flex-shrink-0"
-                                    style={{ fontSize: '0.7rem', padding: '0.3rem 0.6rem' }}
-                                  >
-                                    {question.isAnswered ? (
-                                      <>
-                                        <Icon icon="mingcute:check-fill" className="me-1" style={{ fontSize: '0.7rem' }} />
-                                        Cevaplandı
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Icon icon="mingcute:time-line" className="me-1" style={{ fontSize: '0.7rem' }} />
-                                        Beklemede
-                                      </>
+                                <div className="d-flex align-items-center justify-content-between gap-2 mb-1">
+                                  <div className="flex-grow-1">
+                                    <div className="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                      <h6 className="mb-0 fw-semibold" style={{ fontSize: '0.95rem', lineHeight: '1.4' }}>
+                                        Soru
+                                      </h6>
+                                      <Badge
+                                        className="flex-shrink-0"
+                                        style={{ 
+                                          fontSize: '0.7rem', 
+                                          padding: '0.3rem 0.6rem',
+                                          backgroundColor: question.isAnswered 
+                                            ? 'rgba(var(--bs-primary-rgb), 0.1)' 
+                                            : 'rgba(var(--bs-danger-rgb), 0.1)',
+                                          color: question.isAnswered ? 'var(--bs-primary)' : 'var(--bs-danger)',
+                                          border: `1px solid ${question.isAnswered ? 'rgba(var(--bs-primary-rgb), 0.2)' : 'rgba(var(--bs-danger-rgb), 0.2)'}`,
+                                          fontWeight: '500'
+                                        }}
+                                      >
+                                        {question.isAnswered ? (
+                                          <>
+                                            <Icon icon="mingcute:check-fill" className="me-1" style={{ fontSize: '0.7rem' }} />
+                                            Cevaplandı
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Icon icon="mingcute:time-line" className="me-1" style={{ fontSize: '0.7rem' }} />
+                                            Beklemede
+                                          </>
+                                        )}
+                                      </Badge>
+                                    </div>
+                                    {question.episodeTitle && (
+                                      <p className="text-muted small mb-2 d-flex align-items-center">
+                                        <Icon icon="mingcute:headphone-line" className="me-1" style={{ fontSize: '0.875rem' }} />
+                                        Bölüm: {question.episodeTitle}
+                                      </p>
                                     )}
-                                  </Badge>
+                                    
+                                    {/* Soru Detayı - Kapalı durumda kısaltılmış, açık durumda tam metin */}
+                                    <div className="mb-2">
+                                      <h6 className="small fw-semibold mb-1 text-muted d-flex align-items-center">
+                                        <Icon icon="mingcute:question-line" className="me-1" style={{ fontSize: '0.875rem' }} />
+                                        Soru Detayı
+                                      </h6>
+                                      <p className="mb-0" style={{ fontSize: '0.875rem', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
+                                        {!isExpanded && question.questionText.length > 150
+                                          ? `${question.questionText.substring(0, 150)}...`
+                                          : question.questionText}
+                                      </p>
+                                    </div>
+
+                                    {/* Cevap Bölümü - Kapalı durumda kısaltılmış, açık durumda tam metin */}
+                                    {question.isAnswered && question.answer && (
+                                      <div className="mb-2">
+                                        <Card
+                                          style={{ 
+                                            borderWidth: '1px',
+                                            backgroundColor: 'rgba(var(--bs-primary-rgb), 0.05)',
+                                            borderColor: 'rgba(var(--bs-primary-rgb), 0.2)'
+                                          }}
+                                        >
+                                          <CardBody className="p-2">
+                                            <div className="d-flex align-items-start gap-2">
+                                              <div
+                                                className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                                style={{ 
+                                                  width: '24px', 
+                                                  height: '24px',
+                                                  backgroundColor: 'rgba(var(--bs-primary-rgb), 0.1)',
+                                                  color: 'var(--bs-primary)'
+                                                }}
+                                              >
+                                                <Icon icon="mingcute:check-fill" style={{ fontSize: '0.75rem' }} />
+                                              </div>
+                                              <div className="flex-grow-1 min-w-0">
+                                                <div className="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                                  <span 
+                                                    className="fw-semibold small d-flex align-items-center"
+                                                    style={{ 
+                                                      color: 'var(--bs-primary)',
+                                                      fontSize: '0.75rem'
+                                                    }}
+                                                  >
+                                                    <Icon icon="mingcute:message-2-line" className="me-1" style={{ fontSize: '0.7rem' }} />
+                                                    Cevap
+                                                  </span>
+                                                  {question.answer.updatedAt && (
+                                                    <span 
+                                                      className="text-muted small"
+                                                      style={{ fontSize: '0.7rem' }}
+                                                    >
+                                                      {formatDateTime(question.answer.updatedAt)}
+                                                    </span>
+                                                  )}
+                                                </div>
+                                                <p 
+                                                  className="mb-0" 
+                                                  style={{ 
+                                                    lineHeight: '1.5', 
+                                                    fontSize: '0.8rem',
+                                                    color: 'var(--bs-body-color)',
+                                                    whiteSpace: 'pre-wrap'
+                                                  }}
+                                                >
+                                                  {!isExpanded && question.answer.answerText.length > 150
+                                                    ? `${question.answer.answerText.substring(0, 150)}...`
+                                                    : question.answer.answerText}
+                                                </p>
+                                              </div>
+                                            </div>
+                                          </CardBody>
+                                        </Card>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <Icon
+                                    icon={isExpanded ? 'mingcute:up-line' : 'mingcute:down-line'}
+                                    style={{ 
+                                      fontSize: '1.2rem', 
+                                      color: question.isAnswered ? 'var(--bs-primary)' : 'var(--bs-danger)', 
+                                      flexShrink: 0 
+                                    }}
+                                  />
                                 </div>
-                                {question.episodeTitle && (
-                                  <p className="text-muted small mb-1 d-flex align-items-center">
-                                    <Icon icon="mingcute:headphone-line" className="me-1" style={{ fontSize: '0.875rem' }} />
-                                    Bölüm: {question.episodeTitle}
-                                  </p>
-                                )}
-                                <div className="mt-2">
+                                <div className="mt-2 pt-2 border-top d-flex align-items-center justify-content-between">
                                   <span className="text-muted small d-flex align-items-center">
                                     <Icon icon="mingcute:time-line" className="me-1" style={{ fontSize: '0.875rem' }} />
                                     <span className="d-none d-sm-inline">{formatDateTime(question.createdAt)}</span>
                                     <span className="d-inline d-sm-none">{formatDate(question.createdAt)}</span>
                                   </span>
+                                  {question.episodeId && (
+                                    <Button
+                                      variant="outline-primary"
+                                      size="sm"
+                                      onClick={(e) => handleGoToEpisode(question, e)}
+                                      style={{ fontSize: '0.75rem' }}
+                                    >
+                                      <Icon icon="mingcute:arrow-right-line" className="me-1" />
+                                      Bölüme Git
+                                    </Button>
+                                  )}
                                 </div>
                               </div>
                             </div>
-
-                            {/* Cevap Bölümü */}
-                            {question.isAnswered && question.answer && (
-                              <Card
-                                className="bg-success bg-opacity-5 border-success border-opacity-25 mt-3"
-                                style={{ borderWidth: '1px' }}
-                              >
-                                <CardBody className="p-2 p-md-3">
-                                  <div className="d-flex align-items-start gap-2">
-                                    <div
-                                      className="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                                      style={{ width: '32px', height: '32px' }}
-                                    >
-                                      <Icon icon="mingcute:check-fill" style={{ fontSize: '1rem' }} />
-                                    </div>
-                                    <div className="flex-grow-1">
-                                      <div className="d-flex align-items-center gap-2 mb-2 flex-wrap">
-                                        <span className="fw-semibold small text-success d-flex align-items-center">
-                                          <Icon icon="mingcute:message-2-line" className="me-1" style={{ fontSize: '0.875rem' }} />
-                                          Cevap
-                                        </span>
-                                        {question.answer.updatedAt && (
-                                          <span className="text-muted small">
-                                            {formatDateTime(question.answer.updatedAt)}
-                                          </span>
-                                        )}
-                                      </div>
-                                      <p className="text-dark mb-0" style={{ lineHeight: '1.6', fontSize: '0.875rem' }}>
-                                        {question.answer.answerText}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </CardBody>
-                              </Card>
-                            )}
-
-                            {/* Alt Butonlar */}
-                            {question.episodeId && (
-                              <div className="mt-3 pt-2 border-top">
-                                <Button
-                                  variant="outline-primary"
-                                  size="sm"
-                                  onClick={() => handleContentClick(question)}
-                                  className="w-100 w-sm-auto"
-                                  style={{ fontSize: '0.75rem' }}
-                                >
-                                  <Icon icon="mingcute:arrow-right-line" className="me-1" />
-                                  Bölüme Git
-                                </Button>
-                              </div>
-                            )}
-                          </CardBody>
-                        </Card>
-                      </Col>
-                    ))}
-                  </Row>
+                          </div>
+                          
+                        </div>
+                      )
+                    })}
+                  </div>
                 )}
               </CardBody>
             </Card>

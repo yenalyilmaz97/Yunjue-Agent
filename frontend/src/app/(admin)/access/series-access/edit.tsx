@@ -7,12 +7,14 @@ import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { userSeriesAccessService } from '@/services'
+import { useI18n } from '@/i18n/context'
 
 type FormFields = {
   currentAccessibleSequence: number
 }
 
 const EditSeriesAccessPage = () => {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const location = useLocation()
   const state = (location.state as any) || {}
@@ -28,7 +30,7 @@ const EditSeriesAccessPage = () => {
   }
 
   const schema: yup.ObjectSchema<FormFields> = yup.object({
-    currentAccessibleSequence: yup.number().min(1).required('Required'),
+    currentAccessibleSequence: yup.number().min(1).required(t('access.seriesAccess.required')),
   })
 
   const { control, handleSubmit, reset, formState } = useForm<FormFields>({
@@ -56,21 +58,21 @@ const EditSeriesAccessPage = () => {
 
   return (
     <>
-      <PageTitle subName="Access" title="Edit Series Access" />
+      <PageTitle subName={t('pages.access') || t('sidebar.access')} title={t('access.seriesAccess.edit')} />
       <Card>
         <CardHeader>
-          <CardTitle as={'h5'}>Edit Access - {access?.podcastSeries?.title || access?.article?.title || 'N/A'}</CardTitle>
+          <CardTitle as={'h5'}>{t('access.seriesAccess.editAccess')} - {access?.podcastSeries?.title || access?.article?.title || t('access.seriesAccess.nA')}</CardTitle>
         </CardHeader>
         <CardBody>
           <Form onSubmit={onSubmit} className="needs-validation" noValidate>
             <Row className="g-3">
               <Col md={6}>
-                <TextFormInput control={control} name="currentAccessibleSequence" type="number" min={1} label="Current Accessible Sequence" />
+                <TextFormInput control={control} name="currentAccessibleSequence" type="number" min={1} label={t('access.seriesAccess.currentAccessibleSequence')} />
               </Col>
             </Row>
             <div className="d-flex justify-content-end gap-2 mt-3">
-              <Button type="button" variant="light" onClick={() => navigate('/admin/access/series')}>Cancel</Button>
-              <Button type="submit" variant="primary" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : 'Save'}</Button>
+              <Button type="button" variant="light" onClick={() => navigate('/admin/access/series')}>{t('common.cancel')}</Button>
+              <Button type="submit" variant="primary" disabled={isSubmitting}>{isSubmitting ? t('common.saving') : t('common.save')}</Button>
             </div>
           </Form>
         </CardBody>

@@ -1,6 +1,7 @@
 import { ApexOptions } from 'apexcharts'
 import ReactApexChart from 'react-apexcharts'
 import { Card, CardBody, CardHeader, Col } from 'react-bootstrap'
+import { themeColors } from '@/context/constants'
 
 const SaleChart = () => {
   const SaleChartOptions: ApexOptions = {
@@ -30,7 +31,7 @@ const SaleChart = () => {
       },
     },
     labels: ['Direct', 'Affilliate', 'Sponsored'],
-    colors: ['#7e67fe', '#17c553', '#7942ed'],
+    colors: [themeColors.burgundy, themeColors.green, themeColors.maroon],  // Burgundy and maroon instead of purple
     dataLabels: {
       enabled: false,
     },

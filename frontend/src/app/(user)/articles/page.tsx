@@ -19,10 +19,23 @@ const page = () => {
       <div className="row g-3">
         {articles.map((a) => (
           <div className="col-md-6 col-lg-4" key={a.articleId}>
-            <Card>
+            <Card
+              style={{ cursor: 'pointer', transition: 'all 0.2s ease' }}
+              onClick={() => navigate(`/articles/${a.slug || a.articleId}`)}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(var(--bs-primary-rgb), 0.15)'
+                e.currentTarget.style.borderColor = 'rgba(var(--bs-primary-rgb), 0.3)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)'
+                e.currentTarget.style.borderColor = 'var(--bs-border-color)'
+              }}
+            >
               <CardHeader>
                 <CardTitle as={'h5'} className="mb-0">
-                  <a href={`/articles/${a.slug}`} onClick={(e) => { e.preventDefault(); navigate(`/articles/${a.slug}`) }}>{a.title}</a>
+                  {a.title}
                 </CardTitle>
               </CardHeader>
               <CardBody>

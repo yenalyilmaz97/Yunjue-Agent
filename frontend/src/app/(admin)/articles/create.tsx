@@ -9,14 +9,16 @@ import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import type { UploadFileType } from '@/types/component-props'
+import { useI18n } from '@/i18n/context'
 
 type FormValues = { title: string; isActive: boolean }
 
 const CreateArticlePage = () => {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const location = useLocation()
   const schema = yup.object({
-    title: yup.string().trim().required('Please enter title'),
+    title: yup.string().trim().required(t('articles.enterTitleRequired')),
     isActive: yup.boolean().default(true),
   })
 
@@ -43,7 +45,7 @@ const CreateArticlePage = () => {
     try {
       // Validate that pdfFile is provided
       if (!pdfFile) {
-        alert('Please upload a PDF file')
+        alert(t('articles.pdfFileRequired'))
         return
       }
 
@@ -69,7 +71,7 @@ const CreateArticlePage = () => {
       const file = files[0] as File
       // Validate PDF file
       if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-        alert('Please upload a PDF file')
+        alert(t('articles.pdfFileInvalid'))
         return
       }
       setPdfFile(file)
@@ -78,22 +80,22 @@ const CreateArticlePage = () => {
 
   return (
     <>
-      <PageTitle subName="Content" title={isEdit ? 'Edit Article' : 'Create Article'} />
+      <PageTitle subName={t('pages.content')} title={isEdit ? t('articles.edit') : t('articles.create')} />
       <Card>
         <CardHeader>
-          <CardTitle as={'h5'}>{isEdit ? 'Edit Article' : 'New Article'}</CardTitle>
+          <CardTitle as={'h5'}>{isEdit ? t('articles.edit') : t('articles.new')}</CardTitle>
         </CardHeader>
         <CardBody>
           <Form onSubmit={onSubmit} className="needs-validation" noValidate>
             <Row className="g-3">
               <Col md={12}>
-                <TextFormInput control={control} name="title" label="Title" placeholder="Enter article title" />
+                <TextFormInput control={control} name="title" label={t('articles.titleLabel')} placeholder={t('articles.enterTitle')} />
               </Col>
               <Col md={12}>
                 <DropzoneFormInput
-                  label="PDF File"
-                  text="Drop PDF file here or click to upload"
-                  helpText="Upload a PDF file"
+                  label={t('articles.pdfFile')}
+                  text={t('articles.uploadPdfFile')}
+                  helpText={t('articles.uploadPdfFileHelp')}
                   iconProps={{ icon: 'bx:file-blank', height: 36, width: 36 }}
                   showPreview={true}
                   onFileUpload={handleFileUpload}
@@ -103,7 +105,7 @@ const CreateArticlePage = () => {
                 />
                 {pdfFile && (
                   <div className="alert alert-info">
-                    <strong>Selected file:</strong> {pdfFile.name} ({(pdfFile.size / 1024 / 1024).toFixed(2)} MB)
+                    <strong>{t('articles.selectedFile')}:</strong> {pdfFile.name} ({(pdfFile.size / 1024 / 1024).toFixed(2)} MB)
                     <Button
                       type="button"
                       variant="link"
@@ -111,16 +113,16 @@ const CreateArticlePage = () => {
                       className="ms-2"
                       onClick={() => setPdfFile(null)}
                     >
-                      Remove
+                      {t('articles.remove')}
                     </Button>
                   </div>
                 )}
               </Col>
             </Row>
             <div className="d-flex justify-content-end gap-2 mt-3">
-              <Button type="button" variant="light" onClick={() => navigate('/admin/articles')}>Cancel</Button>
+              <Button type="button" variant="light" onClick={() => navigate('/admin/articles')}>{t('common.cancel')}</Button>
               <Button type="submit" variant="primary" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Create'}
+                {isSubmitting ? t('common.saving') : isEdit ? t('common.update') : t('common.create')}
               </Button>
             </div>
           </Form>

@@ -482,4 +482,4 @@ logs
 wwwroot/
 
 # Migrations (uncomment if you want to track migrations)
-KeciApp.API/Migrations/
+#KeciApp.API/Migrations/

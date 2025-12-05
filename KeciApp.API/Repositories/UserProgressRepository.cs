@@ -110,5 +110,14 @@ public class UserProgressRepository : IUserProgressRepository
         _context.UserProgresses.Remove(userProgress);
         await _context.SaveChangesAsync();
     }
+
+    public async Task<IEnumerable<UserProgress>> GetCompletedEpisodeProgressesAsync()
+    {
+        return await _context.UserProgresses
+            .Where(up => up.EpisodeId.HasValue && up.isCompleted)
+            .Include(up => up.PodcastEpisodes)
+                .ThenInclude(ep => ep.PodcastSeries)
+            .ToListAsync();
+    }
 }
 

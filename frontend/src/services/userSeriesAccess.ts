@@ -42,6 +42,12 @@ export const userSeriesAccessService = {
   async getStats(): Promise<{ totalAccessRecords: number; totalUsers: number; totalSeries: number; averageAccessibleSequence: number }> {
     return api.get(`${USER_SERIES_ACCESS_ENDPOINT}/userseriesaccess/stats`)
   },
+  async bulkGrantAccess(): Promise<{ totalUsers: number; totalSeries: number; grantedCount: number; skippedCount: number; message: string }> {
+    return api.post(`${USER_SERIES_ACCESS_ENDPOINT}/userseriesaccess/bulk-grant`)
+  },
+  async incrementAccessibleSequence(): Promise<{ totalUsers: number; totalSeries: number; grantedCount: number; skippedCount: number; message: string }> {
+    return api.post(`${USER_SERIES_ACCESS_ENDPOINT}/userseriesaccess/increment-sequence`)
+  },
   async downloadAudio(request: { googleDriveUrl?: string }): Promise<void> {
     return api.post<void>(`${USER_SERIES_ACCESS_ENDPOINT}/download-audio`, request)
   },

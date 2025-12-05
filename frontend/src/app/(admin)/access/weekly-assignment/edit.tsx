@@ -8,12 +8,14 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { weeklyService } from '@/services'
 import type { WeeklyContent } from '@/types/keci'
 import type { User } from '@/types/keci'
+import { useI18n } from '@/i18n/context'
 
 type FormFields = {
   weeklyContentId: number
 }
 
 const EditWeeklyAssignmentPage = () => {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const location = useLocation()
   const [weeklyContents, setWeeklyContents] = useState<WeeklyContent[]>([])
@@ -23,7 +25,7 @@ const EditWeeklyAssignmentPage = () => {
   const currentWeeklyContentId = user?.weeklyContentId
 
   const schema: yup.ObjectSchema<FormFields> = yup.object({
-    weeklyContentId: yup.number().min(1).required('Please select weekly content'),
+    weeklyContentId: yup.number().min(1).required(t('access.weeklyAssignment.selectWeeklyContentRequired')),
   })
 
   const { control, handleSubmit, reset, formState } = useForm<FormFields>({
@@ -64,18 +66,18 @@ const EditWeeklyAssignmentPage = () => {
       navigate('/admin/access/weekly')
     } catch (err) {
       console.error('Submit error:', err)
-      alert('Failed to update weekly assignment. Please try again.')
+      alert(t('access.weeklyAssignment.updateError'))
     }
   })
 
   if (!user) {
     return (
       <>
-        <PageTitle subName="Access" title="Edit Weekly Assignment" />
+        <PageTitle subName={t('pages.access') || t('sidebar.access')} title={t('access.weeklyAssignment.edit')} />
         <Card>
           <CardBody>
-            <p>User not found. Please go back and select a user.</p>
-            <Button variant="light" onClick={() => navigate('/admin/access/weekly')}>Go Back</Button>
+            <p>{t('access.weeklyAssignment.userNotFound')}</p>
+            <Button variant="light" onClick={() => navigate('/admin/access/weekly')}>{t('users.goBack')}</Button>
           </CardBody>
         </Card>
         </>
@@ -84,25 +86,25 @@ const EditWeeklyAssignmentPage = () => {
 
   return (
     <>
-      <PageTitle subName="Access" title="Edit Weekly Assignment" />
+      <PageTitle subName={t('pages.access') || t('sidebar.access')} title={t('access.weeklyAssignment.edit')} />
       <Card>
         <CardHeader>
-          <CardTitle as={'h5'}>Edit Weekly Assignment - {user.firstName} {user.lastName} ({user.userName})</CardTitle>
+          <CardTitle as={'h5'}>{t('access.weeklyAssignment.editAssignment')} - {user.firstName} {user.lastName} ({user.userName})</CardTitle>
         </CardHeader>
         <CardBody>
           {loading ? (
             <div className="d-flex align-items-center gap-2">
               <div className="spinner-border spinner-border-sm" role="status">
-                <span className="visually-hidden">Loading...</span>
+                <span className="visually-hidden">{t('access.weeklyAssignment.loading')}</span>
               </div>
-              Loading...
+              {t('access.weeklyAssignment.loading')}
             </div>
           ) : (
             <Form onSubmit={onSubmit} className="needs-validation" noValidate>
               <Row className="g-3">
                 <Col md={12}>
                   <div className="mb-3">
-                    <label className="form-label">User</label>
+                    <label className="form-label">{t('access.weeklyAssignment.user')}</label>
                     <input
                       type="text"
                       className="form-control"
@@ -117,17 +119,17 @@ const EditWeeklyAssignmentPage = () => {
                     name="weeklyContentId"
                     render={({ field, fieldState }) => (
                       <>
-                        <label className="form-label">Weekly Content</label>
+                        <label className="form-label">{t('weeklyContent.title')}</label>
                         <select
                           className={`form-select ${fieldState.error ? 'is-invalid' : ''}`}
                           {...field}
                           onChange={(e) => field.onChange(parseInt(e.target.value) || undefined)}
                           value={field.value || ''}
                         >
-                          <option value="">Select Weekly Content</option>
+                          <option value="">{t('access.weeklyAssignment.selectWeeklyContent')}</option>
                           {weeklyContents.map((wc) => (
                             <option key={wc.weekId} value={wc.weekId}>
-                              Week {wc.weekOrder} - {wc.music?.musicTitle || 'N/A'} / {wc.movie?.movieTitle || 'N/A'}
+                              {t('access.weeklyAssignment.weekFormat', { weekOrder: wc.weekOrder, music: wc.music?.musicTitle || t('common.noData'), movie: wc.movie?.movieTitle || t('common.noData') })}
                             </option>
                           ))}
                         </select>
@@ -138,9 +140,9 @@ const EditWeeklyAssignmentPage = () => {
                 </Col>
               </Row>
               <div className="d-flex justify-content-end gap-2 mt-3">
-                <Button type="button" variant="light" onClick={() => navigate('/admin/access/weekly')}>Cancel</Button>
+                <Button type="button" variant="light" onClick={() => navigate('/admin/access/weekly')}>{t('common.cancel')}</Button>
                 <Button type="submit" variant="primary" disabled={isSubmitting}>
-                  {isSubmitting ? 'Saving...' : 'Save'}
+                  {isSubmitting ? t('common.saving') : t('common.save')}
                 </Button>
               </div>
             </Form>

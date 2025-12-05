@@ -8,6 +8,7 @@ import TextAreaFormInput from '@/components/from/TextAreaFormInput'
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useI18n } from '@/i18n/context'
 
 type FormFields = {
   userName: string
@@ -25,21 +26,22 @@ type FormFields = {
 }
 
 const UserCreateEditPage = () => {
+  const { t } = useI18n()
   const navigate = useNavigate()
   const location = useLocation()
 
   const schema: yup.ObjectSchema<FormFields> = yup.object({
-    userName: yup.string().trim().required('Please enter username'),
-    email: yup.string().email('Please enter a valid email').required('Please enter email'),
-    firstName: yup.string().trim().required('Please enter first name'),
-    lastName: yup.string().trim().required('Please enter last name'),
-    dateOfBirth: yup.string().required('Please select date of birth'),
+    userName: yup.string().trim().required(t('users.enterUserNameRequired')),
+    email: yup.string().email(t('users.enterEmailInvalid')).required(t('users.enterEmailRequired')),
+    firstName: yup.string().trim().required(t('users.enterFirstNameRequired')),
+    lastName: yup.string().trim().required(t('users.enterLastNameRequired')),
+    dateOfBirth: yup.string().required(t('users.selectDateOfBirthRequired')),
     gender: yup.boolean().required(),
-    city: yup.string().trim().required('Please enter city'),
-    phone: yup.string().trim().required('Please enter phone'),
+    city: yup.string().trim().required(t('users.enterCityRequired')),
+    phone: yup.string().trim().required(t('users.enterPhoneRequired')),
     description: yup.string().trim().optional(),
-    password: yup.string().min(6, 'At least 6 characters').optional(),
-    subscriptionEnd: yup.string().required('Please select subscription end date'),
+    password: yup.string().min(6, t('users.passwordMin')).optional(),
+    subscriptionEnd: yup.string().required(t('users.selectSubscriptionEndRequired')),
     roleId: yup.number().optional(),
   })
 
@@ -122,50 +124,50 @@ const UserCreateEditPage = () => {
 
   return (
     <>
-      <PageTitle subName="Users" title={isEdit ? 'Edit User' : 'Create User'} />
+      <PageTitle subName={t('pages.users')} title={isEdit ? t('users.edit') : t('users.create')} />
       <Card>
         <CardHeader>
-          <CardTitle as={'h5'}>{isEdit ? 'Edit User' : 'New User'}</CardTitle>
+          <CardTitle as={'h5'}>{isEdit ? t('users.edit') : t('users.new')}</CardTitle>
         </CardHeader>
         <CardBody>
           <Form onSubmit={onSubmit} className="needs-validation" noValidate>
             <Row className="g-3">
               <Col md={6}>
-                <TextFormInput control={control} name="userName" label="Username" placeholder="Username" />
+                <TextFormInput control={control} name="userName" label={t('users.userName')} placeholder={t('users.enterUserName')} />
               </Col>
               <Col md={6}>
-                <TextFormInput control={control} name="email" type="email" label="Email" placeholder="Email" />
+                <TextFormInput control={control} name="email" type="email" label={t('users.email')} placeholder={t('users.enterEmail')} />
               </Col>
               <Col md={6}>
-                <TextFormInput control={control} name="firstName" label="First Name" placeholder="First name" />
+                <TextFormInput control={control} name="firstName" label={t('users.firstName')} placeholder={t('users.enterFirstName')} />
               </Col>
               <Col md={6}>
-                <TextFormInput control={control} name="lastName" label="Last Name" placeholder="Last name" />
+                <TextFormInput control={control} name="lastName" label={t('users.lastName')} placeholder={t('users.enterLastName')} />
               </Col>
               <Col md={6}>
-                <TextFormInput control={control} name="dateOfBirth" type="date" label="Date of Birth" />
+                <TextFormInput control={control} name="dateOfBirth" type="date" label={t('users.dateOfBirth')} />
               </Col>
               <Col md={6}>
-                <TextFormInput control={control} name="subscriptionEnd" type="date" label="Subscription End" />
+                <TextFormInput control={control} name="subscriptionEnd" type="date" label={t('users.subscriptionEnd')} />
               </Col>
               <Col md={6}>
-                <TextFormInput control={control} name="city" label="City" placeholder="City" />
+                <TextFormInput control={control} name="city" label={t('users.city')} placeholder={t('users.enterCity')} />
               </Col>
               <Col md={6}>
-                <TextFormInput control={control} name="phone" label="Phone" placeholder="Phone" />
+                <TextFormInput control={control} name="phone" label={t('users.phone')} placeholder={t('users.enterPhone')} />
               </Col>
               {!isEdit && (
                 <Col md={6}>
-                  <TextFormInput control={control} name="password" type="password" label="Password" placeholder="Password" />
+                  <TextFormInput control={control} name="password" type="password" label={t('users.password')} placeholder={t('users.enterPassword')} />
                 </Col>
               )}
               <Col md={12}>
-                <TextAreaFormInput control={control} name="description" rows={3} label="Description" placeholder="Description" />
+                <TextAreaFormInput control={control} name="description" rows={3} label={t('users.description')} placeholder={t('users.description')} />
               </Col>
             </Row>
             <div className="d-flex justify-content-end gap-2 mt-3">
-              <Button type="button" variant="light" onClick={() => navigate('/admin/users')}>Cancel</Button>
-              <Button type="submit" variant="primary" disabled={isSubmitting}>{isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Create'}</Button>
+              <Button type="button" variant="light" onClick={() => navigate('/admin/users')}>{t('common.cancel')}</Button>
+              <Button type="submit" variant="primary" disabled={isSubmitting}>{isSubmitting ? t('common.saving') : isEdit ? t('common.update') : t('common.create')}</Button>
             </div>
           </Form>
         </CardBody>
