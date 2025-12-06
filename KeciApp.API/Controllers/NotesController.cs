@@ -75,8 +75,40 @@ public class NotesController : ControllerBase
         }
     }
 
+    [HttpGet("notes/article/{articleId}")]
+    public async Task<ActionResult<IEnumerable<NoteResponseDTO>>> GetAllNotesByArticleId(int articleId)
+    {
+        try
+        {
+            var notes = await _notesService.GetAllNotesByArticleIdAsync(articleId);
+            return Ok(notes);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpGet("notes/user/{userId}/article/{articleId}")]
+    public async Task<ActionResult<NoteResponseDTO>> GetNoteByUserIdAndArticleId(int userId, int articleId)
+    {
+        try
+        {
+            var note = await _notesService.GetNoteByUserIdAndArticleIdAsync(userId, articleId);
+            if (note == null)
+            {
+                return NotFound(new { message = "Note not found" });
+            }
+            return Ok(note);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpPost("notes")]
-    public async Task<ActionResult<NoteResponseDTO>> AddNoteToPodcastEpisode([FromBody] AddNoteRequest request)
+    public async Task<ActionResult<NoteResponseDTO>> AddNote([FromBody] AddNoteRequest request)
     {
         try
         {
@@ -85,7 +117,7 @@ public class NotesController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            var note = await _notesService.AddNoteToPodcastEpisodeAsync(request);
+            var note = await _notesService.AddNoteAsync(request);
             return Ok(note);
         }
         catch (Exception ex)
@@ -95,7 +127,7 @@ public class NotesController : ControllerBase
     }
 
     [HttpPut("notes")]
-    public async Task<ActionResult<NoteResponseDTO>> EditNoteOfPodcastEpisode([FromBody] EditNoteRequest request)
+    public async Task<ActionResult<NoteResponseDTO>> EditNote([FromBody] EditNoteRequest request)
     {
         try
         {
@@ -104,7 +136,7 @@ public class NotesController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            var note = await _notesService.EditNoteOfPodcastEpisodeAsync(request);
+            var note = await _notesService.EditNoteAsync(request);
             return Ok(note);
         }
         catch (InvalidOperationException ex)

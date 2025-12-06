@@ -47,6 +47,17 @@ public class QuestionRepository : IQuestionRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Questions>> GetQuestionsByArticleIdAsync(int articleId)
+    {
+        return await _context.Questions
+            .Where(q => q.ArticleId == articleId)
+            .Include(q => q.Article)
+            .Include(q => q.User)
+            .Include(q => q.Answers)
+            .OrderByDescending(q => q.UpdatedAt)
+            .ToListAsync();
+    }
+
     public async Task<Questions?> GetQuestionByIdAsync(int questionId)
     {
         return await _context.Questions
@@ -64,6 +75,15 @@ public class QuestionRepository : IQuestionRepository
             .Include(q => q.User)
             .Include(q => q.Answers)
             .FirstOrDefaultAsync(q => q.UserId == userId && q.EpisodeId == episodeId);
+    }
+
+    public async Task<Questions?> GetQuestionByArticleAsync(int userId, int articleId)
+    {
+        return await _context.Questions
+            .Include(q => q.Article)
+            .Include(q => q.User)
+            .Include(q => q.Answers)
+            .FirstOrDefaultAsync(q => q.UserId == userId && q.ArticleId == articleId);
     }
 
     public async Task<Questions> AddQuestionAsync(Questions question)

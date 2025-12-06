@@ -9,12 +9,14 @@ public class QuestionService : IQuestionService
 {
     private readonly IQuestionRepository _questionRepository;
     private readonly IPodcastEpisodesRepository _episodesRepository;
+    private readonly IArticleRepository _articleRepository;
     private readonly IMapper _mapper;
 
-    public QuestionService(IQuestionRepository questionRepository, IPodcastEpisodesRepository episodesRepository, IMapper mapper)
+    public QuestionService(IQuestionRepository questionRepository, IPodcastEpisodesRepository episodesRepository, IArticleRepository articleRepository, IMapper mapper)
     {
         _questionRepository = questionRepository;
         _episodesRepository = episodesRepository;
+        _articleRepository = articleRepository;
         _mapper = mapper;
     }
 
@@ -82,6 +84,25 @@ public class QuestionService : IQuestionService
         return responseDtos;
     }
 
+    public async Task<IEnumerable<QuestionResponseDTO>> GetQuestionsByArticleIdAsync(int articleId)
+    {
+        var questions = await _questionRepository.GetQuestionsByArticleIdAsync(articleId);
+        var responseDtos = _mapper.Map<IEnumerable<QuestionResponseDTO>>(questions);
+
+        // Include answers if question is answered
+        foreach (var responseDto in responseDtos)
+        {
+            var question = questions.FirstOrDefault(q => q.QuestionId == responseDto.QuestionId);
+            if (question != null && question.isAnswered && question.Answers != null && question.Answers.Any())
+            {
+                responseDto.Answers = _mapper.Map<List<AnswerResponseDTO>>(question.Answers);
+                responseDto.Answer = responseDto.Answers.First();
+            }
+        }
+
+        return responseDtos;
+    }
+
     public async Task<QuestionResponseDTO?> GetQuestionByUserIdAndEpisodeIdAsync(int userId, int episodeId)
     {
         var question = await _questionRepository.GetQuestionAsync(userId, episodeId);
@@ -105,6 +126,50 @@ public class QuestionService : IQuestionService
         }
 
         return responseDto;
+    }
+
+    public async Task<QuestionResponseDTO?> GetQuestionByUserIdAndArticleIdAsync(int userId, int articleId)
+    {
+        var question = await _questionRepository.GetQuestionByArticleAsync(userId, articleId);
+        if (question == null)
+        {
+            return null;
+        }
+
+        var responseDto = _mapper.Map<QuestionResponseDTO>(question);
+
+        // Include answers if exist
+        if (question.Answers != null && question.Answers.Any())
+        {
+            responseDto.Answers = _mapper.Map<List<AnswerResponseDTO>>(question.Answers);
+            responseDto.Answer = responseDto.Answers.First();
+        }
+
+        return responseDto;
+    }
+
+    public async Task<QuestionResponseDTO> AddQuestionAsync(AddQuestionRequest request)
+    {
+        // Handle article questions
+        if (request.ArticleId.HasValue)
+        {
+            var article = await _articleRepository.GetArticleByIdAsync(request.ArticleId.Value);
+            if (article == null)
+            {
+                throw new InvalidOperationException("Article not found");
+            }
+
+            var question = _mapper.Map<Questions>(request);
+            question.CreatedAt = DateTime.UtcNow;
+            question.UpdatedAt = DateTime.UtcNow;
+            question.isAnswered = false;
+            var addedQuestion = await _questionRepository.AddQuestionAsync(question);
+
+            return _mapper.Map<QuestionResponseDTO>(addedQuestion);
+        }
+
+        // Handle episode questions - delegate to existing method
+        return await AddQuestionToPodcastEpisodeAsync(request);
     }
 
     public async Task<QuestionResponseDTO> AddQuestionToPodcastEpisodeAsync(AddQuestionRequest request)

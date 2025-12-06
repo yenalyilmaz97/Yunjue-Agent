@@ -11,6 +11,8 @@ const QUESTIONS_ENDPOINTS = {
   BY_USER: (userId: number) => `${QUESTIONS_ENDPOINT}/questions/user/${userId}`,
   BY_EPISODE: (episodeId: number) => `${QUESTIONS_ENDPOINT}/questions/episode/${episodeId}`,
   BY_USER_AND_EPISODE: (userId: number, episodeId: number) => `${QUESTIONS_ENDPOINT}/questions/user/${userId}/episode/${episodeId}`,
+  BY_ARTICLE: (articleId: number) => `${QUESTIONS_ENDPOINT}/questions/article/${articleId}`,
+  BY_USER_AND_ARTICLE: (userId: number, articleId: number) => `${QUESTIONS_ENDPOINT}/questions/user/${userId}/article/${articleId}`,
 } as const
 
 export interface AddQuestionRequest {
@@ -54,6 +56,18 @@ export const questionsService = {
   async getQuestionByUserAndEpisode(userId: number, episodeId: number): Promise<Question | null> {
     try {
       return await api.get<Question>(QUESTIONS_ENDPOINTS.BY_USER_AND_EPISODE(userId, episodeId))
+    } catch (error: unknown) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((error as any)?.response?.status === 404) return null
+      throw error
+    }
+  },
+  async getQuestionsByArticle(articleId: number): Promise<Question[]> {
+    return await api.get<Question[]>(QUESTIONS_ENDPOINTS.BY_ARTICLE(articleId))
+  },
+  async getQuestionByUserAndArticle(userId: number, articleId: number): Promise<Question | null> {
+    try {
+      return await api.get<Question>(QUESTIONS_ENDPOINTS.BY_USER_AND_ARTICLE(userId, articleId))
     } catch (error: unknown) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if ((error as any)?.response?.status === 404) return null

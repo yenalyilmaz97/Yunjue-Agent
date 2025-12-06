@@ -44,12 +44,30 @@ public class NotesRepository : INotesRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Notes>> GetAllNotesByArticleIdAsync(int articleId)
+    {
+        return await _context.Notes
+            .Where(n => n.ArticleId == articleId)
+            .Include(n => n.Article)
+            .Include(n => n.User)
+            .OrderByDescending(n => n.UpdatedAt)
+            .ToListAsync();
+    }
+
     public async Task<Notes?> GetNoteAsync(int userId, int? episodeId)
     {
         return await _context.Notes
             .Include(n => n.PodcastEpisode)
             .Include(n => n.User)
             .FirstOrDefaultAsync(n => n.UserId == userId && n.EpisodeId == episodeId);
+    }
+
+    public async Task<Notes?> GetNoteByArticleAsync(int userId, int articleId)
+    {
+        return await _context.Notes
+            .Include(n => n.Article)
+            .Include(n => n.User)
+            .FirstOrDefaultAsync(n => n.UserId == userId && n.ArticleId == articleId);
     }
 
     public async Task<Notes> AddNoteAsync(Notes note)

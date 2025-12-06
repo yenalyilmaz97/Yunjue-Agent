@@ -74,8 +74,40 @@ public class QuestionsController : ControllerBase
         }
     }
 
+    [HttpGet("questions/article/{articleId}")]
+    public async Task<ActionResult<IEnumerable<QuestionResponseDTO>>> GetQuestionsByArticleId(int articleId)
+    {
+        try
+        {
+            var questions = await _questionService.GetQuestionsByArticleIdAsync(articleId);
+            return Ok(questions);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpGet("questions/user/{userId}/article/{articleId}")]
+    public async Task<ActionResult<QuestionResponseDTO>> GetQuestionByUserIdAndArticleId(int userId, int articleId)
+    {
+        try
+        {
+            var question = await _questionService.GetQuestionByUserIdAndArticleIdAsync(userId, articleId);
+            if (question == null)
+            {
+                return NotFound(new { message = "Question not found" });
+            }
+            return Ok(question);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpPost("questions")]
-    public async Task<ActionResult<QuestionResponseDTO>> AddQuestionToPodcastEpisode([FromBody] AddQuestionRequest request)
+    public async Task<ActionResult<QuestionResponseDTO>> AddQuestion([FromBody] AddQuestionRequest request)
     {
         try
         {
@@ -84,7 +116,7 @@ public class QuestionsController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            var question = await _questionService.AddQuestionToPodcastEpisodeAsync(request);
+            var question = await _questionService.AddQuestionAsync(request);
             return Ok(question);
         }
         catch (Exception ex)
