@@ -10,7 +10,7 @@ const PageTitle = ({ title, subName }: { title: string; subName: string }) => {
   return (
     <>
       <Helmet>
-        <title>{title ? title + ' | ' + defaultTitle : defaultTitle}</title>
+        <title>{defaultTitle}</title>
       </Helmet>
       <Row>
         <Col xs={12}>

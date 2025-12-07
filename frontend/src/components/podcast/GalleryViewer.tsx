@@ -1,6 +1,7 @@
 import { Card, CardBody } from 'react-bootstrap'
 import { Icon } from '@iconify/react'
 import { useState, useEffect, useRef } from 'react'
+import { CONTENT_ICONS } from '@/context/constants'
 
 interface GalleryViewerProps {
   images: string[]
@@ -79,7 +80,7 @@ const GalleryViewer = ({ images, title, onClose }: GalleryViewerProps) => {
               backgroundColor: 'rgba(var(--bs-primary-rgb), 0.1)',
             }}
           >
-            <Icon icon="mingcute:image-line" style={{ fontSize: '1.75rem', color: 'var(--bs-primary)', opacity: 0.5 }} />
+            <Icon icon={CONTENT_ICONS.gallery} style={{ fontSize: '1.75rem', color: 'var(--bs-primary)', opacity: 0.5 }} />
           </div>
           <p className="text-muted mb-0 small">Görsel bulunamadı</p>
         </CardBody>
@@ -113,7 +114,7 @@ const GalleryViewer = ({ images, title, onClose }: GalleryViewerProps) => {
                   backdropFilter: 'blur(10px)',
                 }}
               >
-                <Icon icon="mingcute:image-line" style={{ fontSize: '1.1rem' }} />
+                <Icon icon={CONTENT_ICONS.gallery} style={{ fontSize: '1.1rem' }} />
               </div>
               <div>
                 <div className="fw-semibold" style={{ fontSize: '0.9rem', lineHeight: '1.2' }}>

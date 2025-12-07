@@ -10,6 +10,7 @@ import PDFViewer from '@/components/podcast/PDFViewer'
 import GalleryViewer from '@/components/podcast/GalleryViewer'
 import ModernAudioPlayer from '@/components/podcast/ModernAudioPlayer'
 import VideoPlayer from '@/components/podcast/VideoPlayer'
+import { CONTENT_ICONS } from '@/context/constants'
 
 interface EpisodeWithAccess extends PodcastEpisode {
   lastAccessedAt?: string
@@ -416,11 +417,11 @@ const PodcastsPage = () => {
 
   const getContentIcon = (type: ContentType) => {
     switch (type) {
-      case 'video': return 'mingcute:video-line'
-      case 'audio': return 'mingcute:headphone-line'
-      case 'pdf': return 'mingcute:file-pdf-line'
-      case 'gallery': return 'mingcute:image-line'
-      default: return 'mingcute:file-line'
+      case 'video': return CONTENT_ICONS.video
+      case 'audio': return CONTENT_ICONS.audio
+      case 'pdf': return CONTENT_ICONS.pdf
+      case 'gallery': return CONTENT_ICONS.gallery
+      default: return CONTENT_ICONS.default
     }
   }
 
@@ -854,11 +855,11 @@ const PodcastsPage = () => {
                           <div className="d-flex align-items-center gap-2">
                             <div
                               className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                              style={{ width: '40px', height: '40px', backgroundColor: 'var(--bs-primary)', color: '#ffffff' }}
+                              style={{ width: '36px', height: '36px', backgroundColor: 'rgba(var(--bs-primary-rgb), 0.1)' }}
                             >
                               <Icon
-                                icon={getContentType(episodes[0]) === 'video' ? 'mingcute:play-fill' : getContentType(episodes[0]) === 'pdf' ? 'mingcute:file-pdf-fill' : getContentType(episodes[0]) === 'gallery' ? 'mingcute:image-fill' : 'mingcute:headphone-fill'}
-                                style={{ fontSize: '1.25rem' }}
+                                icon={getContentIcon(getContentType(episodes[0]))}
+                                style={{ fontSize: '1rem', color: 'var(--bs-primary)' }}
                               />
                             </div>
                             <div className="min-w-0 flex-grow-1">
@@ -923,7 +924,7 @@ const PodcastsPage = () => {
                                     style={{ width: '36px', height: '36px', backgroundColor: 'rgba(var(--bs-primary-rgb), 0.1)' }}
                                   >
                                     <Icon
-                                      icon={getContentType(episode) === 'video' ? 'mingcute:play-fill' : getContentType(episode) === 'pdf' ? 'mingcute:file-pdf-fill' : getContentType(episode) === 'gallery' ? 'mingcute:image-fill' : 'mingcute:headphone-fill'}
+                                      icon={getContentIcon(getContentType(episode))}
                                       style={{ fontSize: '1rem', color: 'var(--bs-primary)' }}
                                     />
                                   </div>

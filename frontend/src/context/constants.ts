@@ -14,7 +14,7 @@ export const buyLink = ''
 
 export const basePath = ''
 
-export const DEFAULT_PAGE_TITLE = '  Darkone - Responsive Admin dashboards Template   '
+export const DEFAULT_PAGE_TITLE = 'Keçiyi Besle'
 
 // Replace the URL's value in env with your backend's URL or if you're using nextjs's API, add the server's origin URL
 export const API_BASE_PATH = ''
@@ -32,4 +32,13 @@ export const themeColors = {
   darkRed600: '#7a1f1f',     // Medium dark red
   darkRed500: '#9b1e3d',     // Medium red
   green: '#17c553',          // Success green
+} as const
+
+// Content type icons
+export const CONTENT_ICONS = {
+  video: 'mingcute:video-line',
+  audio: 'mingcute:headphone-line',
+  pdf: 'mingcute:file-pdf-line',
+  gallery: 'mingcute:pic-line',
+  default: 'mingcute:file-line',
 } as const
