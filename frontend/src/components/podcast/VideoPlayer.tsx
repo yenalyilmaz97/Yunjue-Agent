@@ -17,7 +17,6 @@ const VideoPlayer = ({ src, episodeId, className, style, controlsList }: VideoPl
     const video = videoRef.current
     if (!video) return
 
-    // Load saved progress if episodeId is provided
     const loadProgress = () => {
       if (episodeId && video.duration > 0) {
         const resumeTime = getResumeTime(episodeId, video.duration)
@@ -27,26 +26,16 @@ const VideoPlayer = ({ src, episodeId, className, style, controlsList }: VideoPl
       }
     }
 
-    const handleLoadedMetadata = () => {
-      loadProgress()
-    }
-
-    const handleTimeUpdate = () => {
-      // Progress will be saved via interval
-    }
-
+    const handleLoadedMetadata = () => loadProgress()
+    const handleTimeUpdate = () => {}
     const handleEnded = () => {
-      // Clear progress when video is completed
-      if (episodeId) {
-        clearEpisodeProgress(episodeId)
-      }
+      if (episodeId) clearEpisodeProgress(episodeId)
     }
 
     video.addEventListener('loadedmetadata', handleLoadedMetadata)
     video.addEventListener('timeupdate', handleTimeUpdate)
     video.addEventListener('ended', handleEnded)
 
-    // Set up interval to save progress every 5 seconds
     if (episodeId) {
       saveProgressIntervalRef.current = setInterval(() => {
         if (video.duration && video.currentTime > 0) {
@@ -55,7 +44,6 @@ const VideoPlayer = ({ src, episodeId, className, style, controlsList }: VideoPl
       }, 5000)
     }
 
-    // Also save progress when user seeks
     const handleSeeked = () => {
       if (episodeId && video.duration > 0) {
         saveEpisodeProgress(episodeId, video.currentTime, video.duration)
@@ -76,17 +64,30 @@ const VideoPlayer = ({ src, episodeId, className, style, controlsList }: VideoPl
   }, [episodeId])
 
   return (
-    <video
-      ref={videoRef}
-      controls
-      controlsList={controlsList}
-      className={className}
-      style={style}
-      src={src}
-      preload="metadata"
-    />
+    <div
+      style={{
+        borderRadius: '12px',
+        overflow: 'hidden',
+        backgroundColor: '#000',
+        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
+      }}
+    >
+      <video
+        ref={videoRef}
+        controls
+        controlsList={controlsList}
+        className={className}
+        style={{
+          display: 'block',
+          width: '100%',
+          maxHeight: '70vh',
+          ...style,
+        }}
+        src={src}
+        preload="metadata"
+      />
+    </div>
   )
 }
 
 export default VideoPlayer
-
