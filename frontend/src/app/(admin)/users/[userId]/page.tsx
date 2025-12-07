@@ -35,6 +35,7 @@ const UserDetailPage = () => {
     type: 'note' | 'question' | 'weeklyAnswer'
     weeklyQuestion?: string
     weeklyAnswer?: string
+    answer?: string
   } | null>(null)
 
   const resetSchema = yup.object({
@@ -100,9 +101,10 @@ const UserDetailPage = () => {
     text: string, 
     type: 'note' | 'question' | 'weeklyAnswer',
     weeklyQuestion?: string,
-    weeklyAnswer?: string
+    weeklyAnswer?: string,
+    answer?: string
   ) => {
-    setDetailContent({ title, text, type, weeklyQuestion, weeklyAnswer })
+    setDetailContent({ title, text, type, weeklyQuestion, weeklyAnswer, answer })
     setShowDetailModal(true)
   }
 
@@ -327,13 +329,14 @@ const UserDetailPage = () => {
                     width: '120px',
                     render: (r) => {
                       const q = r as Question
+                      const answerText = q.answer?.answerText || (q.answers && q.answers.length > 0 ? q.answers[0].answerText : undefined)
                       return (
                         <Button
                           variant="outline-primary"
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation()
-                            openDetailModal(t('questions.questionText'), q.questionText, 'question')
+                            openDetailModal(t('questions.questionText'), q.questionText, 'question', undefined, undefined, answerText)
                           }}
                           style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
                         >
@@ -453,7 +456,16 @@ const UserDetailPage = () => {
                     <IconifyIcon icon="mdi:help-circle" className="me-2" style={{ fontSize: '1.1rem', color: 'var(--bs-primary)' }} />
                     {t('questions.questionText')}
                   </h6>
-                  <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: '1.6', padding: '12px', backgroundColor: '#f8f9fa', borderRadius: '6px' }}>
+                  <div style={{ 
+                    whiteSpace: 'pre-wrap', 
+                    wordBreak: 'break-word', 
+                    lineHeight: '1.6', 
+                    padding: '12px', 
+                    backgroundColor: 'rgba(var(--bs-primary-rgb), 0.05)', 
+                    border: '1px solid rgba(var(--bs-primary-rgb), 0.1)',
+                    borderRadius: '8px',
+                    color: 'var(--bs-body-color)'
+                  }}>
                     {detailContent.weeklyQuestion}
                   </div>
                 </div>
@@ -464,8 +476,58 @@ const UserDetailPage = () => {
                     <IconifyIcon icon="mdi:message-text" className="me-2" style={{ fontSize: '1.1rem', color: 'var(--bs-success)' }} />
                     {t('users.answer')}
                   </h6>
-                  <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: '1.6', padding: '12px', backgroundColor: '#f8f9fa', borderRadius: '6px' }}>
+                  <div style={{ 
+                    whiteSpace: 'pre-wrap', 
+                    wordBreak: 'break-word', 
+                    lineHeight: '1.6', 
+                    padding: '12px', 
+                    backgroundColor: 'rgba(var(--bs-success-rgb), 0.05)', 
+                    border: '1px solid rgba(var(--bs-success-rgb), 0.1)',
+                    borderRadius: '8px',
+                    color: 'var(--bs-body-color)'
+                  }}>
                     {detailContent.weeklyAnswer}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : detailContent?.type === 'question' ? (
+            <div>
+              <div className="mb-4">
+                <h6 className="fw-semibold mb-2 d-flex align-items-center">
+                  <IconifyIcon icon="mdi:help-circle" className="me-2" style={{ fontSize: '1.1rem', color: 'var(--bs-primary)' }} />
+                  {t('questions.questionText')}
+                </h6>
+                <div style={{ 
+                  whiteSpace: 'pre-wrap', 
+                  wordBreak: 'break-word', 
+                  lineHeight: '1.6', 
+                  padding: '12px', 
+                  backgroundColor: 'rgba(var(--bs-primary-rgb), 0.05)', 
+                  border: '1px solid rgba(var(--bs-primary-rgb), 0.1)',
+                  borderRadius: '8px',
+                  color: 'var(--bs-body-color)'
+                }}>
+                  {detailContent.text}
+                </div>
+              </div>
+              {detailContent.answer && (
+                <div>
+                  <h6 className="fw-semibold mb-2 d-flex align-items-center">
+                    <IconifyIcon icon="mdi:message-text" className="me-2" style={{ fontSize: '1.1rem', color: 'var(--bs-success)' }} />
+                    {t('users.answer')}
+                  </h6>
+                  <div style={{ 
+                    whiteSpace: 'pre-wrap', 
+                    wordBreak: 'break-word', 
+                    lineHeight: '1.6', 
+                    padding: '12px', 
+                    backgroundColor: 'rgba(var(--bs-success-rgb), 0.05)', 
+                    border: '1px solid rgba(var(--bs-success-rgb), 0.1)',
+                    borderRadius: '8px',
+                    color: 'var(--bs-body-color)'
+                  }}>
+                    {detailContent.answer}
                   </div>
                 </div>
               )}

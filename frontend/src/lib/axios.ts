@@ -64,8 +64,12 @@ const createAxiosInstance = (): AxiosInstance => {
     (response) => response,
     (error) => {
       if (error.response?.status === 401) {
-        localStorage.removeItem('authToken')
-        window.location.href = '/auth/sign-in'
+        // Don't redirect if already on login page
+        const isLoginPage = window.location.pathname.includes('/auth/sign-in')
+        if (!isLoginPage) {
+          localStorage.removeItem('authToken')
+          window.location.href = '/auth/sign-in'
+        }
       }
       return Promise.reject(error)
     },

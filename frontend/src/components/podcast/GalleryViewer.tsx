@@ -236,7 +236,7 @@ const GalleryViewer = ({ images, title, onClose }: GalleryViewerProps) => {
                     e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.95)'
                   }}
                 >
-                  <Icon icon="mingcute:arrow-left-line" style={{ fontSize: '1.1rem', color: 'var(--bs-primary)' }} />
+                  <span style={{ fontSize: '1.8rem', color: '#000', fontWeight: 'bold', lineHeight: 1, display: 'block', userSelect: 'none' }}>◀</span>
                 </button>
                 <button
                   className="btn position-absolute top-50 end-0 translate-middle-y me-2 rounded-circle shadow-sm border-0"
@@ -261,7 +261,7 @@ const GalleryViewer = ({ images, title, onClose }: GalleryViewerProps) => {
                     e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.95)'
                   }}
                 >
-                  <Icon icon="mingcute:arrow-right-line" style={{ fontSize: '1.1rem', color: 'var(--bs-primary)' }} />
+                  <span style={{ fontSize: '1.8rem', color: '#000', fontWeight: 'bold', lineHeight: 1, display: 'block', userSelect: 'none' }}>▶</span>
                 </button>
               </>
             )}
@@ -426,7 +426,7 @@ const GalleryViewer = ({ images, title, onClose }: GalleryViewerProps) => {
                     e.currentTarget.style.transform = 'translateY(-50%) scale(1)'
                   }}
                 >
-                  <Icon icon="mingcute:arrow-left-line" style={{ fontSize: '1.25rem', color: 'var(--bs-primary)' }} />
+                  <span style={{ fontSize: '2rem', color: '#000', fontWeight: 'bold', lineHeight: 1, display: 'block', userSelect: 'none' }}>◀</span>
                 </button>
                 <button
                   className="btn position-absolute top-50 end-0 translate-middle-y me-3 rounded-circle border-0 shadow-lg"
@@ -449,7 +449,7 @@ const GalleryViewer = ({ images, title, onClose }: GalleryViewerProps) => {
                     e.currentTarget.style.transform = 'translateY(-50%) scale(1)'
                   }}
                 >
-                  <Icon icon="mingcute:arrow-right-line" style={{ fontSize: '1.25rem', color: 'var(--bs-primary)' }} />
+                  <span style={{ fontSize: '2rem', color: '#000', fontWeight: 'bold', lineHeight: 1, display: 'block', userSelect: 'none' }}>▶</span>
                 </button>
               </>
             )}

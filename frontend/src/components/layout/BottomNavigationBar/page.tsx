@@ -6,6 +6,7 @@ import { MenuItemType } from '@/types/menu'
 import clsx from 'clsx'
 import useViewPort from '@/hooks/useViewPort'
 import { useLayoutContext } from '@/context/useLayoutContext'
+import { useI18n } from '@/i18n/context'
 
 const BottomNavigationBar = () => {
   const { user } = useAuthContext()
@@ -14,6 +15,7 @@ const BottomNavigationBar = () => {
   const { pathname } = useLocation()
   const { width } = useViewPort()
   const { toggleBackdrop } = useLayoutContext()
+  const { t } = useI18n()
 
   // Filter menu items to only show items with icons and URLs (not titles or items with children)
   const getBottomNavItems = (items: MenuItemType[]): MenuItemType[] => {
@@ -49,6 +51,23 @@ const BottomNavigationBar = () => {
     }
   }
 
+  const getTranslatedLabel = (label: string) => {
+    // Map specific labels to translation keys (same as sidebar)
+    const labelMap: Record<string, string> = {
+      'dashboard': 'sidebar.dashboard',
+      'Articles': 'sidebar.articles',
+      'Podcasts': 'sidebar.podcasts',
+      'Favorites': 'sidebar.favorites',
+      'Notes': 'sidebar.notes',
+      'Questions': 'sidebar.questions',
+      'Profile': 'sidebar.profile',
+    }
+    
+    const translationKey = labelMap[label] || `sidebar.${label.toLowerCase().replace(/\s+/g, '').replace(/\.\.\./g, '')}`
+    const translated = t(translationKey as any)
+    return translated !== translationKey ? translated : label
+  }
+
   return (
     <div className="mobile-bottom-nav">
       <div className="mobile-bottom-nav-container">
@@ -60,7 +79,7 @@ const BottomNavigationBar = () => {
             onClick={handleLinkClick}
           >
             <IconifyIcon icon={item.icon || 'mingcute:home-3-line'} width={24} height={24} />
-            <span className="mobile-bottom-nav-label">{item.label}</span>
+            <span className="mobile-bottom-nav-label">{getTranslatedLabel(item.label || '')}</span>
           </Link>
         ))}
       </div>

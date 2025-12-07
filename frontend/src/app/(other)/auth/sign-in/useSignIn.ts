@@ -66,11 +66,50 @@ const useSignIn = () => {
         showNotification({ message: 'Successfully logged in. Redirecting....', variant: 'success' })
         return
       }
-      showNotification({ message: res.message || 'Login failed', variant: 'danger' })
+      // Check if login failed due to wrong password
+      const errorMessage = res.message || ''
+      const isPasswordError = 
+        !res.success && 
+        (errorMessage.toLowerCase().includes('password') || 
+         errorMessage.toLowerCase().includes('şifre') ||
+         errorMessage.toLowerCase().includes('invalid') ||
+         errorMessage.toLowerCase().includes('yanlış') ||
+         errorMessage.toLowerCase().includes('wrong'))
+      
+      const displayMessage = isPasswordError 
+        ? 'Geçersiz bilgi. Lütfen tekrar deneyin.' 
+        : (errorMessage || 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.')
+      
+      showNotification({ message: displayMessage, variant: 'danger' })
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
-      const msg = e?.response?.data?.message || e?.message || 'Login failed'
-      showNotification({ message: msg, variant: 'danger' })
+      const status = e?.response?.status
+      // Try multiple ways to get error message
+      const errorMessage = 
+        e?.response?.data?.message || 
+        e?.response?.data?.Message ||
+        e?.response?.data?.error ||
+        e?.message || 
+        ''
+      
+      console.log('Login error:', { status, errorMessage, error: e })
+      
+      // Check for 401 Unauthorized or password-related errors
+      const isPasswordError = 
+        status === 401 ||
+        errorMessage.toLowerCase().includes('password') ||
+        errorMessage.toLowerCase().includes('şifre') ||
+        errorMessage.toLowerCase().includes('geçersiz') ||
+        errorMessage.toLowerCase().includes('invalid credentials') ||
+        errorMessage.toLowerCase().includes('unauthorized') ||
+        errorMessage.toLowerCase().includes('yanlış') ||
+        errorMessage.toLowerCase().includes('wrong')
+      
+      const displayMessage = isPasswordError
+        ? 'Geçersiz bilgi. Lütfen tekrar deneyin.'
+        : (errorMessage || 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.')
+      
+      showNotification({ message: displayMessage, variant: 'danger' })
     } finally {
       setLoading(false)
     }
