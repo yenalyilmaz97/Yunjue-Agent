@@ -42,9 +42,9 @@ const SignIn = () => {
                       <TextFormInput control={control} name="email" placeholder="Enter your email" className="form-control" label="Email Address" />
                     </div>
                     <div className="mb-3">
-                      <Link to="/auth/reset-password" className="float-end text-muted  ms-1">
+                      {/* <Link to="/auth/reset-password" className="float-end text-muted  ms-1">
                         Forgot password?
-                      </Link>
+                      </Link> */}
                       <PasswordFormInput control={control} name="password" placeholder="Enter your password" className="form-control" label="Password" />
                     </div>
 

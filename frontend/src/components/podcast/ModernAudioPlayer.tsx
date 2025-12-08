@@ -22,13 +22,12 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
   const [showVolumeControl, setShowVolumeControl] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const saveProgressIntervalRef = useRef<NodeJS.Timeout | null>(null)
-  const completedRef = useRef(false) // Track if completion request has been sent
+  const completedRef = useRef(false)
 
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
 
-    // Load saved progress if episodeId is provided
     if (episodeId) {
       const resumeTime = getResumeTime(episodeId, audio.duration || 0)
       if (resumeTime > 0) {
@@ -43,12 +42,10 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
         onTimeUpdate(audio.currentTime, audio.duration || 0)
       }
 
-      // Check if 85% of episode is completed
       if (episodeId && userId && audio.duration > 0 && !completedRef.current) {
         const progressPercentage = (audio.currentTime / audio.duration) * 100
         if (progressPercentage >= 85) {
           completedRef.current = true
-          // Mark episode as completed
           userProgressService
             .createOrUpdateUserProgress({
               userId,
@@ -56,13 +53,10 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
               isCompleted: true,
             })
             .then(() => {
-              // Successfully marked as completed
               console.log(`Episode ${episodeId} marked as completed`)
             })
             .catch((error) => {
               console.error('Error marking episode as completed:', error)
-              // Only reset flag on actual errors (not if already completed)
-              // Backend will handle duplicate completion gracefully
               if (error?.response?.status !== 400) {
                 completedRef.current = false
               }
@@ -75,7 +69,6 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
       const newDuration = audio.duration || 0
       setDuration(newDuration)
       
-      // Load saved progress when duration is available
       if (episodeId && newDuration > 0) {
         const resumeTime = getResumeTime(episodeId, newDuration)
         if (resumeTime > 0 && audio.currentTime === 0) {
@@ -88,11 +81,9 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
     const handleEnded = () => {
       setIsPlaying(false)
       setCurrentTime(0)
-      // Clear progress when episode is completed
       if (episodeId) {
         clearEpisodeProgress(episodeId)
       }
-      // Mark as completed if not already marked
       if (episodeId && userId && !completedRef.current) {
         completedRef.current = true
         userProgressService
@@ -107,13 +98,8 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
       }
     }
 
-    const handlePlay = () => {
-      setIsPlaying(true)
-    }
-
-    const handlePause = () => {
-      setIsPlaying(false)
-    }
+    const handlePlay = () => setIsPlaying(true)
+    const handlePause = () => setIsPlaying(false)
 
     audio.addEventListener('timeupdate', updateTime)
     audio.addEventListener('loadedmetadata', updateDuration)
@@ -121,7 +107,6 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
     audio.addEventListener('play', handlePlay)
     audio.addEventListener('pause', handlePause)
 
-    // Set up interval to save progress every 5 seconds
     if (episodeId) {
       saveProgressIntervalRef.current = setInterval(() => {
         if (audio.duration && audio.currentTime > 0) {
@@ -142,7 +127,6 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
     }
   }, [onTimeUpdate, episodeId, userId])
 
-  // Reset completed flag when episode changes
   useEffect(() => {
     completedRef.current = false
   }, [episodeId])
@@ -176,7 +160,6 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
     audio.currentTime = newTime
     setCurrentTime(newTime)
     
-    // Save progress immediately when user seeks
     if (episodeId && duration > 0) {
       saveEpisodeProgress(episodeId, newTime, duration)
     }
@@ -209,10 +192,10 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
     <div
       className="modern-audio-player"
       style={{
-        background: 'linear-gradient(135deg, rgba(139, 21, 56, 0.05) 0%, rgba(139, 21, 56, 0.02) 100%)',
+        background: 'linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.06) 0%, rgba(var(--bs-primary-rgb), 0.02) 100%)',
         borderRadius: '16px',
-        padding: '16px',
-        border: '1px solid rgba(139, 21, 56, 0.1)',
+        padding: '12px 16px',
+        border: '1px solid rgba(var(--bs-primary-rgb), 0.12)',
         position: 'relative',
         overflow: 'hidden',
       }}
@@ -223,21 +206,9 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
           position: 'absolute',
           top: '-50%',
           right: '-20%',
-          width: '200px',
-          height: '200px',
-          background: 'radial-gradient(circle, rgba(139, 21, 56, 0.1) 0%, transparent 70%)',
-          borderRadius: '50%',
-          pointerEvents: 'none',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '-30%',
-          left: '-10%',
-          width: '150px',
-          height: '150px',
-          background: 'radial-gradient(circle, rgba(33, 215, 96, 0.08) 0%, transparent 70%)',
+          width: '180px',
+          height: '180px',
+          background: 'radial-gradient(circle, rgba(var(--bs-primary-rgb), 0.08) 0%, transparent 70%)',
           borderRadius: '50%',
           pointerEvents: 'none',
         }}
@@ -247,39 +218,33 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
 
       <div style={{ position: 'relative', zIndex: 10 }}>
         {/* Main Controls */}
-        <div className="d-flex align-items-center gap-2 gap-md-3 mb-3">
+        <div className="d-flex align-items-center gap-2 gap-md-3">
           {/* Play/Pause Button */}
           <Button
             variant="primary"
             onClick={togglePlayPause}
-            className="d-flex align-items-center justify-content-center"
+            className="d-flex align-items-center justify-content-center flex-shrink-0"
             style={{
-              width: '48px',
-              height: '48px',
+              width: '44px',
+              height: '44px',
               borderRadius: '50%',
               border: 'none',
-              background: 'var(--bs-gradient-audio-player)',
+              background: 'var(--bs-primary)',
               boxShadow: isPlaying
-                ? '0 8px 20px rgba(139, 21, 56, 0.4)'
-                : '0 4px 12px rgba(139, 21, 56, 0.3)',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              flexShrink: 0,
-              position: 'relative',
-              zIndex: 10,
-              display: 'flex !important',
-              visibility: 'visible',
-              opacity: 1,
-              overflow: 'visible',
+                ? '0 6px 16px rgba(var(--bs-primary-rgb), 0.35)'
+                : '0 3px 10px rgba(var(--bs-primary-rgb), 0.25)',
+              transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+              padding: 0,
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.05)'
-              e.currentTarget.style.boxShadow = '0 10px 24px rgba(139, 21, 56, 0.5)'
+              e.currentTarget.style.transform = 'scale(1.08)'
+              e.currentTarget.style.boxShadow = '0 8px 20px rgba(var(--bs-primary-rgb), 0.4)'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'scale(1)'
               e.currentTarget.style.boxShadow = isPlaying
-                ? '0 8px 20px rgba(126, 103, 254, 0.4)'
-                : '0 4px 12px rgba(126, 103, 254, 0.3)'
+                ? '0 6px 16px rgba(var(--bs-primary-rgb), 0.35)'
+                : '0 3px 10px rgba(var(--bs-primary-rgb), 0.25)'
             }}
             onTouchStart={(e) => {
               e.currentTarget.style.transform = 'scale(0.95)'
@@ -289,45 +254,13 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
             }}
           >
             {isPlaying ? (
-              // Pause Icon (iki dikey çizgi)
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                style={{ 
-                  display: 'block', 
-                  flexShrink: 0,
-                  visibility: 'visible',
-                  opacity: 1,
-                  pointerEvents: 'none',
-                }}
-              >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <rect x="6" y="4" width="4" height="16" fill="white" rx="1" />
                 <rect x="14" y="4" width="4" height="16" fill="white" rx="1" />
               </svg>
             ) : (
-              // Play Icon (üçgen)
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                style={{ 
-                  display: 'block', 
-                  flexShrink: 0, 
-                  marginLeft: '2px',
-                  visibility: 'visible',
-                  opacity: 1,
-                  pointerEvents: 'none',
-                }}
-              >
-                <path
-                  d="M8 5v14l11-7z"
-                  fill="white"
-                />
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ marginLeft: '2px' }}>
+                <path d="M8 5v14l11-7z" fill="white" />
               </svg>
             )}
           </Button>
@@ -339,7 +272,7 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
               <div
                 className="text-truncate mb-1 fw-semibold"
                 style={{
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   color: 'var(--bs-primary)',
                 }}
               >
@@ -383,12 +316,12 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
               onTouchEnd={() => setIsDragging(false)}
               style={{
                 position: 'relative',
-                height: '8px',
-                background: 'rgba(126, 103, 254, 0.1)',
+                height: '6px',
+                background: 'rgba(var(--bs-primary-rgb), 0.12)',
                 borderRadius: '10px',
                 cursor: 'pointer',
-                marginBottom: '8px',
-                overflow: 'hidden',
+                marginBottom: '6px',
+                overflow: 'visible',
                 touchAction: 'none',
               }}
             >
@@ -400,10 +333,9 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
                   left: 0,
                   height: '100%',
                   width: `${progressPercentage}%`,
-                  background: 'var(--bs-gradient-audio-progress)',
+                  background: 'var(--bs-primary)',
                   borderRadius: '10px',
                   transition: isDragging ? 'none' : 'width 0.1s linear',
-                  boxShadow: '0 2px 4px rgba(139, 21, 56, 0.3)',
                 }}
               >
                 {/* Progress Handle */}
@@ -413,12 +345,12 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
                     right: 0,
                     top: '50%',
                     transform: 'translate(50%, -50%)',
-                    width: '16px',
-                    height: '16px',
+                    width: '14px',
+                    height: '14px',
                     background: 'white',
                     borderRadius: '50%',
-                    boxShadow: '0 2px 6px rgba(139, 21, 56, 0.4)',
-                    border: '2px solid var(--bs-burgundy)',
+                    boxShadow: '0 2px 6px rgba(var(--bs-primary-rgb), 0.35)',
+                    border: '2px solid var(--bs-primary)',
                   }}
                 />
               </div>
@@ -426,22 +358,10 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
 
             {/* Time Display */}
             <div className="d-flex align-items-center justify-content-between">
-              <span
-                style={{
-                  fontSize: '0.75rem',
-                  color: 'var(--bs-secondary)',
-                  fontWeight: '500',
-                }}
-              >
+              <span style={{ fontSize: '0.7rem', color: 'var(--bs-secondary)', fontWeight: '500' }}>
                 {formatTime(currentTime)}
               </span>
-              <span
-                style={{
-                  fontSize: '0.75rem',
-                  color: 'var(--bs-secondary)',
-                  fontWeight: '500',
-                }}
-              >
+              <span style={{ fontSize: '0.7rem', color: 'var(--bs-secondary)', fontWeight: '500' }}>
                 {formatTime(duration)}
               </span>
             </div>
@@ -449,8 +369,7 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
 
           {/* Volume Control */}
           <div
-            className="position-relative d-none d-md-block"
-            style={{ flexShrink: 0 }}
+            className="position-relative d-none d-md-block flex-shrink-0"
             onMouseEnter={() => setShowVolumeControl(true)}
             onMouseLeave={() => setShowVolumeControl(false)}
           >
@@ -460,26 +379,19 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
               style={{
                 color: 'var(--bs-secondary)',
                 textDecoration: 'none',
-                minWidth: '40px',
-                minHeight: '40px',
+                minWidth: '36px',
+                minHeight: '36px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
               <Icon
-                icon={
-                  volume === 0
-                    ? 'mingcute:volume-mute-line'
-                    : volume < 0.5
-                      ? 'mingcute:volume-1-line'
-                      : 'mingcute:volume-2-line'
-                }
-                style={{ fontSize: '20px' }}
+                icon={volume === 0 ? 'mingcute:volume-mute-line' : volume < 0.5 ? 'mingcute:volume-1-line' : 'mingcute:volume-2-line'}
+                style={{ fontSize: '18px' }}
               />
             </Button>
 
-            {/* Volume Slider */}
             {showVolumeControl && (
               <div
                 className="position-absolute"
@@ -487,13 +399,12 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
                   bottom: '100%',
                   left: '50%',
                   transform: 'translateX(-50%)',
-                  marginBottom: '10px',
+                  marginBottom: '8px',
                   background: 'white',
-                  padding: '12px 8px',
-                  borderRadius: '12px',
-                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.15)',
+                  padding: '10px 6px',
+                  borderRadius: '10px',
+                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.12)',
                   zIndex: 1000,
-                  minWidth: '40px',
                 }}
               >
                 <input
@@ -506,8 +417,8 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
                   style={{
                     WebkitAppearance: 'slider-vertical',
                     width: '6px',
-                    height: '80px',
-                    background: 'rgba(126, 103, 254, 0.1)',
+                    height: '70px',
+                    background: 'rgba(var(--bs-primary-rgb), 0.1)',
                     borderRadius: '3px',
                     outline: 'none',
                     cursor: 'pointer',
@@ -522,19 +433,16 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
         {/* Waveform Animation (when playing) */}
         {isPlaying && (
           <div
-            className="d-flex align-items-center justify-content-center gap-1"
-            style={{
-              height: '24px',
-              opacity: 0.6,
-            }}
+            className="d-flex align-items-center justify-content-center gap-1 mt-2"
+            style={{ height: '20px', opacity: 0.6 }}
           >
-            {[...Array(15)].map((_, i) => (
+            {[...Array(12)].map((_, i) => (
               <div
                 key={i}
                 style={{
                   width: '2px',
                   height: '100%',
-                  background: 'var(--bs-gradient-audio-waveform)',
+                  background: 'var(--bs-primary)',
                   borderRadius: '2px',
                   animation: `waveform ${0.5 + (i % 3) * 0.2}s ease-in-out infinite`,
                   animationDelay: `${i * 0.05}s`,
@@ -545,38 +453,30 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
         )}
       </div>
 
-      {/* CSS Animation */}
       <style>{`
         @keyframes waveform {
-          0%, 100% {
-            transform: scaleY(0.3);
-            opacity: 0.5;
-          }
-          50% {
-            transform: scaleY(1);
-            opacity: 1;
-          }
+          0%, 100% { transform: scaleY(0.3); opacity: 0.5; }
+          50% { transform: scaleY(1); opacity: 1; }
         }
         
         input[type="range"]::-webkit-slider-thumb {
           -webkit-appearance: none;
-          appearance: none;
-          width: 14px;
-          height: 14px;
-          background: var(--bs-gradient-audio-player);
+          width: 12px;
+          height: 12px;
+          background: var(--bs-primary);
           border-radius: 50%;
           cursor: pointer;
-          box-shadow: 0 2px 4px rgba(126, 103, 254, 0.3);
+          box-shadow: 0 2px 4px rgba(var(--bs-primary-rgb), 0.3);
         }
         
         input[type="range"]::-moz-range-thumb {
-          width: 14px;
-          height: 14px;
-          background: var(--bs-gradient-audio-player);
+          width: 12px;
+          height: 12px;
+          background: var(--bs-primary);
           border-radius: 50%;
           cursor: pointer;
           border: none;
-          box-shadow: 0 2px 4px rgba(126, 103, 254, 0.3);
+          box-shadow: 0 2px 4px rgba(var(--bs-primary-rgb), 0.3);
         }
       `}</style>
     </div>
@@ -584,4 +484,3 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
 }
 
 export default ModernAudioPlayer
-

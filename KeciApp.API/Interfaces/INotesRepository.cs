@@ -7,7 +7,9 @@ namespace KeciApp.API.Interfaces
         Task<IEnumerable<Notes>> GetAllNotesAsync();
         Task<IEnumerable<Notes>> GetAllNotesByUserIdAsync(int userId);
         Task<IEnumerable<Notes>> GetAllNotesByEpisodeIdAsync(int episodeId);
+        Task<IEnumerable<Notes>> GetAllNotesByArticleIdAsync(int articleId);
         Task<Notes?> GetNoteAsync(int userId, int? episodeId);
+        Task<Notes?> GetNoteByArticleAsync(int userId, int articleId);
         Task<Notes> AddNoteAsync(Notes note);
         Task<Notes> UpdateNoteAsync(Notes note);
         Task RemoveNoteAsync(Notes note);

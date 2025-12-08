@@ -11,6 +11,8 @@ const NOTES_ENDPOINTS = {
   BY_USER: (userId: number) => `${NOTES_ENDPOINT}/notes/user/${userId}`,
   BY_EPISODE: (episodeId: number) => `${NOTES_ENDPOINT}/notes/episode/${episodeId}`,
   BY_USER_AND_EPISODE: (userId: number, episodeId: number) => `${NOTES_ENDPOINT}/notes/user/${userId}/episode/${episodeId}`,
+  BY_ARTICLE: (articleId: number) => `${NOTES_ENDPOINT}/notes/article/${articleId}`,
+  BY_USER_AND_ARTICLE: (userId: number, articleId: number) => `${NOTES_ENDPOINT}/notes/user/${userId}/article/${articleId}`,
 } as const
 
 export interface AddNoteRequest {
@@ -56,6 +58,19 @@ export const notesService = {
   async getNoteByUserAndEpisode(userId: number, episodeId: number): Promise<Note | null> {
     try {
       return await api.get<Note>(NOTES_ENDPOINTS.BY_USER_AND_EPISODE(userId, episodeId))
+    } catch (error: unknown) {
+      // swallow 404
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((error as any)?.response?.status === 404) return null
+      throw error
+    }
+  },
+  async getNotesByArticle(articleId: number): Promise<Note[]> {
+    return await api.get<Note[]>(NOTES_ENDPOINTS.BY_ARTICLE(articleId))
+  },
+  async getNoteByUserAndArticle(userId: number, articleId: number): Promise<Note | null> {
+    try {
+      return await api.get<Note>(NOTES_ENDPOINTS.BY_USER_AND_ARTICLE(userId, articleId))
     } catch (error: unknown) {
       // swallow 404
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

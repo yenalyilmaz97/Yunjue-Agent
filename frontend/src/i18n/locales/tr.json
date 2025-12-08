@@ -38,7 +38,7 @@
     "id": "ID"
   },
   "pages": {
-    "dashboard": "Dashboard",
+    "dashboard": "Ana Sayfa",
     "podcasts": "Podcastler",
     "articles": "Makaleler",
     "users": "Kullanıcılar",
@@ -570,7 +570,7 @@
   },
   "sidebar": {
     "menu...": "MENÜ",
-    "dashboard": "Dashboard",
+    "dashboard": "Ana Sayfa",
     "daily": "Günlük",
     "dailycontent": "Günlük İçerik",
     "aphorisms": "Aforizmalar",
