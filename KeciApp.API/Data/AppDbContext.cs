@@ -241,6 +241,24 @@ public class AppDbContext : DbContext
             entity.Property(e => e.UserId).IsRequired();
             entity.Property(e => e.isCompleted).IsRequired();
             entity.Property(e => e.CompleteTime).IsRequired();
+
+            // Unique constraints to prevent duplicate progress records
+            // Using partial unique indexes for nullable columns (PostgreSQL syntax)
+            entity.HasIndex(e => new { e.UserId, e.WeekId })
+                .IsUnique()
+                .HasFilter("\"WeekId\" IS NOT NULL");
+            
+            entity.HasIndex(e => new { e.UserId, e.ArticleId })
+                .IsUnique()
+                .HasFilter("\"ArticleId\" IS NOT NULL");
+            
+            entity.HasIndex(e => new { e.UserId, e.DailyContentId })
+                .IsUnique()
+                .HasFilter("\"DailyContentId\" IS NOT NULL");
+            
+            entity.HasIndex(e => new { e.UserId, e.EpisodeId })
+                .IsUnique()
+                .HasFilter("\"EpisodeId\" IS NOT NULL");
         });
 
         // Relationships configuration
@@ -259,6 +277,12 @@ public class AppDbContext : DbContext
             .HasOne(u => u.WeeklyContent)
             .WithMany()
             .HasForeignKey(u => u.WeeklyContentId);
+
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.DailyContent)
+            .WithMany()
+            .HasForeignKey(u => u.DailyContentId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<User>()
             .HasMany(u => u.Notes)
@@ -382,6 +406,12 @@ public class AppDbContext : DbContext
             .HasOne(up => up.Article)
             .WithMany()
             .HasForeignKey(up => up.ArticleId);
+
+        modelBuilder.Entity<UserProgress>()
+            .HasOne(up => up.DailyContent)
+            .WithMany()
+            .HasForeignKey(up => up.DailyContentId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<UserProgress>()
             .HasOne(up => up.PodcastEpisodes)

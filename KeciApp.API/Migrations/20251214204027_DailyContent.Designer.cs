@@ -3,6 +3,7 @@ using System;
 using KeciApp.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace KeciApp.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251214204027_DailyContent")]
+    partial class DailyContent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -552,23 +555,9 @@ namespace KeciApp.API.Migrations
 
                     b.HasIndex("EpisodeId");
 
+                    b.HasIndex("UserId");
+
                     b.HasIndex("WeekId");
-
-                    b.HasIndex("UserId", "ArticleId")
-                        .IsUnique()
-                        .HasFilter("\"ArticleId\" IS NOT NULL");
-
-                    b.HasIndex("UserId", "DailyContentId")
-                        .IsUnique()
-                        .HasFilter("\"DailyContentId\" IS NOT NULL");
-
-                    b.HasIndex("UserId", "EpisodeId")
-                        .IsUnique()
-                        .HasFilter("\"EpisodeId\" IS NOT NULL");
-
-                    b.HasIndex("UserId", "WeekId")
-                        .IsUnique()
-                        .HasFilter("\"WeekId\" IS NOT NULL");
 
                     b.ToTable("UserProgress", (string)null);
                 });

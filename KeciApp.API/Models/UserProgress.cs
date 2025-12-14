@@ -11,6 +11,7 @@ public class UserProgress
 
     [ForeignKey("WeeklyContent")] public int? WeekId { get; set; }
     [ForeignKey("Article")] public int? ArticleId { get; set; }
+    [ForeignKey("DailyContent")] public int? DailyContentId { get; set; }
 
     [ForeignKey("PodcastEpisodes")] public int? EpisodeId { get; set; }
     public bool isCompleted { get; set; }
@@ -20,6 +21,7 @@ public class UserProgress
     public User User { get; set; }
     public WeeklyContent? WeeklyContent { get; set; }
     public Article? Article { get; set; }
+    public DailyContent? DailyContent { get; set; }
     public PodcastEpisodes? PodcastEpisodes { get; set; }
 
 }

@@ -1,6 +1,6 @@
 import PageTitle from '@/components/PageTitle'
-import { useEffect, useState } from 'react'
-import { contentService, notesService, questionsService } from '@/services'
+import { useEffect, useState, useRef } from 'react'
+import { contentService, notesService, questionsService, userProgressService } from '@/services'
 import type { Article, Question, Note } from '@/types/keci'
 import DOMPurify from 'dompurify'
 import { useParams } from 'react-router-dom'
@@ -27,6 +27,7 @@ const ArticleDetailPage = () => {
   const [questionText, setQuestionText] = useState('')
   const [existingQuestion, setExistingQuestion] = useState<Question | null>(null)
   const [questionLoading, setQuestionLoading] = useState(false)
+  const completedRef = useRef(false)
 
   useEffect(() => {
     if (!slugOrId) {
@@ -65,6 +66,29 @@ const ArticleDetailPage = () => {
     
     loadArticle()
   }, [slugOrId])
+
+  // Mark article as completed when opened
+  useEffect(() => {
+    if (article && user?.id && !completedRef.current) {
+      const userId = parseInt(user.id)
+      completedRef.current = true
+      userProgressService
+        .createOrUpdateUserProgress({
+          userId,
+          articleId: article.articleId,
+          isCompleted: true,
+        })
+        .then(() => {
+          console.log(`Article ${article.articleId} marked as completed`)
+        })
+        .catch((error) => {
+          console.error('Error marking article as completed:', error)
+          if (error?.response?.status !== 400) {
+            completedRef.current = false
+          }
+        })
+    }
+  }, [article, user])
 
   // Load existing note and question when article changes
   useEffect(() => {

@@ -496,7 +496,12 @@ const PodcastsPage = () => {
                 {/* Content Renderer */}
                 <div className="mb-3">
                   {contentType === 'video' && (
-                    <VideoPlayer src={getVideoUrl(currentEpisode) || ''} episodeId={currentEpisode.episodesId} controlsList="nodownload" />
+                    <VideoPlayer 
+                      src={getVideoUrl(currentEpisode) || ''} 
+                      episodeId={currentEpisode.episodesId} 
+                      userId={user?.id ? parseInt(user.id) : undefined}
+                      controlsList="nodownload" 
+                    />
                   )}
                   {contentType === 'audio' && (
                     <ModernAudioPlayer
@@ -510,7 +515,12 @@ const PodcastsPage = () => {
                     <PDFViewer pdfUrl={getPdfUrl(currentEpisode) || ''} title={currentEpisode.title} />
                   )}
                   {contentType === 'gallery' && (
-                    <GalleryViewer images={getGalleryImages(currentEpisode)} title={currentEpisode.title} />
+                    <GalleryViewer 
+                      images={getGalleryImages(currentEpisode)} 
+                      title={currentEpisode.title}
+                      episodeId={currentEpisode.episodesId}
+                      userId={user?.id ? parseInt(user.id) : undefined}
+                    />
                   )}
                   {contentType === 'none' && (
                     <div className="text-center py-4 text-muted">

@@ -39,3 +39,10 @@ public class DailyContentResponseDTO
     public AphorismResponseDTO? Aphorism { get; set; }
 }
 
+public class BulkUpdateDailyContentResponseDTO
+{
+    public int UpdatedCount { get; set; }
+    public int SkippedCount { get; set; }
+    public string Message { get; set; } = string.Empty;
+}
+

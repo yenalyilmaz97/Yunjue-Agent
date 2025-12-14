@@ -51,6 +51,9 @@ export const dailyContentService = {
   async deleteDailyContent(dailyContentId: number): Promise<DailyContentResponseDTO> {
     return api.delete<DailyContentResponseDTO>(`${DAILY_CONTENT_ENDPOINT}/daily-content/${dailyContentId}`)
   },
+  async incrementDailyContentForAllUsers(): Promise<{ updatedCount: number; message: string }> {
+    return api.post<{ updatedCount: number; message: string }>(`${DAILY_CONTENT_ENDPOINT}/increment-daily-content`)
+  },
 }
 
 export default dailyContentService

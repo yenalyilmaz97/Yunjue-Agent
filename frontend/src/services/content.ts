@@ -153,10 +153,16 @@ export const contentService = {
 		return api.post<Article>(`${ARTICLE_ENDPOINT}/articles`, payload)
 	},
 
-	async createArticleWithFile(formData: FormData): Promise<Article> {
+	async createArticleWithFile(formData: FormData, onProgress?: (progress: number) => void): Promise<Article> {
+		if (onProgress) {
+			return api.postWithProgress<Article>(`${ARTICLE_ENDPOINT}/articles`, formData, onProgress, {
+				headers: { 'Content-Type': 'multipart/form-data' },
+				timeout: 600000, // 10 minutes for large file uploads (2GB)
+			})
+		}
 		return api.post<Article>(`${ARTICLE_ENDPOINT}/articles`, formData, {
 			headers: { 'Content-Type': 'multipart/form-data' },
-			timeout: 300000, // 5 minutes for large file uploads
+			timeout: 600000, // 10 minutes for large file uploads (2GB)
 		})
 	},
 

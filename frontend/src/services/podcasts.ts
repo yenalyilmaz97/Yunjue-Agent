@@ -55,20 +55,30 @@ export const podcastService = {
     return api.post<PodcastEpisode>(`${EPISODES_ENDPOINT}/episodes`, episodeData)
   },
 
-  async createEpisodeWithFiles(formData: FormData): Promise<PodcastEpisode> {
+  async createEpisodeWithFiles(formData: FormData, onProgress?: (progress: number) => void): Promise<PodcastEpisode> {
     // Content-Type will be automatically set by axios interceptor for FormData
+    if (onProgress) {
+      return api.postWithProgress<PodcastEpisode>(`${EPISODES_ENDPOINT}/episodes`, formData, onProgress, {
+        timeout: 600000, // 10 minutes for large file uploads (2GB)
+      })
+    }
     return api.post<PodcastEpisode>(`${EPISODES_ENDPOINT}/episodes`, formData, {
-      timeout: 300000, // 5 minutes for large file uploads
+      timeout: 600000, // 10 minutes for large file uploads (2GB)
     })
   },
   async updateEpisode(id: number, episodeData: Omit<EditPodcastEpisodeRequest, 'episodeId'>): Promise<PodcastEpisode> {
     const updateData: EditPodcastEpisodeRequest = { episodeId: id, ...episodeData }
     return api.put<PodcastEpisode>(`${EPISODES_ENDPOINT}/episodes`, updateData)
   },
-  async updateEpisodeWithFiles(formData: FormData): Promise<PodcastEpisode> {
+  async updateEpisodeWithFiles(formData: FormData, onProgress?: (progress: number) => void): Promise<PodcastEpisode> {
     // Content-Type will be automatically set by axios interceptor for FormData
+    if (onProgress) {
+      return api.putWithProgress<PodcastEpisode>(`${EPISODES_ENDPOINT}/episodes/with-files`, formData, onProgress, {
+        timeout: 600000, // 10 minutes for large file uploads (2GB)
+      })
+    }
     return api.put<PodcastEpisode>(`${EPISODES_ENDPOINT}/episodes/with-files`, formData, {
-      timeout: 300000, // 5 minutes for large file uploads
+      timeout: 600000, // 10 minutes for large file uploads (2GB)
     })
   },
   async deleteEpisode(id: number): Promise<boolean> {

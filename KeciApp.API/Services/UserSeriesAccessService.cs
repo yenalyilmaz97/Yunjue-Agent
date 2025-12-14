@@ -12,6 +12,7 @@ public class UserSeriesAccessService : IUserSeriesAccessService
     private readonly IPodcastSeriesRepository _podcastSeriesRepository;
     private readonly IUserProgressRepository _userProgressRepository;
     private readonly IPodcastEpisodesRepository _podcastEpisodesRepository;
+    private readonly IWeeklyRepository _weeklyRepository;
     private readonly IMapper _mapper;
 
     public UserSeriesAccessService(
@@ -20,6 +21,7 @@ public class UserSeriesAccessService : IUserSeriesAccessService
         IPodcastSeriesRepository podcastSeriesRepository,
         IUserProgressRepository userProgressRepository,
         IPodcastEpisodesRepository podcastEpisodesRepository,
+        IWeeklyRepository weeklyRepository,
         IMapper mapper)
     {
         _userSeriesAccessRepository = userSeriesAccessRepository;
@@ -27,6 +29,7 @@ public class UserSeriesAccessService : IUserSeriesAccessService
         _podcastSeriesRepository = podcastSeriesRepository;
         _userProgressRepository = userProgressRepository;
         _podcastEpisodesRepository = podcastEpisodesRepository;
+        _weeklyRepository = weeklyRepository;
         _mapper = mapper;
     }
 
@@ -245,6 +248,9 @@ public class UserSeriesAccessService : IUserSeriesAccessService
         // Step 3: For each user-series combination, check if we should increment
         int updatedCount = 0;
         int skippedCount = 0;
+        
+        // Track which users had their sequence incremented (for weekly content update)
+        var usersWithSequenceIncrement = new HashSet<int>();
 
         foreach (var kvp in completedEpisodesByUserSeries)
         {
@@ -267,10 +273,50 @@ public class UserSeriesAccessService : IUserSeriesAccessService
                 userAccess.CurrentAccessibleSequence++;
                 await _userSeriesAccessRepository.UpdateUserSeriesAccessAsync(userAccess);
                 updatedCount++;
+                
+                // Track that this user had their sequence incremented (for weekly content update)
+                usersWithSequenceIncrement.Add(userId);
             }
             else
             {
                 skippedCount++;
+            }
+        }
+
+        // Step 4: For users who had sequence increments, update their weekly content
+        int weeklyContentUpdatedCount = 0;
+        if (usersWithSequenceIncrement.Any())
+        {
+            var allWeeklyContents = await _weeklyRepository.GetAllWeeklyContentAsync();
+            var maxWeekOrder = allWeeklyContents.Any() ? allWeeklyContents.Max(wc => wc.WeekOrder) : 0;
+
+            if (maxWeekOrder > 0)
+            {
+                foreach (var userId in usersWithSequenceIncrement)
+                {
+                    var user = await _userRepository.GetUserByIdAsync(userId);
+                    if (user != null && user.WeeklyContentId > 0)
+                    {
+                        var currentWeeklyContent = await _weeklyRepository.GetWeeklyContentByIdAsync(user.WeeklyContentId);
+                        if (currentWeeklyContent != null)
+                        {
+                            var nextWeekOrder = currentWeeklyContent.WeekOrder + 1;
+                            if (nextWeekOrder > maxWeekOrder)
+                            {
+                                nextWeekOrder = 1; // Cycle back to first week
+                            }
+                            
+                            var nextWeeklyContent = allWeeklyContents.FirstOrDefault(wc => wc.WeekOrder == nextWeekOrder);
+
+                            if (nextWeeklyContent != null)
+                            {
+                                user.WeeklyContentId = nextWeeklyContent.WeekId;
+                                await _userRepository.UpdateUserAsync(user);
+                                weeklyContentUpdatedCount++;
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -280,7 +326,7 @@ public class UserSeriesAccessService : IUserSeriesAccessService
             TotalSeries = completedEpisodesByUserSeries.Keys.Select(k => k.SeriesId).Distinct().Count(),
             GrantedCount = updatedCount,
             SkippedCount = skippedCount,
-            Message = $"Successfully incremented accessible sequence for {updatedCount} user-series combinations. Skipped {skippedCount} records."
+            Message = $"Successfully incremented accessible sequence for {updatedCount} user-series combinations. Skipped {skippedCount} records. Updated weekly content for {weeklyContentUpdatedCount} users."
         };
     }
 

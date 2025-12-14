@@ -1,5 +1,6 @@
 import { api } from '@/lib/axios'
 import type { LoginRequest, RegisterRequest, AuthResponse } from '@/types/keci'
+import { saveToken, removeToken, updateLastActivity, isTokenValid } from '@/utils/tokenManager'
 
 const AUTH_ENDPOINTS = {
   LOGIN: '/Auth/login',
@@ -11,7 +12,7 @@ export const authService = {
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     const response = await api.post<AuthResponse>(AUTH_ENDPOINTS.LOGIN, credentials)
     if (response.success && response.token) {
-      localStorage.setItem('authToken', response.token)
+      saveToken(response.token)
       localStorage.setItem('user', JSON.stringify(response.user))
       localStorage.setItem('userRoles', JSON.stringify(response.roles))
     }
@@ -20,17 +21,32 @@ export const authService = {
   async register(userData: RegisterRequest): Promise<AuthResponse> {
     const response = await api.post<AuthResponse>(AUTH_ENDPOINTS.REGISTER, userData)
     if (response.success && response.token) {
-      localStorage.setItem('authToken', response.token)
+      saveToken(response.token)
       localStorage.setItem('user', JSON.stringify(response.user))
       localStorage.setItem('userRoles', JSON.stringify(response.roles))
     }
     return response
   },
   async validateToken(): Promise<AuthResponse> {
-    return await api.post<AuthResponse>(AUTH_ENDPOINTS.VALIDATE_TOKEN)
+    // Check if token is valid before making request
+    if (!isTokenValid()) {
+      return {
+        success: false,
+        message: 'Token is invalid or inactive',
+        token: '',
+        user: undefined,
+        roles: [],
+      }
+    }
+    
+    const response = await api.post<AuthResponse>(AUTH_ENDPOINTS.VALIDATE_TOKEN)
+    if (response.success) {
+      updateLastActivity()
+    }
+    return response
   },
   logout(): void {
-    localStorage.removeItem('authToken')
+    removeToken()
     localStorage.removeItem('user')
     localStorage.removeItem('userRoles')
   },

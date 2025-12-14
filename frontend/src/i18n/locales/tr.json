@@ -9,6 +9,7 @@
     "submit": "Gönder",
     "loading": "Yükleniyor...",
     "saving": "Kaydediliyor...",
+    "uploading": "Yükleniyor...",
     "search": "Ara",
     "filter": "Filtrele",
     "reset": "Sıfırla",
@@ -337,6 +338,10 @@
       "nA": "N/A"
     },
     "weeklyAssignment": {
+      "incrementDaily": "Günlük İçerik Güncelle",
+      "incrementWeekly": "Haftalık İçerik Güncelle",
+      "incrementDailyConfirm": "Günlük içerik sayısını güncellemek istediğinizden emin misiniz? Tüm kullanıcılar kontrol edilecek ve progress kayıtlarına göre güncellenecektir.",
+      "incrementWeeklyConfirm": "Haftalık içerik sayısını güncellemek istediğinizden emin misiniz? Tüm kullanıcılar güncellenecektir (progress kontrolü yapılmayacak).",
       "title": "Haftalık Atama",
       "list": "Kullanıcı Haftalık Atamaları",
       "edit": "Haftalık Atama Düzenle",

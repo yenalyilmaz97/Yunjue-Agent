@@ -2,8 +2,8 @@ import axios from 'axios'
 import type { AxiosInstance, AxiosRequestConfig } from 'axios'
 
 export const API_CONFIG = {
-  BASE_URL: (import.meta as any).env?.VITE_API_BASE_URL || 'https://app.keciyibesle.com/api',
-  //BASE_URL: (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5294/api',
+  //BASE_URL: (import.meta as any).env?.VITE_API_BASE_URL || 'https://app.keciyibesle.com/api',
+  BASE_URL: (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5294/api',
   TIMEOUT: 10000,
   ENDPOINTS: {
     AUTH: '/Auth',
@@ -49,7 +49,24 @@ const createAxiosInstance = (): AxiosInstance => {
     (config) => {
       const token = localStorage.getItem('authToken')
       if (token && config.headers) {
+        // Check if token is still valid (not inactive)
+        const lastActivity = localStorage.getItem('lastActivity')
+        if (lastActivity) {
+          const daysSinceLastActivity = (Date.now() - new Date(lastActivity).getTime()) / (1000 * 60 * 60 * 24)
+          if (daysSinceLastActivity >= 2) {
+            // Token inactive for 2+ days, remove it
+            localStorage.removeItem('authToken')
+            localStorage.removeItem('lastActivity')
+            if (!window.location.pathname.includes('/auth/sign-in')) {
+              window.location.href = '/auth/sign-in'
+            }
+            return Promise.reject(new Error('Token inactive'))
+          }
+        }
+        
         config.headers.Authorization = `Bearer ${token}`
+        // Update last activity on each request
+        localStorage.setItem('lastActivity', new Date().toISOString())
       }
       // If data is FormData, remove Content-Type to let browser set it with boundary
       if (config.data instanceof FormData) {
@@ -67,8 +84,8 @@ const createAxiosInstance = (): AxiosInstance => {
         // Don't redirect if already on login page
         const isLoginPage = window.location.pathname.includes('/auth/sign-in')
         if (!isLoginPage) {
-          localStorage.removeItem('authToken')
-          window.location.href = '/auth/sign-in'
+        localStorage.removeItem('authToken')
+        window.location.href = '/auth/sign-in'
         }
       }
       return Promise.reject(error)
@@ -91,6 +108,30 @@ export const api = {
   put: <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => apiRequest<T>({ method: 'PUT', url, data, ...config }),
   delete: <T>(url: string, config?: AxiosRequestConfig) => apiRequest<T>({ method: 'DELETE', url, ...config }),
   patch: <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => apiRequest<T>({ method: 'PATCH', url, data, ...config }),
+  // Post with progress tracking
+  postWithProgress: <T>(url: string, data?: unknown, onProgress?: (progress: number) => void, config?: AxiosRequestConfig) => {
+    return apiClient.post<T>(url, data, {
+      ...config,
+      onUploadProgress: (progressEvent) => {
+        if (progressEvent.total && onProgress) {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          onProgress(percentCompleted)
+        }
+      },
+    }).then(response => response.data as T)
+  },
+  // Put with progress tracking
+  putWithProgress: <T>(url: string, data?: unknown, onProgress?: (progress: number) => void, config?: AxiosRequestConfig) => {
+    return apiClient.put<T>(url, data, {
+      ...config,
+      onUploadProgress: (progressEvent) => {
+        if (progressEvent.total && onProgress) {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          onProgress(percentCompleted)
+        }
+      },
+    }).then(response => response.data as T)
+  },
 }
 
 
