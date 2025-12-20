@@ -7,10 +7,12 @@ import { useEffect, useState } from 'react'
 import { userService } from '@/services'
 import type { User } from '@/types/keci'
 import { Icon } from '@iconify/react'
+import { useI18n } from '@/i18n/context'
 
 const ProfileDropdown = () => {
   const { removeSession, user: authUser } = useAuthContext()
   const { theme, changeTheme } = useLayoutContext()
+  const { t } = useI18n()
   const [user, setUser] = useState<User | null>(null)
   const isDark = theme === 'dark'
 
@@ -59,11 +61,11 @@ const ProfileDropdown = () => {
       </DropdownToggle>
       <DropdownMenu className=" dropdown-menu-end">
         <DropdownHeader>
-          {user ? `${user.firstName} ${user.lastName}` : 'Welcome!'}
+          {user ? `${user.firstName} ${user.lastName}` : t('profile.welcome')}
         </DropdownHeader>
         <DropdownItem as={Link} to="/profile">
           <IconifyIcon icon="solar:user-outline" className="align-middle me-2 fs-18" />
-          <span className="align-middle">My Account</span>
+          <span className="align-middle">{t('profile.myAccount')}</span>
         </DropdownItem>
         <DropdownItem 
           onClick={() => changeTheme(isDark ? 'light' : 'dark')}
@@ -74,25 +76,25 @@ const ProfileDropdown = () => {
           ) : (
             <IconifyIcon icon="ri:moon-line" className="align-middle me-2 fs-18" />
           )}
-          <span className="align-middle">{isDark ? 'Light Mode' : 'Dark Mode'}</span>
+          <span className="align-middle">{isDark ? t('profile.lightMode') : t('profile.darkMode')}</span>
         </DropdownItem>
-        <DropdownItem href="">
+        {/* <DropdownItem href="">
           <IconifyIcon icon="solar:wallet-outline" className="align-middle me-2 fs-18" />
-          <span className="align-middle">Pricing</span>
+          <span className="align-middle">{t('profile.pricing')}</span>
         </DropdownItem>
         <DropdownItem href="">
           <IconifyIcon icon="solar:help-outline" className="align-middle me-2 fs-18" />
-          <span className="align-middle">Help</span>
+          <span className="align-middle">{t('profile.help')}</span>
         </DropdownItem>
         <DropdownItem href="/auth/lock-screen">
           <IconifyIcon icon="solar:lock-keyhole-outline" className="align-middle me-2 fs-18" />
-          <span className="align-middle">Lock screen</span>
-        </DropdownItem>
+          <span className="align-middle">{t('profile.lockScreen')}</span>
+        </DropdownItem> */}
         <div className="dropdown-divider my-1" />
         <DropdownItem as={Link} className=" text-danger" to="/auth/sign-in">
           <IconifyIcon icon="solar:logout-3-outline" className="align-middle me-2 fs-18" />
           <span className="align-middle" onClick={removeSession}>
-            Logout
+            {t('profile.logout')}
           </span>
         </DropdownItem>
       </DropdownMenu>

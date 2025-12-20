@@ -40,7 +40,7 @@
   },
   "pages": {
     "dashboard": "Ana Sayfa",
-    "podcasts": "Podcastler",
+    "podcasts": "İçerikler",
     "articles": "Makaleler",
     "users": "Kullanıcılar",
     "questions": "Sorular",
@@ -541,7 +541,15 @@
     "newPassword": "Yeni Şifre",
     "confirmPassword": "Şifre Onayı",
     "updateProfile": "Profili Güncelle",
-    "updatePassword": "Şifreyi Güncelle"
+    "updatePassword": "Şifreyi Güncelle",
+    "welcome": "Hoş Geldiniz",
+    "myAccount": "Hesabım",
+    "lightMode": "Açık Tema",
+    "darkMode": "Koyu Tema",
+    "pricing": "Fiyatlandırma",
+    "help": "Yardım",
+    "lockScreen": "Ekranı Kilitle",
+    "logout": "Çıkış Yap"
   },
   "favorites": {
     "title": "Favoriler",
@@ -588,7 +596,7 @@
     "weeklyquestions": "Haftalık Sorular",
     "content": "İçerik",
     "articles": "Makaleler",
-    "podcasts": "Podcastler",
+    "podcasts": "İçerikler",
     "favorites": "Favoriler",
     "notes": "Notlar",
     "questions": "Sorular",

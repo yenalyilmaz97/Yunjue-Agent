@@ -171,7 +171,7 @@ const QuestionsPage = () => {
             <CardBody className="p-3">
               <h6 className="mb-3 fw-semibold d-flex align-items-center gap-2" style={{ fontSize: '0.9rem' }}>
                 <Icon icon="mingcute:question-line" style={{ color: 'var(--bs-primary)' }} />
-                Podcast Serileri
+                İçerik Serileri
               </h6>
               {loading ? (
                 <div className="text-center py-4">

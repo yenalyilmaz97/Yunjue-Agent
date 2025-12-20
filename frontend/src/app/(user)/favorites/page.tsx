@@ -18,7 +18,7 @@ interface CategoryInfo {
 
 const CATEGORIES: CategoryInfo[] = [
   { key: 'all', label: 'Tümü', icon: 'mingcute:star-line', type: undefined },
-  { key: 'episode', label: 'Podcastler', icon: 'mingcute:headphone-line', type: 1 },
+  { key: 'episode', label: 'İçerikler', icon: 'mingcute:headphone-line', type: 1 },
   { key: 'article', label: 'Makaleler', icon: 'mingcute:book-3-line', type: 2 },
   { key: 'affirmation', label: 'Olumlamalar', icon: 'mingcute:heart-line', type: 3 },
   { key: 'aphorism', label: 'Aforizmalar', icon: 'mingcute:quote-line', type: 4 },
