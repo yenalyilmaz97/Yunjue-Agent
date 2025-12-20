@@ -8,10 +8,8 @@ public class CreatePodcastEpisodeRequest
     public int SeriesId { get; set; }
 
     [Required]
-    [StringLength(50, ErrorMessage = "Başlık en fazla 50 karakter olabilir")]
     public string Title { get; set; }
 
-    [StringLength(1000, ErrorMessage = "Açıklama en fazla 1000 karakter olabilir")]
     public string? Description { get; set; }
 
     [Required]
@@ -31,10 +29,8 @@ public class EditPodcastEpisodeRequest
     public int SeriesId { get; set; }
 
     [Required]
-    [StringLength(50, ErrorMessage = "Başlık en fazla 50 karakter olabilir")]
     public string Title { get; set; }
 
-    [StringLength(1000, ErrorMessage = "Açıklama en fazla 1000 karakter olabilir")]
     public string? Description { get; set; }
 
     [Required]
@@ -74,10 +70,8 @@ public class CreatePodcastEpisodeWithFilesRequest
     public int SeriesId { get; set; }
 
     [Required]
-    [StringLength(50, ErrorMessage = "Başlık en fazla 50 karakter olabilir")]
     public string Title { get; set; }
 
-    [StringLength(1000, ErrorMessage = "Açıklama en fazla 1000 karakter olabilir")]
     public string? Description { get; set; }
 
     // File uploads (optional if URLs are provided)
@@ -106,10 +100,8 @@ public class EditPodcastEpisodeWithFilesRequest
     public int SeriesId { get; set; }
 
     [Required]
-    [StringLength(50, ErrorMessage = "Başlık en fazla 50 karakter olabilir")]
     public string Title { get; set; }
 
-    [StringLength(1000, ErrorMessage = "Açıklama en fazla 1000 karakter olabilir")]
     public string? Description { get; set; }
 
     // File uploads (optional - if not provided, existing content will be kept)

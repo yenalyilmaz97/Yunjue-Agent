@@ -72,7 +72,16 @@ const page = () => {
             }}
             columns={[
               { key: 'order', header: t('weeklyContent.affirmations.order'), width: '80px', sortable: true },
-              { key: 'affirmationText', header: t('weeklyContent.affirmations.titleColumn'), sortable: true },
+              { 
+                key: 'affirmationText', 
+                header: t('weeklyContent.affirmations.titleColumn'), 
+                sortable: true,
+                render: (row) => (
+                  <div style={{ whiteSpace: 'pre-line' }}>
+                    {(row as Affirmation).affirmationText?.trimEnd()}
+                  </div>
+                )
+              },
             ]}
           />
         </CardBody>

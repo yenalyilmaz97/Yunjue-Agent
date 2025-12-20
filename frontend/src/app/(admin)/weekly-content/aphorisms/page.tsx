@@ -72,7 +72,16 @@ const page = () => {
             }}
             columns={[
               { key: 'order', header: t('weeklyContent.aphorisms.order'), width: '80px', sortable: true },
-              { key: 'aphorismText', header: t('weeklyContent.aphorisms.titleColumn'), sortable: true },
+              { 
+                key: 'aphorismText', 
+                header: t('weeklyContent.aphorisms.titleColumn'), 
+                sortable: true,
+                render: (row) => (
+                  <div style={{ whiteSpace: 'pre-line' }}>
+                    {(row as Aphorism).aphorismText?.trimEnd()}
+                  </div>
+                )
+              },
             ]}
           />
         </CardBody>

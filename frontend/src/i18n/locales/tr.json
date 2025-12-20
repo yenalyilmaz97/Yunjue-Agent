@@ -581,6 +581,18 @@
     "error": "PDF yüklenemedi",
     "openInNewTab": "Yeni Sekmede Aç"
   },
+  "auth": {
+    "welcomeBack": "Hoş Geldiniz!",
+    "signInToContinue": "Devam etmek için hesabınıza giriş yapın",
+    "emailAddress": "E-posta Adresi",
+    "enterEmail": "E-posta adresinizi giriniz",
+    "password": "Şifre",
+    "enterPassword": "Şifrenizi giriniz",
+    "rememberMe": "Beni Hatırla",
+    "signIn": "Giriş Yap",
+    "signingIn": "Giriş yapılıyor...",
+    "forgotPassword": "Şifremi Unuttum"
+  },
   "sidebar": {
     "menu...": "MENÜ",
     "dashboard": "Ana Sayfa",

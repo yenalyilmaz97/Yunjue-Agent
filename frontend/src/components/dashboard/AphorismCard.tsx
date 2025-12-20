@@ -77,8 +77,8 @@ const AphorismCard = ({ aphorism, isInSlider = false }: AphorismCardProps) => {
         <div className="mb-2">
           <i className="bx bx-quote-left" style={{ fontSize: '2rem', opacity: 0.7 }}></i>
         </div>
-        <h3 className="mb-3 fw-bold" style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)' }}>
-          {aphorism.aphorismText}
+        <h3 className="mb-3 fw-bold" style={{ fontSize: 'clamp(1.25rem, 4vw, 1.75rem)', whiteSpace: 'pre-line' }}>
+          {aphorism.aphorismText?.trimEnd()}
         </h3>
         <div className="mt-2">
           <i className="bx bx-quote-right" style={{ fontSize: '2rem', opacity: 0.7 }}></i>
@@ -150,11 +150,11 @@ const AphorismCard = ({ aphorism, isInSlider = false }: AphorismCardProps) => {
         <div className="d-flex align-items-start mb-3">
           <i className="bx bx-quote-left text-primary" style={{ fontSize: '1.5rem' }}></i>
         </div>
-        <h5 className="mb-3 fw-bold">{aphorism.aphorismText}</h5>
+        <h5 className="fw-bold" style={{ whiteSpace: 'pre-line' }}>{aphorism.aphorismText?.trimEnd()}</h5>
         <div className="d-flex justify-content-end">
           <i className="bx bx-quote-right text-primary" style={{ fontSize: '1.5rem' }}></i>
         </div>
-        <p className="text-muted small mb-0 mt-3">Günlük Aforizma</p>
+        <p className="text-muted small mb-0">Günlük Aforizma</p>
       </CardBody>
     </Card>
   )

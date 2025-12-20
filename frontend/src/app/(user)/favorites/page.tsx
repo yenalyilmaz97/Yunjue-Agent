@@ -249,8 +249,8 @@ const FavoritesPage = () => {
                           )}
                           {/* Affirmation ve Aphorism için metin göster */}
                           {(favorite.favoriteType === 3 || favorite.favoriteType === 4) && (
-                            <p className="text-muted small mb-0 mt-1" style={{ fontSize: '0.85rem', lineHeight: '1.4' }}>
-                              {favorite.affirmationText || favorite.aphorismText}
+                            <p className="text-muted small mb-0 mt-1" style={{ fontSize: '0.85rem', lineHeight: '1.4', whiteSpace: 'pre-line' }}>
+                              {(favorite.affirmationText || favorite.aphorismText)?.trimEnd()}
                             </p>
                           )}
                         </div>
