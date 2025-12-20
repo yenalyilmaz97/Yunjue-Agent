@@ -313,23 +313,27 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<PodcastSeries>()
             .HasMany(ps => ps.Episodes)
             .WithOne(pe => pe.PodcastSeries)
-            .HasForeignKey(pe => pe.SeriesId);
+            .HasForeignKey(pe => pe.SeriesId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // PodcastEpisodes relationships
         modelBuilder.Entity<PodcastEpisodes>()
             .HasMany(pe => pe.Questions)
             .WithOne(q => q.Episodes)
-            .HasForeignKey(q => q.EpisodeId);
+            .HasForeignKey(q => q.EpisodeId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<PodcastEpisodes>()
             .HasMany(pe => pe.Notes)
             .WithOne(n => n.PodcastEpisode)
-            .HasForeignKey(n => n.EpisodeId);
+            .HasForeignKey(n => n.EpisodeId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<PodcastEpisodes>()
             .HasMany(pe => pe.Favorites)
             .WithOne(f => f.PodcastEpisode)
-            .HasForeignKey(f => f.EpisodeId);
+            .HasForeignKey(f => f.EpisodeId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // Favorites relationships
         modelBuilder.Entity<Favorites>()
@@ -351,13 +355,15 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Questions>()
             .HasMany(q => q.Answers)
             .WithOne(a => a.Question)
-            .HasForeignKey(a => a.QuestionId);
+            .HasForeignKey(a => a.QuestionId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // UserSeriesAccess relationships
         modelBuilder.Entity<UserSeriesAccess>()
             .HasOne(usa => usa.PodcastSeries)
             .WithMany()
-            .HasForeignKey(usa => usa.SeriesId);
+            .HasForeignKey(usa => usa.SeriesId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // WeeklyContent relationships
         modelBuilder.Entity<WeeklyContent>()
@@ -416,6 +422,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<UserProgress>()
             .HasOne(up => up.PodcastEpisodes)
             .WithMany()
-            .HasForeignKey(up => up.EpisodeId);
+            .HasForeignKey(up => up.EpisodeId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
