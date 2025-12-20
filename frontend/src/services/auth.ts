@@ -11,7 +11,7 @@ const AUTH_ENDPOINTS = {
 export const authService = {
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     const response = await api.post<AuthResponse>(AUTH_ENDPOINTS.LOGIN, credentials)
-    if (response.success && response.token) {
+    if (response.success && response.token && response.user) {
       saveToken(response.token)
       localStorage.setItem('user', JSON.stringify(response.user))
       localStorage.setItem('userRoles', JSON.stringify(response.roles))
@@ -20,7 +20,7 @@ export const authService = {
   },
   async register(userData: RegisterRequest): Promise<AuthResponse> {
     const response = await api.post<AuthResponse>(AUTH_ENDPOINTS.REGISTER, userData)
-    if (response.success && response.token) {
+    if (response.success && response.token && response.user) {
       saveToken(response.token)
       localStorage.setItem('user', JSON.stringify(response.user))
       localStorage.setItem('userRoles', JSON.stringify(response.roles))

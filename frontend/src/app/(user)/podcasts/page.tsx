@@ -500,7 +500,6 @@ const PodcastsPage = () => {
                       src={getVideoUrl(currentEpisode) || ''} 
                       episodeId={currentEpisode.episodesId} 
                       userId={user?.id ? parseInt(user.id) : undefined}
-                      controlsList="nodownload" 
                     />
                   )}
                   {contentType === 'audio' && (

@@ -10,10 +10,9 @@ interface VideoPlayerProps {
   userId?: number
   className?: string
   style?: React.CSSProperties
-  controlsList?: string
 }
 
-const VideoPlayer = ({ src, episodeId, userId, className, style, controlsList }: VideoPlayerProps) => {
+const VideoPlayer = ({ src, episodeId, userId, className, style }: VideoPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const saveProgressIntervalRef = useRef<NodeJS.Timeout | null>(null)
