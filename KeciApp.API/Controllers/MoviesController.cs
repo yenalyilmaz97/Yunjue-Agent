@@ -3,6 +3,8 @@ using KeciApp.API.DTOs;
 using KeciApp.API.Services;
 using KeciApp.API.Attributes;
 using KeciApp.API.Interfaces;
+using Microsoft.AspNetCore.Http;
+using System.Linq;
 
 namespace KeciApp.API.Controllers;
 
@@ -35,13 +37,44 @@ public class MoviesController : ControllerBase
         }
     }
     [HttpPost("movies")]
-    public async Task<ActionResult<MovieResponseDTO>> AddMovie([FromBody] CreateMovieRequest request)
+    [Consumes("multipart/form-data")]
+    public async Task<ActionResult<MovieResponseDTO>> AddMovie([FromForm] CreateMovieRequest request)
     {
         try
         {
+            // Check if request is null
+            if (request == null)
+            {
+                return BadRequest(new { message = "Request is null", modelStateKeys = ModelState.Keys.ToList() });
+            }
+
+            // Log received data for debugging
+            var receivedData = new
+            {
+                movieTitle = request.MovieTitle,
+                hasImageFile = request.ImageFile != null,
+                imageFileName = request.ImageFile?.FileName,
+                imageFileSize = request.ImageFile?.Length
+            };
+
+            // Validate MovieTitle manually
+            if (string.IsNullOrWhiteSpace(request.MovieTitle))
+            {
+                return BadRequest(new { 
+                    message = "MovieTitle is required", 
+                    receivedData,
+                    modelStateErrors = ModelState.Where(x => x.Value?.Errors.Count > 0).ToDictionary(x => x.Key, x => x.Value?.Errors.Select(e => e.ErrorMessage).ToList())
+                });
+            }
+
+            // Check ModelState for validation errors
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                var errors = ModelState
+                    .Where(x => x.Value?.Errors.Count > 0)
+                    .SelectMany(x => x.Value?.Errors.Select(e => new { Field = x.Key, Error = e.ErrorMessage }))
+                    .ToList();
+                return BadRequest(new { message = "Validation failed", errors, receivedData });
             }
 
             var movie = await _moviesService.AddMovieAsync(request);
@@ -50,7 +83,7 @@ public class MoviesController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = ex.Message });
+            return BadRequest(new { message = ex.Message, innerException = ex.InnerException?.Message, stackTrace = ex.StackTrace });
         }
     }
     [HttpPut("movies")]
@@ -103,6 +136,46 @@ public class MoviesController : ControllerBase
         catch (InvalidOperationException ex)
         {
             return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("movies/{movieId}/image")]
+    [Consumes("multipart/form-data")]
+    public async Task<ActionResult<MovieResponseDTO>> UploadMovieImage(int movieId, [FromForm] UploadMovieImageRequest request)
+    {
+        try
+        {
+            if (request.File == null || request.File.Length == 0)
+            {
+                return BadRequest(new { message = "File is required" });
+            }
+
+            // Get movie to get title
+            var movie = await _moviesService.GetMovieByIdAsync(movieId);
+            if (movie == null)
+            {
+                return NotFound(new { message = "Movie not found" });
+            }
+
+            // Upload movie image
+            var fileUploadService = HttpContext.RequestServices.GetRequiredService<IFileUploadService>();
+            string imageUrl = await fileUploadService.UploadMovieImageAsync(request.File, movie.MovieTitle, movieId);
+
+            // Update movie's image URL
+            var updatedMovie = await _moviesService.UpdateMovieImageAsync(movieId, imageUrl);
+            return Ok(updatedMovie);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
         catch (Exception ex)
         {

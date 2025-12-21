@@ -430,7 +430,13 @@
       "enterTitleRequired": "Lütfen film başlığı giriniz",
       "searchPlaceholder": "Film ara...",
       "addNew": "Yeni Ekle",
-      "deleteConfirm": "Bu filmi silmek istediğinize emin misiniz?"
+      "deleteConfirm": "Bu filmi silmek istediğinize emin misiniz?",
+      "imageLabel": "Film Görseli",
+      "uploadImage": "Film görselini buraya sürükleyin veya yüklemek için tıklayın",
+      "uploadImageHelp": "Sadece resim dosyaları yüklenebilir (JPG, PNG, GIF, WEBP). Maksimum dosya boyutu: 5MB",
+      "selectedFile": "Seçilen dosya",
+      "currentImage": "Mevcut görsel",
+      "remove": "Kaldır"
     },
     "affirmations": {
       "title": "Olumlamalar",

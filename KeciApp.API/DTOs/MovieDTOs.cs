@@ -1,11 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace KeciApp.API.DTOs;
 public class CreateMovieRequest
 {
-    [Required]
+    [Required(ErrorMessage = "Film başlığı gereklidir")]
     [StringLength(100, ErrorMessage = "Film başlığı en fazla 100 karakter olabilir")]
     public string MovieTitle { get; set; }
+    
+    public IFormFile? ImageFile { get; set; }
 }
 
 public class EditMovieRequest
@@ -22,5 +25,12 @@ public class MovieResponseDTO
     public int MovieId { get; set; }
     public string MovieTitle { get; set; }
     public int Order { get; set; }
+    public string? ImageUrl { get; set; }
+}
+
+// Request DTO for movie image upload
+public class UploadMovieImageRequest
+{
+    public IFormFile File { get; set; }
 }
 

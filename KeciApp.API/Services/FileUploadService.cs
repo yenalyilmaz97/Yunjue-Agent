@@ -170,10 +170,10 @@ public class FileUploadService : IFileUploadService
             }
 
             // Validate file size (max 5MB)
-            const long maxFileSize = 5 * 1024 * 1024; // 5MB
+            const long maxFileSize = 50 * 1024 * 1024; // 5MB
             if (file.Length > maxFileSize)
             {
-                throw new ArgumentException("File size must be less than 5MB");
+                throw new ArgumentException("File size must be less than 50MB");
             }
 
             // Generate username slug
@@ -246,6 +246,105 @@ public class FileUploadService : IFileUploadService
         {
             _logger.LogError(ex, "Error uploading profile picture. UserName: {UserName}, FileName: {FileName}", 
                 userName, file?.FileName);
+            throw;
+        }
+    }
+
+    public async Task<string> UploadMovieImageAsync(IFormFile file, string movieTitle, int movieId)
+    {
+        try
+        {
+            if (file == null || file.Length == 0)
+            {
+                _logger.LogWarning("UploadMovieImageAsync called with null or empty file");
+                throw new ArgumentException("File is empty or null");
+            }
+
+            // Validate file type (only images)
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+            var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                throw new ArgumentException("Only image files are allowed (jpg, jpeg, png, gif, webp)");
+            }
+
+            // Validate file size (max 5MB)
+            const long maxFileSize = 5 * 1024 * 1024; // 5MB
+            if (file.Length > maxFileSize)
+            {
+                throw new ArgumentException("File size must be less than 5MB");
+            }
+
+            // Generate movie title slug
+            string movieTitleSlug = GenerateSlug(movieTitle);
+            
+            // Build directory path: movie/{movieId}-{slug}
+            string directoryPath = Path.Combine(_uploadBasePath, "movie", $"{movieId}-{movieTitleSlug}");
+            
+            // Create directory if it doesn't exist
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            // Generate file name: image.{extension}
+            string fileName = $"image{fileExtension}";
+            string filePath = Path.Combine(directoryPath, fileName);
+
+            // Save file
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            // Verify file was saved
+            if (!File.Exists(filePath))
+            {
+                _logger.LogError("Failed to save movie image: {FilePath}", filePath);
+                throw new IOException($"Failed to save file to {filePath}");
+            }
+
+            // Build remote path for CDN: movie/{movieId}-{slug}/image.{extension}
+            string remotePath = $"movie/{movieId}-{movieTitleSlug}/{fileName}";
+
+            // Upload to CDN if enabled
+            if (_uploadToCdn)
+            {
+                try
+                {
+                    bool uploadSuccess = await _cdnUploadService.UploadFileAsync(filePath, remotePath);
+                    if (uploadSuccess)
+                    {
+                        // Delete local file after successful CDN upload
+                        try
+                        {
+                            File.Delete(filePath);
+                        }
+                        catch (Exception deleteEx)
+                        {
+                            _logger.LogWarning(deleteEx, "Failed to delete local file after CDN upload: {FilePath}", filePath);
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogWarning("CDN upload failed. File kept locally: {RemotePath}", remotePath);
+                    }
+                }
+                catch (Exception cdnEx)
+                {
+                    _logger.LogError(cdnEx, "CDN upload error. File kept locally: {RemotePath}", remotePath);
+                }
+            }
+
+            // Build CDN URL
+            string cdnUrl = $"{_cdnBaseUrl}/{remotePath}";
+
+            return cdnUrl;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error uploading movie image. MovieTitle: {MovieTitle}, MovieId: {MovieId}, FileName: {FileName}", 
+                movieTitle, movieId, file?.FileName);
             throw;
         }
     }

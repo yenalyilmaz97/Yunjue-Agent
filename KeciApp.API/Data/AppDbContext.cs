@@ -177,6 +177,7 @@ public class AppDbContext : DbContext
             entity.ToTable("Movies");
             entity.HasKey(e => e.MovieId);
             entity.Property(e => e.MovieTitle).IsRequired();
+            entity.Property(e => e.ImageUrl).IsRequired(false);
         });
 
         // WeeklyTask entity configuration

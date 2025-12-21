@@ -11,4 +11,6 @@ public class Movie
   public string MovieTitle { get; set; }
 
   public int order {get; set;}
+  
+  public string? ImageUrl { get; set; }
 }

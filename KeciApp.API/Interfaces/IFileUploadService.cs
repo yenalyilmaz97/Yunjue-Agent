@@ -12,6 +12,8 @@ public interface IFileUploadService
     
     Task<string> UploadProfilePictureAsync(IFormFile file, string userName);
     
+    Task<string> UploadMovieImageAsync(IFormFile file, string movieTitle, int movieId);
+    
     Task<bool> DeleteFileAsync(string fileUrl);
     
     string GenerateSlug(string text);

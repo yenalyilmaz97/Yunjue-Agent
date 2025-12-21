@@ -8,5 +8,5 @@ public interface IMoviesService
     Task<MovieResponseDTO> AddMovieAsync(CreateMovieRequest request);
     Task<MovieResponseDTO> EditMovieAsync(EditMovieRequest request);
     Task<MovieResponseDTO> DeleteMovieAsync(int movieId);
-
+    Task<MovieResponseDTO> UpdateMovieImageAsync(int movieId, string imageUrl);
 }

@@ -9,11 +9,13 @@ namespace KeciApp.API.Services
     {
         private readonly IMoviesRepository _moviesRepository;
         private readonly IMapper _mapper;
+        private readonly IFileUploadService _fileUploadService;
 
-        public MoviesService(IMoviesRepository moviesRepository, IMapper mapper)
+        public MoviesService(IMoviesRepository moviesRepository, IMapper mapper, IFileUploadService fileUploadService)
         {
             _moviesRepository = moviesRepository;
             _mapper = mapper;
+            _fileUploadService = fileUploadService;
         }
 
         public async Task<IEnumerable<MovieResponseDTO>> GetAllMoviesAsync()
@@ -39,6 +41,27 @@ namespace KeciApp.API.Services
             var maxOrder = await _moviesRepository.GetMaxMovieOrderAsync();
             movie.order = maxOrder + 1;
             var createdMovie = await _moviesRepository.CreateMovieAsync(movie);
+            
+            // Upload image if provided
+            if (request.ImageFile != null && request.ImageFile.Length > 0)
+            {
+                try
+                {
+                    string imageUrl = await _fileUploadService.UploadMovieImageAsync(
+                        request.ImageFile, 
+                        createdMovie.MovieTitle, 
+                        createdMovie.MovieId
+                    );
+                    createdMovie.ImageUrl = imageUrl;
+                    createdMovie = await _moviesRepository.UpdateMovieAsync(createdMovie);
+                }
+                catch (Exception ex)
+                {
+                    // Log error but don't fail the movie creation
+                    // Could add logging here if needed
+                }
+            }
+            
             return _mapper.Map<MovieResponseDTO>(createdMovie);
         }
 
@@ -65,6 +88,34 @@ namespace KeciApp.API.Services
 
             await _moviesRepository.RemoveMovieAsync(movie);
             return _mapper.Map<MovieResponseDTO>(movie);
+        }
+
+        public async Task<MovieResponseDTO> UpdateMovieImageAsync(int movieId, string imageUrl)
+        {
+            var movie = await _moviesRepository.GetMovieByIdAsync(movieId);
+            if (movie == null)
+            {
+                throw new InvalidOperationException("Movie not found");
+            }
+
+            // Delete old image if exists
+            if (!string.IsNullOrWhiteSpace(movie.ImageUrl))
+            {
+                try
+                {
+                    await _fileUploadService.DeleteFileAsync(movie.ImageUrl);
+                }
+                catch (Exception ex)
+                {
+                    // Log error but don't fail the update
+                    // Could add logging here if needed
+                }
+            }
+
+            // Update image URL
+            movie.ImageUrl = imageUrl;
+            var updatedMovie = await _moviesRepository.UpdateMovieAsync(movie);
+            return _mapper.Map<MovieResponseDTO>(updatedMovie);
         }
 
     }
