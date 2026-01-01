@@ -10,6 +10,7 @@ export interface User {
   phone: string
   description: string
   subscriptionEnd: string
+  keciTimeEnd?: string
   isWeeklyTaskCompleted: boolean
   weeklyContentId: number
   roleId: number
@@ -53,6 +54,7 @@ export interface CreateUserRequest {
   description: string
   password: string
   subscriptionEnd: string
+  keciTimeEnd?: string
   roleId: number
 }
 
@@ -68,6 +70,7 @@ export interface EditUserRequest {
   phone: string
   description: string
   subscriptionEnd: string
+  keciTimeEnd?: string
   roleId: number
 }
 
@@ -98,6 +101,7 @@ export interface UserFormData {
   description: string
   password?: string
   subscriptionEnd: string
+  keciTimeEnd?: string
   roleId?: number
 }
 
