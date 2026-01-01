@@ -161,7 +161,7 @@ public class MoviesController : ControllerBase
                 return NotFound(new { message = "Movie not found" });
             }
 
-            // Upload movie image
+            // Upload movie image (this will delete old image folder if exists)
             var fileUploadService = HttpContext.RequestServices.GetRequiredService<IFileUploadService>();
             string imageUrl = await fileUploadService.UploadMovieImageAsync(request.File, movie.MovieTitle, movieId);
 
@@ -176,6 +176,24 @@ public class MoviesController : ControllerBase
         catch (ArgumentException ex)
         {
             return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpDelete("movies/{movieId}/image")]
+    public async Task<ActionResult<MovieResponseDTO>> DeleteMovieImage(int movieId)
+    {
+        try
+        {
+            var updatedMovie = await _moviesService.DeleteMovieImageAsync(movieId);
+            return Ok(updatedMovie);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return NotFound(new { message = ex.Message });
         }
         catch (Exception ex)
         {

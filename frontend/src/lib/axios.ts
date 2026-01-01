@@ -63,7 +63,7 @@ const createAxiosInstance = (): AxiosInstance => {
             return Promise.reject(new Error('Token inactive'))
           }
         }
-        
+
         config.headers.Authorization = `Bearer ${token}`
         // Update last activity on each request
         localStorage.setItem('lastActivity', new Date().toISOString())
@@ -84,8 +84,8 @@ const createAxiosInstance = (): AxiosInstance => {
         // Don't redirect if already on login page
         const isLoginPage = window.location.pathname.includes('/auth/sign-in')
         if (!isLoginPage) {
-        localStorage.removeItem('authToken')
-        window.location.href = '/auth/sign-in'
+          localStorage.removeItem('authToken')
+          window.location.href = '/auth/sign-in'
         }
       }
       return Promise.reject(error)

@@ -80,7 +80,7 @@ public class AppDbContext : DbContext
             entity.ToTable("PodcastEpisodes");
             entity.HasKey(e => e.EpisodesId);
             entity.Property(e => e.SeriesId).IsRequired();
-            entity.Property(e => e.Title).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.Title).IsRequired();
             entity.Property(e => e.ContentJson).IsRequired();
             entity.Property(e => e.SequenceNumber).IsRequired();
             entity.Property(e => e.isActive).IsRequired();

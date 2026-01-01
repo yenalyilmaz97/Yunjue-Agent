@@ -145,6 +145,8 @@
       "addNew": "Yeni Ekle",
       "deleteConfirm": "Bu bölümü silmek istediğinize emin misiniz?",
       "seriesId": "Seri ID",
+      "seriesName": "Seri Adı",
+      "allSeries": "Tüm Seriler",
       "preview": "Önizleme",
       "active": "Aktif",
       "unsupportedFileType": "Desteklenmeyen dosya türü: {fileName}. Lütfen ses, video veya resim dosyası yükleyiniz."
@@ -436,7 +438,11 @@
       "uploadImageHelp": "Sadece resim dosyaları yüklenebilir (JPG, PNG, GIF, WEBP). Maksimum dosya boyutu: 5MB",
       "selectedFile": "Seçilen dosya",
       "currentImage": "Mevcut görsel",
-      "remove": "Kaldır"
+      "remove": "Kaldır",
+      "deleteImage": "Afişi Sil",
+      "deleteImageConfirm": "Afişi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
+      "imageDeleted": "Afiş başarıyla silindi",
+      "deleteImageError": "Afiş silinirken bir hata oluştu"
     },
     "affirmations": {
       "title": "Olumlamalar",

@@ -404,6 +404,55 @@ public class FileUploadService : IFileUploadService
         }
     }
 
+    public async Task<bool> DeleteMovieImageFolderAsync(int movieId, string movieTitle)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(movieTitle))
+            {
+                return false;
+            }
+
+            // Generate movie title slug
+            string movieTitleSlug = GenerateSlug(movieTitle);
+            
+            // Build remote path for CDN: movie/{movieId}-{slug}/
+            string remotePath = $"movie/{movieId}-{movieTitleSlug}";
+
+            // Delete from CDN if enabled
+            bool cdnDeleted = false;
+            if (_uploadToCdn)
+            {
+                cdnDeleted = await _cdnUploadService.DeleteDirectoryAsync(remotePath);
+            }
+
+            // Also try to delete local directory if it exists
+            bool localDeleted = false;
+            string directoryPath = Path.Combine(_uploadBasePath, "movie", $"{movieId}-{movieTitleSlug}");
+            if (Directory.Exists(directoryPath))
+            {
+                try
+                {
+                    Directory.Delete(directoryPath, true);
+                    localDeleted = true;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to delete local movie directory: {DirectoryPath}", directoryPath);
+                }
+            }
+
+            // Return true if at least one deletion succeeded
+            return localDeleted || cdnDeleted;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting movie image folder. MovieTitle: {MovieTitle}, MovieId: {MovieId}", 
+                movieTitle, movieId);
+            return false;
+        }
+    }
+
     public string GenerateSlug(string text)
     {
         if (string.IsNullOrWhiteSpace(text))

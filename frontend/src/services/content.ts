@@ -65,9 +65,12 @@ export const contentService = {
 		const form = new FormData()
 		form.append('file', file)
 		return api.post<Movie>(`${MOVIES_ENDPOINT}/movies/${movieId}/image`, form, {
-			headers: { 'Content-Type': 'multipart/form-data' },
 			timeout: 300000, // 5 minutes for large file uploads
 		})
+	},
+
+	async deleteMovieImage(movieId: number): Promise<Movie> {
+		return api.delete<Movie>(`${MOVIES_ENDPOINT}/movies/${movieId}/image`)
 	},
 
 	// Task endpoints

@@ -16,6 +16,8 @@ public interface IFileUploadService
     
     Task<bool> DeleteFileAsync(string fileUrl);
     
+    Task<bool> DeleteMovieImageFolderAsync(int movieId, string movieTitle);
+    
     string GenerateSlug(string text);
 }
 

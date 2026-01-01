@@ -138,12 +138,37 @@ const CreateMoviePage = () => {
                 )}
                 {isEdit && editItem?.imageUrl && !imageFile && (
                   <div className="alert alert-info">
-                    <strong>{t('weeklyContent.movies.currentImage')}:</strong>
-                    <img 
-                      src={editItem.imageUrl} 
-                      alt={editItem.movieTitle}
-                      style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px', display: 'block' }}
-                    />
+                    <div className="d-flex align-items-start gap-3">
+                      <div>
+                        <strong>{t('weeklyContent.movies.currentImage')}:</strong>
+                        <img 
+                          src={editItem.imageUrl} 
+                          alt={editItem.movieTitle}
+                          style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px', display: 'block' }}
+                        />
+                      </div>
+                      <div className="ms-auto">
+                        <Button
+                          type="button"
+                          variant="danger"
+                          size="sm"
+                          onClick={async () => {
+                            if (confirm(t('weeklyContent.movies.deleteImageConfirm') || 'Afişi silmek istediğinize emin misiniz?')) {
+                              try {
+                                await contentService.deleteMovieImage(editItem.movieId)
+                                alert(t('weeklyContent.movies.imageDeleted') || 'Afiş başarıyla silindi')
+                                window.location.reload()
+                              } catch (error) {
+                                console.error('Error deleting movie image:', error)
+                                alert(t('weeklyContent.movies.deleteImageError') || 'Afiş silinirken bir hata oluştu')
+                              }
+                            }
+                          }}
+                        >
+                          {t('weeklyContent.movies.deleteImage') || 'Afişi Sil'}
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 )}
               </Col>

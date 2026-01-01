@@ -98,12 +98,13 @@ namespace KeciApp.API.Services
                 throw new InvalidOperationException("Movie not found");
             }
 
-            // Delete old image if exists
+            // Delete old image folder if exists
             if (!string.IsNullOrWhiteSpace(movie.ImageUrl))
             {
                 try
                 {
-                    await _fileUploadService.DeleteFileAsync(movie.ImageUrl);
+                    // Delete the entire movie folder from CDN
+                    await _fileUploadService.DeleteMovieImageFolderAsync(movieId, movie.MovieTitle);
                 }
                 catch (Exception ex)
                 {
@@ -114,6 +115,34 @@ namespace KeciApp.API.Services
 
             // Update image URL
             movie.ImageUrl = imageUrl;
+            var updatedMovie = await _moviesRepository.UpdateMovieAsync(movie);
+            return _mapper.Map<MovieResponseDTO>(updatedMovie);
+        }
+
+        public async Task<MovieResponseDTO> DeleteMovieImageAsync(int movieId)
+        {
+            var movie = await _moviesRepository.GetMovieByIdAsync(movieId);
+            if (movie == null)
+            {
+                throw new InvalidOperationException("Movie not found");
+            }
+
+            // Delete image folder from CDN
+            if (!string.IsNullOrWhiteSpace(movie.ImageUrl))
+            {
+                try
+                {
+                    await _fileUploadService.DeleteMovieImageFolderAsync(movieId, movie.MovieTitle);
+                }
+                catch (Exception ex)
+                {
+                    // Log error but don't fail the deletion
+                    // Could add logging here if needed
+                }
+            }
+
+            // Clear image URL
+            movie.ImageUrl = null;
             var updatedMovie = await _moviesRepository.UpdateMovieAsync(movie);
             return _mapper.Map<MovieResponseDTO>(updatedMovie);
         }
