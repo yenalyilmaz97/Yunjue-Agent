@@ -96,7 +96,6 @@ public class EditUserRequest
     [Required]
     public int RoleId { get; set; }
 
-    public bool dailyOrWeekly { get; set; }
     public int? DailyContentDayOrder { get; set; }
 }
 

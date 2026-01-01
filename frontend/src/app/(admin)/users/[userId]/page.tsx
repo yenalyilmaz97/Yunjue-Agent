@@ -29,7 +29,7 @@ const UserDetailPage = () => {
   const [weeklyAnswers, setWeeklyAnswers] = useState<WeeklyQuestionAnswerResponseDTO[]>([])
   const [showResetModal, setShowResetModal] = useState(false)
   const [showDetailModal, setShowDetailModal] = useState(false)
-  const [detailContent, setDetailContent] = useState<{ 
+  const [detailContent, setDetailContent] = useState<{
     title: string
     text: string
     type: 'note' | 'question' | 'weeklyAnswer'
@@ -97,8 +97,8 @@ const UserDetailPage = () => {
   const closeResetModal = () => setShowResetModal(false)
 
   const openDetailModal = (
-    title: string, 
-    text: string, 
+    title: string,
+    text: string,
     type: 'note' | 'question' | 'weeklyAnswer',
     weeklyQuestion?: string,
     weeklyAnswer?: string,
@@ -137,7 +137,7 @@ const UserDetailPage = () => {
   return (
     <>
       <PageTitle subName={t('pages.users')} title={`${t('users.userDetail')} - ${user.userName}`} />
-      
+
       {/* User Info Card */}
       <Card className="mb-3">
         <CardHeader>
@@ -166,8 +166,22 @@ const UserDetailPage = () => {
               <div className="mb-2"><strong>{t('users.city')}:</strong> {user.city || '-'}</div>
               <div className="mb-2"><strong>{t('users.phone')}:</strong> {user.phone || '-'}</div>
               <div className="mb-2"><strong>{t('users.dateOfBirth')}:</strong> {new Date(user.dateOfBirth).toLocaleDateString()}</div>
-              <div className="mb-2"><strong>{t('users.gender')}:</strong> {user.gender ? t('users.female') : t('users.male')}</div>
+              <div className="mb-2"><strong>{t('users.gender')}:</strong> {user.gender ? t('users.male') : t('users.female')}</div>
               <div className="mb-2"><strong>{t('users.subscriptionEnd')}:</strong> {new Date(user.subscriptionEnd).toLocaleDateString()}</div>
+              <div className="mb-2">
+                <strong>{t('users.isKeci') || 'Keçi Üyesi'}:</strong>{' '}
+                {user.keciTimeEnd ? (
+                  <span className="text-success">{t('common.yes') || 'Evet'}</span>
+                ) : (
+                  <span className="text-danger">{t('common.no') || 'Hayır'}</span>
+                )}
+              </div>
+              {user.keciTimeEnd && (
+                <div className="mb-2">
+                  <strong>{t('users.keciTimeEnd') || 'Keçi Süresi Bitiş'}:</strong>{' '}
+                  {new Date(user.keciTimeEnd).toLocaleDateString()}
+                </div>
+              )}
               {user.description && <div className="mb-2"><strong>{t('users.description')}:</strong> {user.description}</div>}
             </Col>
           </Row>
@@ -195,232 +209,232 @@ const UserDetailPage = () => {
         <CardBody>
           {activeTab === 'favorites' && (
             <DataTable
-                isLoading={loading}
-                data={favorites}
-                rowKey={(r) => (r as Favorite).favoriteId}
-                hideSearch
-                columns={[
-                  { key: 'favoriteId', header: t('common.id') || 'ID', width: '80px', sortable: true },
-                  {
-                    key: 'type',
-                    header: t('users.type'),
-                    render: (r) => {
-                      const f = r as Favorite
-                      if (f.episodeId) return t('users.episode')
-                      if (f.articleId) return t('users.article')
-                      if (f.affirmationId) return t('users.affirmation')
-                      if (f.aphorismId) return t('users.aphorism')
-                      return '-'
-                    },
+              isLoading={loading}
+              data={favorites}
+              rowKey={(r) => (r as Favorite).favoriteId}
+              hideSearch
+              columns={[
+                { key: 'favoriteId', header: t('common.id') || 'ID', width: '80px', sortable: true },
+                {
+                  key: 'type',
+                  header: t('users.type'),
+                  render: (r) => {
+                    const f = r as Favorite
+                    if (f.episodeId) return t('users.episode')
+                    if (f.articleId) return t('users.article')
+                    if (f.affirmationId) return t('users.affirmation')
+                    if (f.aphorismId) return t('users.aphorism')
+                    return '-'
                   },
-                  {
-                    key: 'title',
-                    header: t('common.title'),
-                    render: (r) => {
-                      const f = r as Favorite
-                      return f.episodeTitle || f.articleTitle || f.affirmationText || f.aphorismText || '-'
-                    },
+                },
+                {
+                  key: 'title',
+                  header: t('common.title'),
+                  render: (r) => {
+                    const f = r as Favorite
+                    return f.episodeTitle || f.articleTitle || f.affirmationText || f.aphorismText || '-'
                   },
-                  {
-                    key: 'seriesTitle',
-                    header: t('users.series'),
-                    render: (r) => (r as Favorite).seriesTitle || '-',
-                  },
-                  {
-                    key: 'createdAt',
-                    header: t('users.createdAt'),
-                    render: (r) => new Date((r as Favorite).createdAt).toLocaleDateString(),
-                  },
-                ]}
-              />
+                },
+                {
+                  key: 'seriesTitle',
+                  header: t('users.series'),
+                  render: (r) => (r as Favorite).seriesTitle || '-',
+                },
+                {
+                  key: 'createdAt',
+                  header: t('users.createdAt'),
+                  render: (r) => new Date((r as Favorite).createdAt).toLocaleDateString(),
+                },
+              ]}
+            />
           )}
 
           {activeTab === 'notes' && (
             <DataTable
-                isLoading={loading}
-                data={notes}
-                rowKey={(r) => (r as Note).noteId}
-                hideSearch
-                columns={[
-                  { key: 'noteId', header: t('common.id') || 'ID', width: '80px', sortable: true },
-                  { key: 'title', header: t('common.title'), sortable: true },
-                  {
-                    key: 'noteText',
-                    header: t('users.note'),
-                    render: (r) => {
-                      const n = r as Note
-                      return n.noteText.length > 100 ? `${n.noteText.substring(0, 100)}...` : n.noteText
-                    },
+              isLoading={loading}
+              data={notes}
+              rowKey={(r) => (r as Note).noteId}
+              hideSearch
+              columns={[
+                { key: 'noteId', header: t('common.id') || 'ID', width: '80px', sortable: true },
+                { key: 'title', header: t('common.title'), sortable: true },
+                {
+                  key: 'noteText',
+                  header: t('users.note'),
+                  render: (r) => {
+                    const n = r as Note
+                    return n.noteText.length > 100 ? `${n.noteText.substring(0, 100)}...` : n.noteText
                   },
-                  { key: 'episodeTitle', header: t('users.episode'), render: (r) => (r as Note).episodeTitle || '-' },
-                  { key: 'seriesTitle', header: t('users.series'), render: (r) => (r as Note).seriesTitle || '-' },
-                  {
-                    key: 'createdAt',
-                    header: t('users.createdAt'),
-                    render: (r) => new Date((r as Note).createdAt).toLocaleDateString(),
+                },
+                { key: 'episodeTitle', header: t('users.episode'), render: (r) => (r as Note).episodeTitle || '-' },
+                { key: 'seriesTitle', header: t('users.series'), render: (r) => (r as Note).seriesTitle || '-' },
+                {
+                  key: 'createdAt',
+                  header: t('users.createdAt'),
+                  render: (r) => new Date((r as Note).createdAt).toLocaleDateString(),
+                },
+                {
+                  key: 'actions',
+                  header: t('common.actions'),
+                  width: '120px',
+                  render: (r) => {
+                    const n = r as Note
+                    return (
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          openDetailModal(n.title || t('users.note'), n.noteText, 'note')
+                        }}
+                        style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                      >
+                        <IconifyIcon icon="mdi:eye" className="me-1" style={{ fontSize: '0.875rem' }} />
+                        {t('common.detail')}
+                      </Button>
+                    )
                   },
-                  {
-                    key: 'actions',
-                    header: t('common.actions'),
-                    width: '120px',
-                    render: (r) => {
-                      const n = r as Note
-                      return (
-                        <Button
-                          variant="outline-primary"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            openDetailModal(n.title || t('users.note'), n.noteText, 'note')
-                          }}
-                          style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
-                        >
-                          <IconifyIcon icon="mdi:eye" className="me-1" style={{ fontSize: '0.875rem' }} />
-                          {t('common.detail')}
-                        </Button>
-                      )
-                    },
-                  },
-                ]}
-              />
+                },
+              ]}
+            />
           )}
 
           {activeTab === 'questions' && (
             <DataTable
-                isLoading={loading}
-                data={questions}
-                rowKey={(r) => (r as Question).questionId}
-                hideSearch
-                columns={[
-                  { key: 'questionId', header: t('common.id') || 'ID', width: '80px', sortable: true },
-                  {
-                    key: 'questionText',
-                    header: t('questions.questionText'),
-                    render: (r) => {
-                      const q = r as Question
-                      return q.questionText.length > 100 ? `${q.questionText.substring(0, 100)}...` : q.questionText
-                    },
+              isLoading={loading}
+              data={questions}
+              rowKey={(r) => (r as Question).questionId}
+              hideSearch
+              columns={[
+                { key: 'questionId', header: t('common.id') || 'ID', width: '80px', sortable: true },
+                {
+                  key: 'questionText',
+                  header: t('questions.questionText'),
+                  render: (r) => {
+                    const q = r as Question
+                    return q.questionText.length > 100 ? `${q.questionText.substring(0, 100)}...` : q.questionText
                   },
-                  {
-                    key: 'episodeTitle',
-                    header: t('users.episode'),
-                    render: (r) => {
-                      const q = r as Question
-                      return q.episodeTitle || (q.articleId ? t('users.article') : '-')
-                    },
+                },
+                {
+                  key: 'episodeTitle',
+                  header: t('users.episode'),
+                  render: (r) => {
+                    const q = r as Question
+                    return q.episodeTitle || (q.articleId ? t('users.article') : '-')
                   },
-                  { key: 'seriesTitle', header: t('users.series'), render: (r) => (r as Question).seriesTitle || '-' },
-                  {
-                    key: 'isAnswered',
-                    header: t('users.status'),
-                    render: (r) => {
-                      const q = r as Question
-                      return q.isAnswered ? <span className="badge bg-success">{t('users.answered')}</span> : <span className="badge bg-warning">{t('users.pending')}</span>
-                    },
+                },
+                { key: 'seriesTitle', header: t('users.series'), render: (r) => (r as Question).seriesTitle || '-' },
+                {
+                  key: 'isAnswered',
+                  header: t('users.status'),
+                  render: (r) => {
+                    const q = r as Question
+                    return q.isAnswered ? <span className="badge bg-success">{t('users.answered')}</span> : <span className="badge bg-warning">{t('users.pending')}</span>
                   },
-                  {
-                    key: 'createdAt',
-                    header: t('users.createdAt'),
-                    render: (r) => new Date((r as Question).createdAt).toLocaleDateString(),
+                },
+                {
+                  key: 'createdAt',
+                  header: t('users.createdAt'),
+                  render: (r) => new Date((r as Question).createdAt).toLocaleDateString(),
+                },
+                {
+                  key: 'actions',
+                  header: t('common.actions'),
+                  width: '120px',
+                  render: (r) => {
+                    const q = r as Question
+                    const answerText = q.answer?.answerText || (q.answers && q.answers.length > 0 ? q.answers[0].answerText : undefined)
+                    return (
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          openDetailModal(t('questions.questionText'), q.questionText, 'question', undefined, undefined, answerText)
+                        }}
+                        style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                      >
+                        <IconifyIcon icon="mdi:eye" className="me-1" style={{ fontSize: '0.875rem' }} />
+                        {t('common.detail')}
+                      </Button>
+                    )
                   },
-                  {
-                    key: 'actions',
-                    header: t('common.actions'),
-                    width: '120px',
-                    render: (r) => {
-                      const q = r as Question
-                      const answerText = q.answer?.answerText || (q.answers && q.answers.length > 0 ? q.answers[0].answerText : undefined)
-                      return (
-                        <Button
-                          variant="outline-primary"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            openDetailModal(t('questions.questionText'), q.questionText, 'question', undefined, undefined, answerText)
-                          }}
-                          style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
-                        >
-                          <IconifyIcon icon="mdi:eye" className="me-1" style={{ fontSize: '0.875rem' }} />
-                          {t('common.detail')}
-                        </Button>
-                      )
-                    },
-                  },
-                ]}
-              />
+                },
+              ]}
+            />
           )}
 
           {activeTab === 'weeklyAnswers' && (
             <DataTable
-                isLoading={loading}
-                data={weeklyAnswers}
-                rowKey={(r) => (r as WeeklyQuestionAnswerResponseDTO).weeklyQuestionAnswerId}
-                hideSearch
-                columns={[
-                  { key: 'weeklyQuestionAnswerId', header: t('common.id') || 'ID', width: '80px', sortable: true },
-                  {
-                    key: 'weeklyQuestionId',
-                    header: t('users.questionId'),
-                    width: '120px',
-                    sortable: true,
+              isLoading={loading}
+              data={weeklyAnswers}
+              rowKey={(r) => (r as WeeklyQuestionAnswerResponseDTO).weeklyQuestionAnswerId}
+              hideSearch
+              columns={[
+                { key: 'weeklyQuestionAnswerId', header: t('common.id') || 'ID', width: '80px', sortable: true },
+                {
+                  key: 'weeklyQuestionId',
+                  header: t('users.questionId'),
+                  width: '120px',
+                  sortable: true,
+                },
+                {
+                  key: 'weeklyQuestion',
+                  header: t('questions.questionText'),
+                  render: (r) => {
+                    const answer = r as WeeklyQuestionAnswerResponseDTO
+                    const question = answer.weeklyQuestion
+                    if (question && 'weeklyQuestionText' in question) {
+                      const text = question.weeklyQuestionText as string
+                      return text.length > 100 ? `${text.substring(0, 100)}...` : text
+                    }
+                    return '-'
                   },
-                  {
-                    key: 'weeklyQuestion',
-                    header: t('questions.questionText'),
-                    render: (r) => {
-                      const answer = r as WeeklyQuestionAnswerResponseDTO
-                      const question = answer.weeklyQuestion
-                      if (question && 'weeklyQuestionText' in question) {
-                        const text = question.weeklyQuestionText as string
-                        return text.length > 100 ? `${text.substring(0, 100)}...` : text
-                      }
-                      return '-'
-                    },
+                },
+                {
+                  key: 'weeklyQuestionAnswerText',
+                  header: t('users.answer'),
+                  render: (r) => {
+                    const answer = r as WeeklyQuestionAnswerResponseDTO
+                    const text = answer.weeklyQuestionAnswerText || ''
+                    return text.length > 150 ? `${text.substring(0, 150)}...` : text || '-'
                   },
-                  {
-                    key: 'weeklyQuestionAnswerText',
-                    header: t('users.answer'),
-                    render: (r) => {
-                      const answer = r as WeeklyQuestionAnswerResponseDTO
-                      const text = answer.weeklyQuestionAnswerText || ''
-                      return text.length > 150 ? `${text.substring(0, 150)}...` : text || '-'
-                    },
+                },
+                {
+                  key: 'actions',
+                  header: t('common.actions'),
+                  width: '120px',
+                  render: (r) => {
+                    const answer = r as WeeklyQuestionAnswerResponseDTO
+                    const question = answer.weeklyQuestion
+                    const questionText = question && 'weeklyQuestionText' in question
+                      ? (question.weeklyQuestionText as string)
+                      : ''
+                    const answerText = answer.weeklyQuestionAnswerText || ''
+                    return (
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          openDetailModal(
+                            t('users.weeklyAnswers'),
+                            '',
+                            'weeklyAnswer',
+                            questionText,
+                            answerText
+                          )
+                        }}
+                        style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                      >
+                        <IconifyIcon icon="mdi:eye" className="me-1" style={{ fontSize: '0.875rem' }} />
+                        {t('common.detail')}
+                      </Button>
+                    )
                   },
-                  {
-                    key: 'actions',
-                    header: t('common.actions'),
-                    width: '120px',
-                    render: (r) => {
-                      const answer = r as WeeklyQuestionAnswerResponseDTO
-                      const question = answer.weeklyQuestion
-                      const questionText = question && 'weeklyQuestionText' in question 
-                        ? (question.weeklyQuestionText as string) 
-                        : ''
-                      const answerText = answer.weeklyQuestionAnswerText || ''
-                      return (
-                        <Button
-                          variant="outline-primary"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            openDetailModal(
-                              t('users.weeklyAnswers'),
-                              '',
-                              'weeklyAnswer',
-                              questionText,
-                              answerText
-                            )
-                          }}
-                          style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
-                        >
-                          <IconifyIcon icon="mdi:eye" className="me-1" style={{ fontSize: '0.875rem' }} />
-                          {t('common.detail')}
-                        </Button>
-                      )
-                    },
-                  },
-                ]}
-              />
+                },
+              ]}
+            />
           )}
         </CardBody>
       </Card>
@@ -456,12 +470,12 @@ const UserDetailPage = () => {
                     <IconifyIcon icon="mdi:help-circle" className="me-2" style={{ fontSize: '1.1rem', color: 'var(--bs-primary)' }} />
                     {t('questions.questionText')}
                   </h6>
-                  <div style={{ 
-                    whiteSpace: 'pre-wrap', 
-                    wordBreak: 'break-word', 
-                    lineHeight: '1.6', 
-                    padding: '12px', 
-                    backgroundColor: 'rgba(var(--bs-primary-rgb), 0.05)', 
+                  <div style={{
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    lineHeight: '1.6',
+                    padding: '12px',
+                    backgroundColor: 'rgba(var(--bs-primary-rgb), 0.05)',
                     border: '1px solid rgba(var(--bs-primary-rgb), 0.1)',
                     borderRadius: '8px',
                     color: 'var(--bs-body-color)'
@@ -476,12 +490,12 @@ const UserDetailPage = () => {
                     <IconifyIcon icon="mdi:message-text" className="me-2" style={{ fontSize: '1.1rem', color: 'var(--bs-success)' }} />
                     {t('users.answer')}
                   </h6>
-                  <div style={{ 
-                    whiteSpace: 'pre-wrap', 
-                    wordBreak: 'break-word', 
-                    lineHeight: '1.6', 
-                    padding: '12px', 
-                    backgroundColor: 'rgba(var(--bs-success-rgb), 0.05)', 
+                  <div style={{
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    lineHeight: '1.6',
+                    padding: '12px',
+                    backgroundColor: 'rgba(var(--bs-success-rgb), 0.05)',
                     border: '1px solid rgba(var(--bs-success-rgb), 0.1)',
                     borderRadius: '8px',
                     color: 'var(--bs-body-color)'
@@ -498,12 +512,12 @@ const UserDetailPage = () => {
                   <IconifyIcon icon="mdi:help-circle" className="me-2" style={{ fontSize: '1.1rem', color: 'var(--bs-primary)' }} />
                   {t('questions.questionText')}
                 </h6>
-                <div style={{ 
-                  whiteSpace: 'pre-wrap', 
-                  wordBreak: 'break-word', 
-                  lineHeight: '1.6', 
-                  padding: '12px', 
-                  backgroundColor: 'rgba(var(--bs-primary-rgb), 0.05)', 
+                <div style={{
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                  lineHeight: '1.6',
+                  padding: '12px',
+                  backgroundColor: 'rgba(var(--bs-primary-rgb), 0.05)',
                   border: '1px solid rgba(var(--bs-primary-rgb), 0.1)',
                   borderRadius: '8px',
                   color: 'var(--bs-body-color)'
@@ -517,12 +531,12 @@ const UserDetailPage = () => {
                     <IconifyIcon icon="mdi:message-text" className="me-2" style={{ fontSize: '1.1rem', color: 'var(--bs-success)' }} />
                     {t('users.answer')}
                   </h6>
-                  <div style={{ 
-                    whiteSpace: 'pre-wrap', 
-                    wordBreak: 'break-word', 
-                    lineHeight: '1.6', 
-                    padding: '12px', 
-                    backgroundColor: 'rgba(var(--bs-success-rgb), 0.05)', 
+                  <div style={{
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    lineHeight: '1.6',
+                    padding: '12px',
+                    backgroundColor: 'rgba(var(--bs-success-rgb), 0.05)',
                     border: '1px solid rgba(var(--bs-success-rgb), 0.1)',
                     borderRadius: '8px',
                     color: 'var(--bs-body-color)'

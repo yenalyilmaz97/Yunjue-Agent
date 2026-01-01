@@ -124,7 +124,7 @@ const page = () => {
                     <div><strong>{t('users.phone')}:</strong> {u.phone || '-'}</div>
                     <div><strong>{t('users.subscriptionEnd')}:</strong> {new Date(u.subscriptionEnd).toLocaleDateString()}</div>
                     <div><strong>{t('users.dateOfBirth')}:</strong> {new Date(u.dateOfBirth).toLocaleDateString()}</div>
-                    <div><strong>{t('users.gender')}:</strong> {u.gender ? t('users.female') : t('users.male')}</div>
+                    <div><strong>{t('users.gender')}:</strong> {u.gender ? t('users.male') : t('users.female')}</div>
                     {u.description && <div><strong>{t('users.description')}:</strong> {u.description}</div>}
                   </div>
                 </Col>
