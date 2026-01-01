@@ -13,15 +13,17 @@ public class UserService : IUserService
     private readonly IUserRepository _userRepository;
     private readonly IWeeklyRepository _weeklyRepository;
     private readonly IPodcastSeriesRepository _seriesRepository;
+    private readonly IDailyContentRepository _dailyContentRepository;
     private readonly IUserSeriesAccessRepository _userSeriesAccessRepository;
     private readonly IFileUploadService _fileUploadService;
     private readonly IMapper _mapper;
 
-    public UserService(IUserRepository userRepository,IUserSeriesAccessRepository userSeriesAccessRepository ,IPodcastSeriesRepository seriesRepository, IWeeklyRepository weeklyRepository, IFileUploadService fileUploadService, IMapper mapper)
+    public UserService(IUserRepository userRepository, IUserSeriesAccessRepository userSeriesAccessRepository, IPodcastSeriesRepository seriesRepository, IWeeklyRepository weeklyRepository, IDailyContentRepository dailyContentRepository, IFileUploadService fileUploadService, IMapper mapper)
     {
         _userRepository = userRepository;
         _seriesRepository = seriesRepository;
         _weeklyRepository = weeklyRepository;
+        _dailyContentRepository = dailyContentRepository;
         _userSeriesAccessRepository = userSeriesAccessRepository;
         _fileUploadService = fileUploadService;
         _mapper = mapper;
@@ -140,6 +142,23 @@ public class UserService : IUserService
         existingUser.Description = request.Description;
         existingUser.SubscriptionEnd = request.SubscriptionEnd;
         existingUser.RoleId = request.RoleId;
+        
+        // Update Daily Content by Day Order (Preferred)
+        if (request.DailyContentDayOrder.HasValue)
+        {
+            var content = await _dailyContentRepository.GetDailyContentByDayOrderAsync(request.DailyContentDayOrder.Value);
+            if (content != null)
+            {
+                existingUser.DailyContentId = content.DailyContentId;
+            }
+            else
+            {
+                // Optionally handle case where day order doesn't exist. 
+                // For now, we ignore or could throw exception.
+                // existingUser.DailyContentId = null; // Or keep existing? keeping existing.
+            }
+        }
+
         existingUser.UpdatedAt = DateTime.UtcNow;
 
         // Update user

@@ -80,7 +80,8 @@ public class MappingProfile : Profile
 
         // User Mappings 
         CreateMap<User, UserResponseDTO>()
-            .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role != null ? src.Role.RoleName : string.Empty));
+            .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role != null ? src.Role.RoleName : string.Empty))
+            .ForMember(dest => dest.DailyContentDayOrder, opt => opt.MapFrom(src => src.DailyContent != null ? src.DailyContent.DayOrder : (int?)null));
 
         // Map User to AuthResponse UserInfo (for login/register)
         CreateMap<User, UserInfo>();

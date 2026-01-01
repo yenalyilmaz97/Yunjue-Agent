@@ -18,6 +18,7 @@ public class UserRepository : GenericRepository<User>, IUserRepository
     {
         return await _context.Users
             .Include(u => u.Role)
+            .Include(u => u.DailyContent)
             .OrderBy(u => u.UserName)
             .ToListAsync();
     }
@@ -26,6 +27,7 @@ public class UserRepository : GenericRepository<User>, IUserRepository
     {
         return await _context.Users
             .Include(u => u.Role)
+            .Include(u => u.DailyContent)
             .FirstOrDefaultAsync(u => u.UserId == userId);
     }
 

@@ -368,7 +368,7 @@ export const MENU_ITEMS: MenuItemType[] = [
     icon: 'bx:group',
     children: [
       { key: 'users', label: 'All Users', url: '/admin/users', parentKey: 'users-management' },
-      { key: 'roles', label: 'Roles', url: '/admin/roles', parentKey: 'users-management'},
+      { key: 'roles', label: 'Roles', url: '/admin/roles', parentKey: 'users-management' },
     ],
   },
   // ====================access===============
@@ -379,6 +379,7 @@ export const MENU_ITEMS: MenuItemType[] = [
     children: [
       { key: 'series-access', label: 'Series Access', url: '/admin/access/series', parentKey: 'access' },
       { key: 'weekly-assignment', label: 'Weekly Assignment', url: '/admin/access/weekly', parentKey: 'access' },
+      { key: 'daily-content-access', label: 'Daily Content Access', url: '/admin/access/daily-content', parentKey: 'access' },
       { key: 'questions', label: 'User Questions', url: '/admin/questions', parentKey: 'access' },
     ],
   },

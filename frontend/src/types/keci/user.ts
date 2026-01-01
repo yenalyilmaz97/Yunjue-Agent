@@ -13,6 +13,7 @@ export interface User {
   keciTimeEnd?: string
   isWeeklyTaskCompleted: boolean
   weeklyContentId: number
+  dailyContentDayOrder?: number
   roleId: number
   roleName: string
   profilePictureUrl?: string
@@ -72,6 +73,7 @@ export interface EditUserRequest {
   subscriptionEnd: string
   keciTimeEnd?: string
   roleId: number
+  dailyContentDayOrder?: number
 }
 
 export interface ChangePasswordRequest {

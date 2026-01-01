@@ -1,6 +1,6 @@
 import PageTitle from '@/components/PageTitle'
 import { useEffect, useMemo, useState } from 'react'
-import { userWeeklyAssignmentService, dailyContentService } from '@/services'
+import { userWeeklyAssignmentService } from '@/services'
 import type { UserAssignmentSummary } from '@/types/keci'
 import { Card, CardBody, CardHeader, CardTitle, Button } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
@@ -13,7 +13,6 @@ const page = () => {
   const [items, setItems] = useState<UserAssignmentSummary[]>([])
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
-  const [incrementingDaily, setIncrementingDaily] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -41,22 +40,7 @@ const page = () => {
     )
   }, [items, search])
 
-  const handleIncrementDailyContent = async () => {
-    if (!confirm(t('access.weeklyAssignment.incrementDailyConfirm') || 'Günlük içerik sayısını güncellemek istediğinizden emin misiniz? Tüm kullanıcılar kontrol edilecek ve progress kayıtlarına göre güncellenecektir.')) return
-    
-    setIncrementingDaily(true)
-    try {
-      const result = await dailyContentService.incrementDailyContentForAllUsers()
-      alert(result.message || `Başarılı: ${result.updatedCount} kullanıcı güncellendi.`)
-      // Reload data
-      const data = await userWeeklyAssignmentService.getUserAssignmentSummaries()
-      setItems(data)
-    } catch (error: any) {
-      alert(error?.response?.data?.message || error?.message || 'Günlük içerik güncellenirken bir hata oluştu.')
-    } finally {
-      setIncrementingDaily(false)
-    }
-  }
+
 
   return (
     <>
@@ -72,14 +56,7 @@ const page = () => {
               onChange={(e) => setSearch(e.target.value)}
               style={{ width: 260 }}
             />
-            <Button 
-              size="sm" 
-              variant="info" 
-              onClick={handleIncrementDailyContent}
-              disabled={incrementingDaily}
-            >
-              {incrementingDaily ? t('common.loading') || 'Yükleniyor...' : t('access.weeklyAssignment.incrementDaily') || 'Günlük İçerik Güncelle'}
-            </Button>
+
           </div>
         </CardHeader>
         <CardBody>

@@ -97,6 +97,7 @@ public class EditUserRequest
     public int RoleId { get; set; }
 
     public bool dailyOrWeekly { get; set; }
+    public int? DailyContentDayOrder { get; set; }
 }
 
 public class AddKeciTimeDTO
@@ -141,6 +142,7 @@ public class UserResponseDTO
     public DateTime? KeciTimeEnd { get; set; }
     public string? ProfilePictureUrl { get; set; }
     public int WeeklyContentId { get; set; }
+    public int? DailyContentDayOrder { get; set; }
     public int RoleId { get; set; }
     public string RoleName { get; set; }
     public DateTime CreatedAt { get; set; }

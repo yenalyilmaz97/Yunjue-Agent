@@ -19,7 +19,7 @@ const page = () => {
       setLoading(true)
       try {
         const data = await contentService.getAllAffirmations()
-        setItems(data)
+        setItems(data.sort((a, b) => (a.order || 0) - (b.order || 0)))
       } finally {
         setLoading(false)
       }
@@ -72,9 +72,9 @@ const page = () => {
             }}
             columns={[
               { key: 'order', header: t('weeklyContent.affirmations.order'), width: '80px', sortable: true },
-              { 
-                key: 'affirmationText', 
-                header: t('weeklyContent.affirmations.titleColumn'), 
+              {
+                key: 'affirmationText',
+                header: t('weeklyContent.affirmations.titleColumn'),
                 sortable: true,
                 render: (row) => (
                   <div style={{ whiteSpace: 'pre-line' }}>

@@ -120,11 +120,11 @@ const page = () => {
             }}
             actionsHeader={t('common.actions')}
             columns={[
-              { key: 'episodesId', header: t('common.id') || 'ID', width: '80px', sortable: true },
-              { 
-                key: 'seriesId', 
-                header: t('podcasts.episodes.seriesName') || 'Seri Adı', 
-                width: '200px', 
+              { key: 'sequenceNumber', header: t('podcasts.episodes.sequence') || 'Sıra', width: '80px', sortable: true },
+              {
+                key: 'seriesId',
+                header: t('podcasts.episodes.seriesName') || 'Seri Adı',
+                width: '200px',
                 sortable: true,
                 render: (e) => {
                   const episode = e as PodcastEpisode

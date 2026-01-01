@@ -71,7 +71,6 @@ const page = () => {
               )
             }}
             columns={[
-              { key: 'musicId', header: t('common.id') || 'ID', width: '80px', sortable: true },
               { key: 'musicTitle', header: t('weeklyContent.music.titleLabel'), sortable: true },
               { key: 'musicURL', header: t('weeklyContent.music.url') },
               { key: 'musicDescription', header: t('weeklyContent.music.description') },
