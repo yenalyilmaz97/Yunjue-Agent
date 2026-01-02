@@ -34,15 +34,15 @@ builder.Host.UseSerilog();
 // Configure Kestrel server limits for large file uploads
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
-    options.Limits.MaxRequestBodySize = 2L * 1024 * 1024 * 1024; // 2 GB
-    options.Limits.MaxRequestBufferSize = 2L * 1024 * 1024 * 1024; // 2 GB
+    options.Limits.MaxRequestBodySize = 6L * 1024 * 1024 * 1024; // 6 GB
+    options.Limits.MaxRequestBufferSize = 6L * 1024 * 1024 * 1024; // 6 GB
     options.Limits.MaxRequestHeadersTotalSize = 32 * 1024; // 32 KB
 });
 
 // Configure form options for multipart/form-data uploads
 builder.Services.Configure<FormOptions>(options =>
 {
-    options.MultipartBodyLengthLimit = 2L * 1024 * 1024 * 1024; // 2 GB
+    options.MultipartBodyLengthLimit = 6L * 1024 * 1024 * 1024; // 6 GB
     options.ValueLengthLimit = int.MaxValue;
     options.ValueCountLimit = int.MaxValue;
     options.MultipartHeadersLengthLimit = int.MaxValue;
