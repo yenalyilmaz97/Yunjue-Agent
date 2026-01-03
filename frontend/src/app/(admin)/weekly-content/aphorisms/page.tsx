@@ -19,7 +19,7 @@ const page = () => {
       setLoading(true)
       try {
         const data = await contentService.getAllAphorisms()
-        setItems(data)
+        setItems(data.sort((a, b) => (a.order || 0) - (b.order || 0)))
       } finally {
         setLoading(false)
       }
@@ -72,7 +72,16 @@ const page = () => {
             }}
             columns={[
               { key: 'order', header: t('weeklyContent.aphorisms.order'), width: '80px', sortable: true },
-              { key: 'aphorismText', header: t('weeklyContent.aphorisms.titleColumn'), sortable: true },
+              {
+                key: 'aphorismText',
+                header: t('weeklyContent.aphorisms.titleColumn'),
+                sortable: true,
+                render: (row) => (
+                  <div style={{ whiteSpace: 'pre-line' }}>
+                    {(row as Aphorism).aphorismText?.trimEnd()}
+                  </div>
+                )
+              },
             ]}
           />
         </CardBody>

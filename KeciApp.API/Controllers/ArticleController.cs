@@ -12,10 +12,12 @@ namespace KeciApp.API.Controllers;
 public class ArticleController : ControllerBase
 {
     private readonly IArticleService _articleService;
+    private readonly IUserSeriesAccessService _userSeriesAccessService;
 
-    public ArticleController(IArticleService articleService)
+    public ArticleController(IArticleService articleService, IUserSeriesAccessService userSeriesAccessService)
     {
         _articleService = articleService;
+        _userSeriesAccessService = userSeriesAccessService;
     }
     
     [HttpGet("articles")]
@@ -23,8 +25,32 @@ public class ArticleController : ControllerBase
     {
         try
         {
+            // Self-healing: Ensure regular ordering
+            await _articleService.EnsureArticleOrdersAsync();
+
+            var userIdString = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value 
+                             ?? User.FindFirst("UserId")?.Value;
+
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                // If no user (unauthorized or public?), maybe return empty or all? 
+                // Assuming auth is required or existing logic handles it. 
+                // If public, show Order 1? existing logic was "return all".
+                // I will assume if NO user ID found (logic issue), return empty.
+                // But wait, the endpoint is [HttpGet("articles")]. Does it have [Authorize]? 
+                // It does not have explicit [Authorize]. But usually User claims are present if middleware runs.
+                // I'll be safe: If no user, show only Order 1.
+                var allArticles = await _articleService.GetAllArticlesAsync(true);
+                return Ok(allArticles.Where(a => a.Order == 1)); 
+            }
+
+            var accessDTO = await _userSeriesAccessService.GetCurrentArticleAccessAsync(userId);
+            int maxOrder = accessDTO?.CurrentAccessibleSequence ?? 1; // Default to Order 1
+
             var articles = await _articleService.GetAllArticlesAsync(true);
-            return Ok(articles);
+            var filtered = articles.Where(a => a.Order > 0 && a.Order <= maxOrder);
+            
+            return Ok(filtered);
         }
         catch (Exception ex)
         {

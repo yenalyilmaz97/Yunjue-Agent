@@ -9,6 +9,7 @@
     "submit": "Gönder",
     "loading": "Yükleniyor...",
     "saving": "Kaydediliyor...",
+    "uploading": "Yükleniyor...",
     "search": "Ara",
     "filter": "Filtrele",
     "reset": "Sıfırla",
@@ -39,7 +40,7 @@
   },
   "pages": {
     "dashboard": "Ana Sayfa",
-    "podcasts": "Podcastler",
+    "podcasts": "İçerikler",
     "articles": "Makaleler",
     "users": "Kullanıcılar",
     "questions": "Sorular",
@@ -144,6 +145,8 @@
       "addNew": "Yeni Ekle",
       "deleteConfirm": "Bu bölümü silmek istediğinize emin misiniz?",
       "seriesId": "Seri ID",
+      "seriesName": "Seri Adı",
+      "allSeries": "Tüm Seriler",
       "preview": "Önizleme",
       "active": "Aktif",
       "unsupportedFileType": "Desteklenmeyen dosya türü: {fileName}. Lütfen ses, video veya resim dosyası yükleyiniz."
@@ -337,6 +340,10 @@
       "nA": "N/A"
     },
     "weeklyAssignment": {
+      "incrementDaily": "Günlük İçerik Güncelle",
+      "incrementWeekly": "Haftalık İçerik Güncelle",
+      "incrementDailyConfirm": "Günlük içerik sayısını güncellemek istediğinizden emin misiniz? Tüm kullanıcılar kontrol edilecek ve progress kayıtlarına göre güncellenecektir.",
+      "incrementWeeklyConfirm": "Haftalık içerik sayısını güncellemek istediğinizden emin misiniz? Tüm kullanıcılar güncellenecektir (progress kontrolü yapılmayacak).",
       "title": "Haftalık Atama",
       "list": "Kullanıcı Haftalık Atamaları",
       "edit": "Haftalık Atama Düzenle",
@@ -425,7 +432,17 @@
       "enterTitleRequired": "Lütfen film başlığı giriniz",
       "searchPlaceholder": "Film ara...",
       "addNew": "Yeni Ekle",
-      "deleteConfirm": "Bu filmi silmek istediğinize emin misiniz?"
+      "deleteConfirm": "Bu filmi silmek istediğinize emin misiniz?",
+      "imageLabel": "Film Görseli",
+      "uploadImage": "Film görselini buraya sürükleyin veya yüklemek için tıklayın",
+      "uploadImageHelp": "Sadece resim dosyaları yüklenebilir (JPG, PNG, GIF, WEBP). Maksimum dosya boyutu: 5MB",
+      "selectedFile": "Seçilen dosya",
+      "currentImage": "Mevcut görsel",
+      "remove": "Kaldır",
+      "deleteImage": "Afişi Sil",
+      "deleteImageConfirm": "Afişi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
+      "imageDeleted": "Afiş başarıyla silindi",
+      "deleteImageError": "Afiş silinirken bir hata oluştu"
     },
     "affirmations": {
       "title": "Olumlamalar",
@@ -536,7 +553,15 @@
     "newPassword": "Yeni Şifre",
     "confirmPassword": "Şifre Onayı",
     "updateProfile": "Profili Güncelle",
-    "updatePassword": "Şifreyi Güncelle"
+    "updatePassword": "Şifreyi Güncelle",
+    "welcome": "Hoş Geldiniz",
+    "myAccount": "Hesabım",
+    "lightMode": "Açık Tema",
+    "darkMode": "Koyu Tema",
+    "pricing": "Fiyatlandırma",
+    "help": "Yardım",
+    "lockScreen": "Ekranı Kilitle",
+    "logout": "Çıkış Yap"
   },
   "favorites": {
     "title": "Favoriler",
@@ -568,6 +593,18 @@
     "error": "PDF yüklenemedi",
     "openInNewTab": "Yeni Sekmede Aç"
   },
+  "auth": {
+    "welcomeBack": "Hoş Geldiniz!",
+    "signInToContinue": "Devam etmek için hesabınıza giriş yapın",
+    "emailAddress": "E-posta Adresi",
+    "enterEmail": "E-posta adresinizi giriniz",
+    "password": "Şifre",
+    "enterPassword": "Şifrenizi giriniz",
+    "rememberMe": "Beni Hatırla",
+    "signIn": "Giriş Yap",
+    "signingIn": "Giriş yapılıyor...",
+    "forgotPassword": "Şifremi Unuttum"
+  },
   "sidebar": {
     "menu...": "MENÜ",
     "dashboard": "Ana Sayfa",
@@ -583,7 +620,7 @@
     "weeklyquestions": "Haftalık Sorular",
     "content": "İçerik",
     "articles": "Makaleler",
-    "podcasts": "Podcastler",
+    "podcasts": "İçerikler",
     "favorites": "Favoriler",
     "notes": "Notlar",
     "questions": "Sorular",

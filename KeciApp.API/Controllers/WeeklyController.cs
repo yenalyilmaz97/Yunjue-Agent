@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using KeciApp.API.DTOs;
 using KeciApp.API.Services;
+using KeciApp.API.Attributes;
 
 namespace KeciApp.API.Controllers;
 
@@ -189,4 +190,5 @@ public class WeeklyController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+
 }

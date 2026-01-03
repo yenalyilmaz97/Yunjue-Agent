@@ -11,9 +11,8 @@ public class UserSeriesAccess
 
     [ForeignKey("Article")] public int? ArticleId { get; set; }
 
-    [Required]
     [ForeignKey("PodcastSeries")]
-    public int SeriesId { get; set; }
+    public int? SeriesId { get; set; }
 
     [Required] public int CurrentAccessibleSequence { get; set; }
 

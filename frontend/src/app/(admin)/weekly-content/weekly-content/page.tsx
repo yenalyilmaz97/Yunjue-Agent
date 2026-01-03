@@ -19,7 +19,7 @@ const page = () => {
     setLoading(true)
     try {
       const data = await weeklyService.getAllWeeklyContent()
-      setItems(data)
+      setItems(data.sort((a, b) => (a.weekOrder || 0) - (b.weekOrder || 0)))
     } finally {
       setLoading(false)
     }
@@ -90,7 +90,6 @@ const page = () => {
               )
             }}
             columns={[
-              { key: 'weekId', header: t('common.id') || 'ID', width: '80px', sortable: true },
               { key: 'weekOrder', header: t('weeklyContent.weekNumber'), width: '100px', sortable: true },
               { key: 'music.musicTitle', header: t('weeklyContent.musicTable'), render: (r) => (r as WeeklyContent).music?.musicTitle || '-' },
               { key: 'movie.movieTitle', header: t('weeklyContent.movieTable'), render: (r) => (r as WeeklyContent).movie?.movieTitle || '-' },

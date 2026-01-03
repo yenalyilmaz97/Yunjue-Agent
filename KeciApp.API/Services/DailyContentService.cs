@@ -9,12 +9,14 @@ public class DailyContentService : IDailyContentService
 {
     private readonly IDailyContentRepository _dailyContentRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IUserProgressRepository _userProgressRepository;
     private readonly IMapper _mapper;
 
-    public DailyContentService(IDailyContentRepository dailyContentRepository, IUserRepository userRepository, IMapper mapper)
+    public DailyContentService(IDailyContentRepository dailyContentRepository, IUserRepository userRepository, IUserProgressRepository userProgressRepository, IMapper mapper)
     {
         _dailyContentRepository = dailyContentRepository;
         _userRepository = userRepository;
+        _userProgressRepository = userProgressRepository;
         _mapper = mapper;
     }
 
@@ -52,36 +54,28 @@ public class DailyContentService : IDailyContentService
             throw new InvalidOperationException("User not found");
         }
 
-        // Calculate day order based on subscription start date
-        // Using CreatedAt as subscription start, or calculate days since subscription
-        var subscriptionStart = user.CreatedAt;
-        var daysSinceStart = (DateTime.UtcNow - subscriptionStart).Days;
-        
-        // If dailyOrWeekly is true, use daily content; otherwise use weekly
-        if (!user.dailyOrWeekly)
+        // If user has DailyContentId, return that daily content
+        if (user.DailyContentId.HasValue)
         {
-            throw new InvalidOperationException("User is not on daily content plan");
+            var dailyContent = await _dailyContentRepository.GetDailyContentByIdAsync(user.DailyContentId.Value);
+            if (dailyContent != null)
+            {
+                return _mapper.Map<DailyContentResponseDTO>(dailyContent);
+            }
         }
 
-        // Calculate which day order to use (cycle through available days)
-        var maxDayOrder = await _dailyContentRepository.GetMaxDayOrderAsync();
-        if (maxDayOrder == 0)
+        // If user doesn't have DailyContentId assigned, assign the first daily content
+        var firstDailyContent = await _dailyContentRepository.GetDailyContentByDayOrderAsync(1);
+        if (firstDailyContent != null)
         {
-            throw new InvalidOperationException("No daily content available");
+            // Assign first daily content to user
+            user.DailyContentId = firstDailyContent.DailyContentId;
+            await _userRepository.UpdateUserAsync(user);
+            return _mapper.Map<DailyContentResponseDTO>(firstDailyContent);
         }
 
-        // Day order is 1-based, so add 1 to days since start, then modulo
-        var dayOrder = (daysSinceStart % maxDayOrder) + 1;
-        if (dayOrder == 0) dayOrder = maxDayOrder;
-
-        var dailyContent = await _dailyContentRepository.GetDailyContentByDayOrderAsync(dayOrder);
-        if (dailyContent == null)
-        {
-            // Fallback to day order 1 if calculated day doesn't exist
-            dailyContent = await _dailyContentRepository.GetDailyContentByDayOrderAsync(1);
-        }
-
-        return dailyContent != null ? _mapper.Map<DailyContentResponseDTO>(dailyContent) : null;
+        // No daily content available
+        throw new InvalidOperationException("No daily content available");
     }
 
     public async Task<DailyContentResponseDTO> CreateDailyContentAsync(CreateDailyContentRequest request)
@@ -114,6 +108,72 @@ public class DailyContentService : IDailyContentService
 
         await _dailyContentRepository.RemoveDailyContentAsync(dailyContent);
         return _mapper.Map<DailyContentResponseDTO>(dailyContent);
+    }
+
+    public async Task<BulkUpdateDailyContentResponseDTO> IncrementDailyContentForAllUsersAsync()
+    {
+        var allUsers = await _userRepository.GetAllUsersAsync();
+        int dailyUpdatedCount = 0;
+        int skippedCount = 0;
+        var maxDayOrder = await _dailyContentRepository.GetMaxDayOrderAsync();
+        
+        if (maxDayOrder == 0)
+        {
+            return new BulkUpdateDailyContentResponseDTO
+            {
+                UpdatedCount = 0,
+                SkippedCount = 0,
+                Message = "No daily content available."
+            };
+        }
+
+        var usersWithDailyContent = allUsers.Where(u => u.DailyContentId.HasValue).ToList();
+        
+        foreach (var user in usersWithDailyContent)
+        {
+            // Check if user has progress record for current daily content (only update if progress exists)
+            var currentDailyContent = await _dailyContentRepository.GetDailyContentByIdAsync(user.DailyContentId.Value);
+            if (currentDailyContent != null)
+            {
+                // Check if user has progress for this daily content
+                var userProgress = await _userProgressRepository.GetUserProgressByUserIdAndDailyContentIdAsync(user.UserId, currentDailyContent.DailyContentId);
+                if (userProgress == null)
+                {
+                    // No progress record, skip this user
+                    skippedCount++;
+                    continue;
+                }
+
+                var nextDayOrder = currentDailyContent.DayOrder + 1;
+                if (nextDayOrder > maxDayOrder)
+                {
+                    nextDayOrder = 1; // Cycle back to first day
+                }
+                
+                var nextDailyContent = await _dailyContentRepository.GetDailyContentByDayOrderAsync(nextDayOrder);
+                if (nextDailyContent != null)
+                {
+                    user.DailyContentId = nextDailyContent.DailyContentId;
+                    await _userRepository.UpdateUserAsync(user);
+                    dailyUpdatedCount++;
+                }
+                else
+                {
+                    skippedCount++;
+                }
+            }
+            else
+            {
+                skippedCount++;
+            }
+        }
+
+        return new BulkUpdateDailyContentResponseDTO
+        {
+            UpdatedCount = dailyUpdatedCount,
+            SkippedCount = skippedCount,
+            Message = $"Successfully updated daily content for {dailyUpdatedCount} users. Skipped {skippedCount} users."
+        };
     }
 }
 

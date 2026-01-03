@@ -14,20 +14,22 @@ export const USER_MENU_ITEMS: MenuItemType[] = [
   },
   {
     key: 'content',
-    label: 'CONTENT',
-    isTitle: true,
-  },
-  {
-    key: 'articles',
-    label: 'Articles',
-    icon: 'mingcute:book-3-line',
-    url: '/articles',
-  },
-  {
-    key: 'podcasts',
-    label: 'Podcasts',
-    icon: 'mingcute:headphone-line',
-    url: '/podcasts',
+    label: 'İçerikler',
+    icon: 'mingcute:grid-2-line',
+    children: [
+      {
+        key: 'articles',
+        label: 'Makaleler',
+        url: '/articles',
+        parentKey: 'content',
+      },
+      {
+        key: 'podcasts',
+        label: 'Podcastler',
+        url: '/podcasts',
+        parentKey: 'content',
+      },
+    ],
   },
   {
     key: 'favorites',

@@ -106,6 +106,9 @@ namespace KeciApp.API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
                     b.Property<string>("PdfLink")
                         .IsRequired()
                         .HasColumnType("text");
@@ -203,6 +206,9 @@ namespace KeciApp.API.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MovieId"));
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("text");
 
                     b.Property<string>("MovieTitle")
                         .IsRequired()
@@ -313,8 +319,7 @@ namespace KeciApp.API.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -440,6 +445,9 @@ namespace KeciApp.API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int?>("DailyContentId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("timestamp with time zone");
 
@@ -503,6 +511,8 @@ namespace KeciApp.API.Migrations
 
                     b.HasKey("UserId");
 
+                    b.HasIndex("DailyContentId");
+
                     b.HasIndex("RoleId");
 
                     b.HasIndex("WeeklyContentId");
@@ -524,6 +534,9 @@ namespace KeciApp.API.Migrations
                     b.Property<DateTime>("CompleteTime")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int?>("DailyContentId")
+                        .HasColumnType("integer");
+
                     b.Property<int?>("EpisodeId")
                         .HasColumnType("integer");
 
@@ -540,11 +553,27 @@ namespace KeciApp.API.Migrations
 
                     b.HasIndex("ArticleId");
 
+                    b.HasIndex("DailyContentId");
+
                     b.HasIndex("EpisodeId");
 
-                    b.HasIndex("UserId");
-
                     b.HasIndex("WeekId");
+
+                    b.HasIndex("UserId", "ArticleId")
+                        .IsUnique()
+                        .HasFilter("\"ArticleId\" IS NOT NULL");
+
+                    b.HasIndex("UserId", "DailyContentId")
+                        .IsUnique()
+                        .HasFilter("\"DailyContentId\" IS NOT NULL");
+
+                    b.HasIndex("UserId", "EpisodeId")
+                        .IsUnique()
+                        .HasFilter("\"EpisodeId\" IS NOT NULL");
+
+                    b.HasIndex("UserId", "WeekId")
+                        .IsUnique()
+                        .HasFilter("\"WeekId\" IS NOT NULL");
 
                     b.ToTable("UserProgress", (string)null);
                 });
@@ -563,7 +592,7 @@ namespace KeciApp.API.Migrations
                     b.Property<int>("CurrentAccessibleSequence")
                         .HasColumnType("integer");
 
-                    b.Property<int>("SeriesId")
+                    b.Property<int?>("SeriesId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -578,7 +607,7 @@ namespace KeciApp.API.Migrations
 
                     b.HasIndex("SeriesId");
 
-                    b.HasIndex("UserId", "SeriesId")
+                    b.HasIndex("UserId", "SeriesId", "ArticleId")
                         .IsUnique();
 
                     b.ToTable("UserSeriesAccesses", (string)null);
@@ -741,7 +770,8 @@ namespace KeciApp.API.Migrations
 
                     b.HasOne("KeciApp.API.Models.PodcastEpisodes", "PodcastEpisode")
                         .WithMany("Favorites")
-                        .HasForeignKey("EpisodeId");
+                        .HasForeignKey("EpisodeId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("KeciApp.API.Models.User", "User")
                         .WithMany("Favorites")
@@ -768,7 +798,8 @@ namespace KeciApp.API.Migrations
 
                     b.HasOne("KeciApp.API.Models.PodcastEpisodes", "PodcastEpisode")
                         .WithMany("Notes")
-                        .HasForeignKey("EpisodeId");
+                        .HasForeignKey("EpisodeId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("KeciApp.API.Models.User", "User")
                         .WithMany("Notes")
@@ -802,7 +833,8 @@ namespace KeciApp.API.Migrations
 
                     b.HasOne("KeciApp.API.Models.PodcastEpisodes", "Episodes")
                         .WithMany("Questions")
-                        .HasForeignKey("EpisodeId");
+                        .HasForeignKey("EpisodeId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("KeciApp.API.Models.User", "User")
                         .WithMany("Questions")
@@ -819,6 +851,11 @@ namespace KeciApp.API.Migrations
 
             modelBuilder.Entity("KeciApp.API.Models.User", b =>
                 {
+                    b.HasOne("KeciApp.API.Models.DailyContent", "DailyContent")
+                        .WithMany()
+                        .HasForeignKey("DailyContentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("KeciApp.API.Models.Role", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
@@ -831,6 +868,8 @@ namespace KeciApp.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("DailyContent");
+
                     b.Navigation("Role");
 
                     b.Navigation("WeeklyContent");
@@ -842,9 +881,15 @@ namespace KeciApp.API.Migrations
                         .WithMany()
                         .HasForeignKey("ArticleId");
 
+                    b.HasOne("KeciApp.API.Models.DailyContent", "DailyContent")
+                        .WithMany()
+                        .HasForeignKey("DailyContentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("KeciApp.API.Models.PodcastEpisodes", "PodcastEpisodes")
                         .WithMany()
-                        .HasForeignKey("EpisodeId");
+                        .HasForeignKey("EpisodeId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("KeciApp.API.Models.User", "User")
                         .WithMany()
@@ -857,6 +902,8 @@ namespace KeciApp.API.Migrations
                         .HasForeignKey("WeekId");
 
                     b.Navigation("Article");
+
+                    b.Navigation("DailyContent");
 
                     b.Navigation("PodcastEpisodes");
 
@@ -874,8 +921,7 @@ namespace KeciApp.API.Migrations
                     b.HasOne("KeciApp.API.Models.PodcastSeries", "PodcastSeries")
                         .WithMany()
                         .HasForeignKey("SeriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("KeciApp.API.Models.User", "User")
                         .WithMany("UserSeriesAccesses")

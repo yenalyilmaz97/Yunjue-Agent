@@ -70,7 +70,6 @@ const page = () => {
               )
             }}
             columns={[
-              { key: 'taskId', header: t('common.id') || 'ID', width: '80px', sortable: true },
               { key: 'taskDescription', header: t('weeklyContent.tasks.description'), sortable: true },
             ]}
           />

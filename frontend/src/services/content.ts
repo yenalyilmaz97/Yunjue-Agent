@@ -40,8 +40,17 @@ export const contentService = {
 		return api.get<Movie>(`${MOVIES_ENDPOINT}/movies/${id}`)
 	},
 
-	async createMovie(movieData: { movieTitle: string }): Promise<Movie> {
-		return api.post<Movie>(`${MOVIES_ENDPOINT}/movies`, movieData)
+	async createMovie(movieData: { movieTitle: string; imageFile?: File }): Promise<Movie> {
+		// Always use FormData for consistency (even without image)
+		const formData = new FormData()
+		formData.append('movieTitle', movieData.movieTitle)
+		if (movieData.imageFile) {
+			formData.append('imageFile', movieData.imageFile)
+		}
+		// Don't set Content-Type header - let axios/browser set it with boundary
+		return api.post<Movie>(`${MOVIES_ENDPOINT}/movies`, formData, {
+			timeout: 300000, // 5 minutes for large file uploads
+		})
 	},
 
 	async updateMovie(_id: number, movieData: { movieId: number; movieTitle: string }): Promise<Movie> {
@@ -50,6 +59,18 @@ export const contentService = {
 
 	async deleteMovie(id: number): Promise<Movie> {
 		return api.delete<Movie>(`${MOVIES_ENDPOINT}/movies/${id}`)
+	},
+
+	async uploadMovieImage(movieId: number, file: File): Promise<Movie> {
+		const form = new FormData()
+		form.append('file', file)
+		return api.post<Movie>(`${MOVIES_ENDPOINT}/movies/${movieId}/image`, form, {
+			timeout: 300000, // 5 minutes for large file uploads
+		})
+	},
+
+	async deleteMovieImage(movieId: number): Promise<Movie> {
+		return api.delete<Movie>(`${MOVIES_ENDPOINT}/movies/${movieId}/image`)
 	},
 
 	// Task endpoints
@@ -153,10 +174,16 @@ export const contentService = {
 		return api.post<Article>(`${ARTICLE_ENDPOINT}/articles`, payload)
 	},
 
-	async createArticleWithFile(formData: FormData): Promise<Article> {
+	async createArticleWithFile(formData: FormData, onProgress?: (progress: number) => void): Promise<Article> {
+		if (onProgress) {
+			return api.postWithProgress<Article>(`${ARTICLE_ENDPOINT}/articles`, formData, onProgress, {
+				headers: { 'Content-Type': 'multipart/form-data' },
+				timeout: 600000, // 10 minutes for large file uploads (2GB)
+			})
+		}
 		return api.post<Article>(`${ARTICLE_ENDPOINT}/articles`, formData, {
 			headers: { 'Content-Type': 'multipart/form-data' },
-			timeout: 300000, // 5 minutes for large file uploads
+			timeout: 600000, // 10 minutes for large file uploads (2GB)
 		})
 	},
 

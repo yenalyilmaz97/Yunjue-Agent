@@ -496,7 +496,11 @@ const PodcastsPage = () => {
                 {/* Content Renderer */}
                 <div className="mb-3">
                   {contentType === 'video' && (
-                    <VideoPlayer src={getVideoUrl(currentEpisode) || ''} episodeId={currentEpisode.episodesId} controlsList="nodownload" />
+                    <VideoPlayer 
+                      src={getVideoUrl(currentEpisode) || ''} 
+                      episodeId={currentEpisode.episodesId} 
+                      userId={user?.id ? parseInt(user.id) : undefined}
+                    />
                   )}
                   {contentType === 'audio' && (
                     <ModernAudioPlayer
@@ -510,7 +514,12 @@ const PodcastsPage = () => {
                     <PDFViewer pdfUrl={getPdfUrl(currentEpisode) || ''} title={currentEpisode.title} />
                   )}
                   {contentType === 'gallery' && (
-                    <GalleryViewer images={getGalleryImages(currentEpisode)} title={currentEpisode.title} />
+                    <GalleryViewer 
+                      images={getGalleryImages(currentEpisode)} 
+                      title={currentEpisode.title}
+                      episodeId={currentEpisode.episodesId}
+                      userId={user?.id ? parseInt(user.id) : undefined}
+                    />
                   )}
                   {contentType === 'none' && (
                     <div className="text-center py-4 text-muted">
@@ -715,7 +724,7 @@ const PodcastsPage = () => {
             <CardBody className="p-3">
               <h6 className="mb-3 fw-semibold d-flex align-items-center gap-2" style={{ fontSize: '0.9rem' }}>
                 <Icon icon="mingcute:list-check-line" style={{ color: 'var(--bs-primary)' }} />
-                Podcast Serileri
+                İçerik Serileri
               </h6>
               {loading ? (
                 <div className="text-center py-4">

@@ -17,6 +17,7 @@ public class UserSeriesAccessRepository : IUserSeriesAccessRepository
         return await _context.UserSeriesAccesses
             .Include(usa => usa.User)
             .Include(usa => usa.PodcastSeries)
+            .Include(usa => usa.Article)
             .ToListAsync();
     }
     public async Task<IEnumerable<UserSeriesAccess>> GetUserSeriesAccessByUserIdAsync(int userId)
@@ -24,6 +25,7 @@ public class UserSeriesAccessRepository : IUserSeriesAccessRepository
         return await _context.UserSeriesAccesses
             .Where(usa => usa.UserId == userId)
             .Include(usa => usa.PodcastSeries)
+            .Include(usa => usa.Article)
             .ToListAsync();
     }
     public async Task<UserSeriesAccess?> GetUserSeriesAccessByIdAsync(int id)
@@ -31,6 +33,7 @@ public class UserSeriesAccessRepository : IUserSeriesAccessRepository
         return await _context.UserSeriesAccesses
             .Include(usa => usa.User)
             .Include(usa => usa.PodcastSeries)
+            .Include(usa => usa.Article)
             .FirstOrDefaultAsync(usa => usa.UserSeriesAccessId == id);
     }
     public async Task<UserSeriesAccess?> GetUserSeriesAccessAsync(int userId, int? seriesId)
@@ -38,6 +41,7 @@ public class UserSeriesAccessRepository : IUserSeriesAccessRepository
         return await _context.UserSeriesAccesses
             .Include(usa => usa.User)
             .Include(usa => usa.PodcastSeries)
+            .Include(usa => usa.Article)
             .FirstOrDefaultAsync(usa => usa.UserId == userId && usa.SeriesId == seriesId);
     }
     public async Task<UserSeriesAccess> CreateUserSeriesAccessAsync(UserSeriesAccess access)

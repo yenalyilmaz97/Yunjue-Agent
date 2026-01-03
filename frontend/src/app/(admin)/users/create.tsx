@@ -1,14 +1,18 @@
 import PageTitle from '@/components/PageTitle'
-import { useEffect } from 'react'
-import { userService } from '@/services'
-import { Button, Card, CardBody, CardHeader, CardTitle, Col, Form, Row } from 'react-bootstrap'
+import { useEffect, useState } from 'react'
+import { userService, roleService } from '@/services'
+import { Button, Card, CardBody, CardHeader, CardTitle, Col, Form, Row, Modal } from 'react-bootstrap'
 import { useLocation, useNavigate } from 'react-router-dom'
 import TextFormInput from '@/components/from/TextFormInput'
+import SelectFormInput from '@/components/from/SelectFormInput'
 import TextAreaFormInput from '@/components/from/TextAreaFormInput'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useI18n } from '@/i18n/context'
+import IconifyIcon from '@/components/wrapper/IconifyIcon'
+import PasswordFormInput from '@/components/from/PasswordFormInput'
+import type { Role } from '@/types/keci'
 
 type FormFields = {
   userName: string
@@ -22,7 +26,9 @@ type FormFields = {
   description?: string
   password?: string
   subscriptionEnd: string
-  roleId?: number
+  keciTimeEnd?: string
+  isKeci: boolean
+  roleId: number
 }
 
 const UserCreateEditPage = () => {
@@ -30,22 +36,44 @@ const UserCreateEditPage = () => {
   const navigate = useNavigate()
   const location = useLocation()
 
+  const [roles, setRoles] = useState<Role[]>([])
+  const [showAddTimeModal, setShowAddTimeModal] = useState(false)
+  const [targetTimeField, setTargetTimeField] = useState<'subscriptionEnd' | 'keciTimeEnd' | null>(null)
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const data = await roleService.getAllRoles()
+        setRoles(data)
+      } catch (error) {
+        console.error('Failed to fetch roles', error)
+      }
+    }
+    fetchRoles()
+  }, [])
+
   const schema: yup.ObjectSchema<FormFields> = yup.object({
-    userName: yup.string().trim().required(t('users.enterUserNameRequired')),
-    email: yup.string().email(t('users.enterEmailInvalid')).required(t('users.enterEmailRequired')),
-    firstName: yup.string().trim().required(t('users.enterFirstNameRequired')),
-    lastName: yup.string().trim().required(t('users.enterLastNameRequired')),
+    userName: yup.string().trim().max(25, t('users.maxChar', { count: 25 })).required(t('users.enterUserNameRequired')),
+    email: yup.string().email(t('users.enterEmailInvalid')).max(60, t('users.maxChar', { count: 60 })).required(t('users.enterEmailRequired')),
+    firstName: yup.string().trim().max(25, t('users.maxChar', { count: 25 })).required(t('users.enterFirstNameRequired')),
+    lastName: yup.string().trim().max(25, t('users.maxChar', { count: 25 })).required(t('users.enterLastNameRequired')),
     dateOfBirth: yup.string().required(t('users.selectDateOfBirthRequired')),
     gender: yup.boolean().required(),
-    city: yup.string().trim().required(t('users.enterCityRequired')),
+    city: yup.string().trim().max(50, t('users.maxChar', { count: 50 })).required(t('users.enterCityRequired')),
     phone: yup.string().trim().required(t('users.enterPhoneRequired')),
-    description: yup.string().trim().optional(),
-    password: yup.string().min(6, t('users.passwordMin')).optional(),
+    description: yup.string().trim().max(255, t('users.maxChar', { count: 255 })).optional(),
+    password: yup.string().transform((value) => (value === '' ? undefined : value)).min(6, t('users.passwordMin')).max(30, t('users.maxChar', { count: 30 })).optional(),
     subscriptionEnd: yup.string().required(t('users.selectSubscriptionEndRequired')),
-    roleId: yup.number().optional(),
+    isKeci: yup.boolean().required(),
+    keciTimeEnd: yup.string().when('isKeci', {
+      is: true,
+      then: (schema) => schema.required(t('users.selectKeciTimeEndRequired') || 'Keçi süresi seçiniz'),
+      otherwise: (schema) => schema.optional()
+    }),
+    roleId: yup.number().required(t('users.selectRoleRequired') || 'Rol seçiniz'),
   })
 
-  const { control, handleSubmit, reset, formState } = useForm<FormFields>({
+  const { control, handleSubmit, reset, formState, setValue, getValues } = useForm<FormFields>({
     resolver: yupResolver(schema),
     defaultValues: {
       userName: '',
@@ -59,10 +87,38 @@ const UserCreateEditPage = () => {
       description: '',
       password: '',
       subscriptionEnd: '',
+      keciTimeEnd: '',
+      isKeci: false,
       roleId: undefined,
     },
   })
   const { isSubmitting } = formState
+
+  const selectedRoleId = useWatch({ control, name: 'roleId' })
+  const isKeci = useWatch({ control, name: 'isKeci' })
+
+  // Sync isKeci with selected role
+  useEffect(() => {
+    if (selectedRoleId && roles.length > 0) {
+      const role = roles.find(r => r.roleId == selectedRoleId)
+      const shouldBeKeci = role?.roleName.toLowerCase().includes('keci') || role?.roleName.toLowerCase().includes('keçi') || false
+
+      // Update the form value if it differs to avoid loops, pass shouldDirty: true if we want to trigger validation updates
+      if (getValues('isKeci') !== shouldBeKeci) {
+        setValue('isKeci', shouldBeKeci, { shouldValidate: true })
+
+        // Clear keci time if not keci
+        if (!shouldBeKeci) {
+          setValue('keciTimeEnd', '')
+        } else if (!getValues('keciTimeEnd')) {
+          // Optional: Set default time if becoming keci?
+          const today = new Date().toISOString().split('T')[0];
+          setValue('keciTimeEnd', today);
+        }
+      }
+    }
+  }, [selectedRoleId, roles, setValue, getValues])
+
 
   const state = (location.state as any) || {}
   const isEdit = state.mode === 'edit'
@@ -70,6 +126,7 @@ const UserCreateEditPage = () => {
 
   useEffect(() => {
     if (isEdit && editItem) {
+      const hasKeciTime = !!editItem.keciTimeEnd;
       reset({
         userName: editItem.userName || '',
         email: editItem.email || '',
@@ -82,45 +139,76 @@ const UserCreateEditPage = () => {
         description: editItem.description || '',
         password: '',
         subscriptionEnd: editItem.subscriptionEnd ? new Date(editItem.subscriptionEnd).toISOString().split('T')[0] : '',
-        roleId: editItem.roleId || undefined,
+        keciTimeEnd: editItem.keciTimeEnd ? new Date(editItem.keciTimeEnd).toISOString().split('T')[0] : '',
+        isKeci: hasKeciTime,
+        roleId: editItem.roleId,
       })
     }
   }, [isEdit])
 
   const onSubmit = handleSubmit(async (data) => {
-    if (isEdit && editItem) {
-      await userService.updateUser(editItem.userId, {
-        userId: editItem.userId,
+    console.log('Form Submit Data:', data)
+    try {
+      const commonData = {
         userName: data.userName,
         firstName: data.firstName,
         lastName: data.lastName,
         dateOfBirth: data.dateOfBirth,
         email: data.email,
-        gender: data.gender,
+        gender: (data.gender as any) === 'true' || data.gender === true,
         city: data.city,
         phone: data.phone,
         description: data.description,
         subscriptionEnd: data.subscriptionEnd,
-        roleId: data.roleId ?? editItem.roleId,
-      } as any)
-    } else {
-      await userService.createUser({
-        userName: data.userName,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        dateOfBirth: data.dateOfBirth,
-        email: data.email,
-        gender: data.gender,
-        city: data.city,
-        phone: data.phone,
-        description: data.description,
-        password: data.password || '',
-        subscriptionEnd: data.subscriptionEnd,
-        roleId: data.roleId ?? 2,
-      } as any)
+        keciTimeEnd: data.isKeci ? data.keciTimeEnd : null,
+      };
+
+      if (isEdit && editItem) {
+        await userService.updateUser(editItem.userId, {
+          userId: editItem.userId,
+          ...commonData,
+          roleId: data.roleId,
+        } as any)
+      } else {
+        await userService.createUser({
+          ...commonData,
+          password: data.password || '',
+          roleId: data.roleId || 2, // Default to User role (usually 2) if not set, though validation requires it
+        } as any)
+      }
+      navigate('/admin/users')
+    } catch (error) {
+      console.error(error)
+      alert(t('common.error') || 'Bir hata oluştu')
     }
-    navigate('/admin/users')
   })
+
+  const openAddTimeModal = (field: 'subscriptionEnd' | 'keciTimeEnd') => {
+    setTargetTimeField(field)
+    setShowAddTimeModal(true)
+  }
+
+  const handleAddTime = (months: number) => {
+    if (!targetTimeField) return
+
+    // Get current value or default to today
+    const currentValue = getValues(targetTimeField)
+    let date = currentValue ? new Date(currentValue) : new Date()
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      date = new Date()
+    }
+
+    // Add months
+    date.setMonth(date.getMonth() + months)
+
+    // Format to YYYY-MM-DD
+    const newDateStr = date.toISOString().split('T')[0]
+
+    setValue(targetTimeField, newDateStr, { shouldValidate: true, shouldDirty: true })
+    setShowAddTimeModal(false)
+  }
 
   return (
     <>
@@ -148,17 +236,69 @@ const UserCreateEditPage = () => {
                 <TextFormInput control={control} name="dateOfBirth" type="date" label={t('users.dateOfBirth')} />
               </Col>
               <Col md={6}>
-                <TextFormInput control={control} name="subscriptionEnd" type="date" label={t('users.subscriptionEnd')} />
-              </Col>
-              <Col md={6}>
                 <TextFormInput control={control} name="city" label={t('users.city')} placeholder={t('users.enterCity')} />
               </Col>
+              <Col md={6}>
+                <SelectFormInput
+                  control={control}
+                  name="gender"
+                  label={t('users.gender')}
+                  options={[
+                    { value: 'true', label: t('users.male') },
+                    { value: 'false', label: t('users.female') },
+                  ]}
+                />
+              </Col>
+
+              <Col md={6}>
+                <div className="d-flex gap-2 align-items-end">
+                  <div className="flex-grow-1">
+                    <TextFormInput control={control} name="subscriptionEnd" type="date" label={t('users.subscriptionEnd')} />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline-primary"
+                    onClick={() => openAddTimeModal('subscriptionEnd')}
+                    title={t('common.addTime') || "Süre Ekle"}
+                  >
+                    <IconifyIcon icon="mdi:clock-plus-outline" />
+                  </Button>
+                </div>
+              </Col>
+
+              <Col md={6}>
+                <SelectFormInput
+                  control={control}
+                  name="roleId"
+                  label={t('users.role') || 'Rol'}
+                  options={roles.map(r => ({ value: r.roleId, label: r.roleName }))}
+                />
+              </Col>
+
+              {isKeci && (
+                <Col md={6}>
+                  <div className="d-flex gap-2 align-items-end">
+                    <div className="flex-grow-1">
+                      <TextFormInput control={control} name="keciTimeEnd" type="date" label={t('users.keciTimeEnd') || "Keçi Süresi Bitiş"} />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline-primary"
+                      onClick={() => openAddTimeModal('keciTimeEnd')}
+                      title={t('common.addTime') || "Süre Ekle"}
+                    >
+                      <IconifyIcon icon="mdi:clock-plus-outline" />
+                    </Button>
+                  </div>
+                </Col>
+              )}
+
               <Col md={6}>
                 <TextFormInput control={control} name="phone" label={t('users.phone')} placeholder={t('users.enterPhone')} />
               </Col>
               {!isEdit && (
                 <Col md={6}>
-                  <TextFormInput control={control} name="password" type="password" label={t('users.password')} placeholder={t('users.enterPassword')} />
+                  <PasswordFormInput control={control} name="password" label={t('users.password')} placeholder={t('users.enterPassword')} />
                 </Col>
               )}
               <Col md={12}>
@@ -172,10 +312,30 @@ const UserCreateEditPage = () => {
           </Form>
         </CardBody>
       </Card>
+
+      <Modal show={showAddTimeModal} onHide={() => setShowAddTimeModal(false)} centered size="sm">
+        <Modal.Header closeButton>
+          <Modal.Title>{t('common.addTime') || "Süre Ekle"}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="d-grid gap-2">
+            <Button variant="outline-primary" onClick={() => handleAddTime(1)}>
+              +1 {t('common.month') || "Ay"}
+            </Button>
+            <Button variant="outline-primary" onClick={() => handleAddTime(3)}>
+              +3 {t('common.month') || "Ay"}
+            </Button>
+            <Button variant="outline-primary" onClick={() => handleAddTime(6)}>
+              +6 {t('common.month') || "Ay"}
+            </Button>
+            <Button variant="outline-primary" onClick={() => handleAddTime(12)}>
+              +1 {t('common.year') || "Yıl"}
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
     </>
   )
 }
 
 export default UserCreateEditPage
-
-

@@ -13,6 +13,7 @@ import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import type { UploadFileType } from '@/types/component-props'
 import { useI18n } from '@/i18n/context'
+import UploadProgressModal from '@/components/UploadProgressModal'
 
 type FormFields = {
   seriesId: number
@@ -61,6 +62,8 @@ const EpisodeCreateEditPage = () => {
     video: null,
     images: [],
   })
+  const [uploadProgress, setUploadProgress] = useState<number>(0)
+  const [isUploading, setIsUploading] = useState<boolean>(false)
 
   const getFileType = (fileName: string): 'audio' | 'video' | 'image' | null => {
     const ext = fileName.toLowerCase().split('.').pop()
@@ -197,8 +200,14 @@ const EpisodeCreateEditPage = () => {
           }
           
           console.log('Updating episode with files...')
-          await podcastService.updateEpisodeWithFiles(formData)
+          setIsUploading(true)
+          setUploadProgress(0)
+          await podcastService.updateEpisodeWithFiles(formData, (progress) => {
+            setUploadProgress(progress)
+          })
           console.log('Episode updated successfully with files')
+          setIsUploading(false)
+          setUploadProgress(0)
         } else {
           // No new files, use existing content with regular update endpoint
           const content: EpisodeContent = {
@@ -255,8 +264,14 @@ const EpisodeCreateEditPage = () => {
         }
 
         console.log('Submitting episode with files...')
-        const result = await podcastService.createEpisodeWithFiles(formData)
+        setIsUploading(true)
+        setUploadProgress(0)
+        const result = await podcastService.createEpisodeWithFiles(formData, (progress) => {
+          setUploadProgress(progress)
+        })
         console.log('Episode created successfully:', result)
+        setIsUploading(false)
+        setUploadProgress(0)
       }
       navigate('/admin/podcasts/episodes')
     } catch (error: any) {
@@ -345,9 +360,12 @@ const EpisodeCreateEditPage = () => {
               </Col>
             </Row>
             <div className="d-flex justify-content-end gap-2 mt-3">
-              <Button type="button" variant="light" onClick={() => navigate('/admin/podcasts/episodes')}>{t('common.cancel')}</Button>
-              <Button type="submit" variant="primary" disabled={isSubmitting}>{isSubmitting ? t('common.saving') : isEdit ? t('common.update') : t('common.create')}</Button>
+              <Button type="button" variant="light" onClick={() => navigate('/admin/podcasts/episodes')} disabled={isUploading}>{t('common.cancel')}</Button>
+              <Button type="submit" variant="primary" disabled={isSubmitting || isUploading}>
+                {isSubmitting ? t('common.saving') : isEdit ? t('common.update') : t('common.create')}
+              </Button>
             </div>
+            <UploadProgressModal show={isUploading} progress={uploadProgress} />
           </Form>
         </CardBody>
       </Card>

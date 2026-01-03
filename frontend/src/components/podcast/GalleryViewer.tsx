@@ -2,20 +2,46 @@ import { Card, CardBody } from 'react-bootstrap'
 import { Icon } from '@iconify/react'
 import { useState, useEffect, useRef } from 'react'
 import { CONTENT_ICONS } from '@/context/constants'
+import { userProgressService } from '@/services'
 
 interface GalleryViewerProps {
   images: string[]
   title?: string
   onClose?: () => void
+  episodeId?: number
+  userId?: number
 }
 
-const GalleryViewer = ({ images, title, onClose }: GalleryViewerProps) => {
+const GalleryViewer = ({ images, title, onClose, episodeId, userId }: GalleryViewerProps) => {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
   const [imageLoaded, setImageLoaded] = useState(false)
   const imageRef = useRef<HTMLDivElement>(null)
+  const completedRef = useRef(false)
+
+  // Mark as completed when gallery is opened
+  useEffect(() => {
+    if (episodeId && userId && !completedRef.current) {
+      completedRef.current = true
+      userProgressService
+        .createOrUpdateUserProgress({
+          userId,
+          episodeId,
+          isCompleted: true,
+        })
+        .then(() => {
+          console.log(`Episode ${episodeId} (gallery) marked as completed`)
+        })
+        .catch((error) => {
+          console.error('Error marking episode as completed:', error)
+          if (error?.response?.status !== 400) {
+            completedRef.current = false
+          }
+        })
+    }
+  }, [episodeId, userId])
 
   const currentImage = images[selectedIndex]
 

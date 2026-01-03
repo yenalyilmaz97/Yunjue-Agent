@@ -13,6 +13,9 @@ public class Article
     public string Title { get; set; }
 
     [Required]
+    public int Order { get; set; }
+
+    [Required]
     public string PdfLink { get; set; }
 
     [Required]

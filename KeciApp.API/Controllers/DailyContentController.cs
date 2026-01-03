@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using KeciApp.API.DTOs;
 using KeciApp.API.Interfaces;
+using KeciApp.API.Attributes;
 
 namespace KeciApp.API.Controllers;
 
@@ -122,6 +123,21 @@ public class DailyContentController : ControllerBase
         catch (InvalidOperationException ex)
         {
             return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("increment-daily-content")]
+    [AuthorizeRoles("admin", "superadmin")]
+    public async Task<ActionResult<BulkUpdateDailyContentResponseDTO>> IncrementDailyContentForAllUsers()
+    {
+        try
+        {
+            var result = await _dailyContentService.IncrementDailyContentForAllUsersAsync();
+            return Ok(result);
         }
         catch (Exception ex)
         {

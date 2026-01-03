@@ -10,6 +10,7 @@ import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import type { UploadFileType } from '@/types/component-props'
 import { useI18n } from '@/i18n/context'
+import UploadProgressModal from '@/components/UploadProgressModal'
 
 type FormValues = { title: string; isActive: boolean }
 
@@ -31,6 +32,8 @@ const CreateArticlePage = () => {
   const isEdit = state.mode === 'edit'
   const editItem = state.item
   const [pdfFile, setPdfFile] = useState<File | null>(null)
+  const [uploadProgress, setUploadProgress] = useState<number>(0)
+  const [isUploading, setIsUploading] = useState<boolean>(false)
 
   useEffect(() => {
     if (isEdit && editItem) {
@@ -58,7 +61,13 @@ const CreateArticlePage = () => {
         formData.append('isActive', data.isActive.toString())
         formData.append('pdfFile', pdfFile)
 
-        await contentService.createArticleWithFile(formData)
+        setIsUploading(true)
+        setUploadProgress(0)
+        await contentService.createArticleWithFile(formData, (progress) => {
+          setUploadProgress(progress)
+        })
+        setIsUploading(false)
+        setUploadProgress(0)
       }
       navigate('/admin/articles')
     } catch (err) {
@@ -120,11 +129,12 @@ const CreateArticlePage = () => {
               </Col>
             </Row>
             <div className="d-flex justify-content-end gap-2 mt-3">
-              <Button type="button" variant="light" onClick={() => navigate('/admin/articles')}>{t('common.cancel')}</Button>
-              <Button type="submit" variant="primary" disabled={isSubmitting}>
+              <Button type="button" variant="light" onClick={() => navigate('/admin/articles')} disabled={isUploading}>{t('common.cancel')}</Button>
+              <Button type="submit" variant="primary" disabled={isSubmitting || isUploading}>
                 {isSubmitting ? t('common.saving') : isEdit ? t('common.update') : t('common.create')}
               </Button>
             </div>
+            <UploadProgressModal show={isUploading} progress={uploadProgress} />
           </Form>
         </CardBody>
       </Card>

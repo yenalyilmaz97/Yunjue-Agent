@@ -21,23 +21,23 @@ const page = () => {
     setLoading(true)
     try {
       const data = await dailyContentService.getAllDailyContent()
-      
+
       // If any item has null navigation properties, fetch all affirmations and aphorisms
       const hasNullProperties = data.some(dc => !dc.affirmation || !dc.aphorism)
-      
+
       if (hasNullProperties) {
         const { contentService } = await import('@/services')
         const [affirmations, aphorisms] = await Promise.all([
           contentService.getAllAffirmations(),
           contentService.getAllAphorisms(),
         ])
-        
+
         const affirmationsMap = new Map(affirmations.map(a => [a.affirmationId, a.affirmationText || `ID: ${a.affirmationId}`]))
         const aphorismsMap = new Map(aphorisms.map(a => [a.aphorismId, a.aphorismText || `ID: ${a.aphorismId}`]))
-        
+
         setAffirmationsMap(affirmationsMap)
         setAphorismsMap(aphorismsMap)
-        
+
         // Fill in missing navigation properties
         const enrichedData = data.map(dc => ({
           ...dc,
@@ -52,10 +52,11 @@ const page = () => {
             order: aphorisms.find(a => a.aphorismId === dc.aporismId)?.order || 0,
           } : undefined),
         }))
-        
-        setItems(enrichedData)
+
+        // Sort by dayOrder
+        setItems(enrichedData.sort((a, b) => a.dayOrder - b.dayOrder))
       } else {
-        setItems(data)
+        setItems(data.sort((a, b) => a.dayOrder - b.dayOrder))
       }
     } finally {
       setLoading(false)
@@ -91,7 +92,7 @@ const page = () => {
       const sortedAffirmations = [...affirmations]
         .filter(a => !usedAffirmationIds.has(a.affirmationId))
         .sort((a, b) => (a.order || a.affirmationId) - (b.order || b.affirmationId))
-      
+
       const sortedAphorisms = [...aphorisms]
         .filter(a => !usedAphorismIds.has(a.aphorismId))
         .sort((a, b) => (a.order || a.aphorismId) - (b.order || b.aphorismId))
@@ -176,7 +177,6 @@ const page = () => {
               )
             }}
             columns={[
-              { key: 'dailyContentId', header: 'ID', width: '80px', sortable: true },
               { key: 'dayOrder', header: t('dailyContent.dayOrder'), width: '100px', sortable: true },
               {
                 key: 'affirmation',

@@ -107,6 +107,7 @@ const AdminSeriesAccessGrantPage = lazy(() => import('@/app/(admin)/access/serie
 const AdminSeriesAccessEditPage = lazy(() => import('@/app/(admin)/access/series-access/edit'))
 const AdminWeeklyAssignmentPage = lazy(() => import('@/app/(admin)/access/weekly-assignment/page'))
 const AdminWeeklyAssignmentEditPage = lazy(() => import('@/app/(admin)/access/weekly-assignment/edit'))
+const AdminDailyContentAccessPage = lazy(() => import('@/app/(admin)/access/daily-content/page'))
 const AdminQuestionsPage = lazy(() => import('@/app/(admin)/questions/page'))
 // User Articles Pages
 const UserArticlesPage = lazy(() => import('@/app/(user)/articles/page'))
@@ -447,6 +448,7 @@ export const appRoutes = [
   { name: 'AdminSeriesAccessEdit', path: '/admin/access/series/edit', element: <AdminSeriesAccessEditPage /> },
   { name: 'AdminWeeklyAssignment', path: '/admin/access/weekly', element: <AdminWeeklyAssignmentPage /> },
   { name: 'AdminWeeklyAssignmentEdit', path: '/admin/access/weekly/edit', element: <AdminWeeklyAssignmentEditPage /> },
+  { name: 'AdminDailyContentAccess', path: '/admin/access/daily-content', element: <AdminDailyContentAccessPage /> },
   { name: 'AdminQuestions', path: '/admin/questions', element: <AdminQuestionsPage /> },
   // user routes
   { name: 'UserArticles', path: '/articles', element: <UserArticlesPage /> },

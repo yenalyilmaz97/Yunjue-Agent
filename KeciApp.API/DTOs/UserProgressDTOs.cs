@@ -11,6 +11,8 @@ public class CreateUserProgressRequest
     
     public int? ArticleId { get; set; }
     
+    public int? DailyContentId { get; set; }
+    
     public int? EpisodeId { get; set; }
     
     [Required]
@@ -32,6 +34,7 @@ public class UserProgressResponseDTO
     public int UserId { get; set; }
     public int? WeekId { get; set; }
     public int? ArticleId { get; set; }
+    public int? DailyContentId { get; set; }
     public int? EpisodeId { get; set; }
     public bool IsCompleted { get; set; }
     public DateTime CompleteTime { get; set; }

@@ -172,7 +172,7 @@ const NotesPage = () => {
             <CardBody className="p-3">
               <h6 className="mb-3 fw-semibold d-flex align-items-center gap-2" style={{ fontSize: '0.9rem' }}>
                 <Icon icon="mingcute:notebook-line" style={{ color: 'var(--bs-primary)' }} />
-                Podcast Serileri
+                İçerik Serileri
               </h6>
               {loading ? (
                 <div className="text-center py-4">
@@ -188,11 +188,11 @@ const NotesPage = () => {
                   {groupedNotes.map((series, index) => {
                     const isSelected = selectedSeries?.seriesTitle === series.seriesTitle
                     return (
-                      <button
-                        key={index}
+                    <button
+                      key={index}
                         className="btn text-start p-2 border-0"
-                        onClick={() => handleSeriesSelect(series)}
-                        style={{
+                      onClick={() => handleSeriesSelect(series)}
+                      style={{
                           borderRadius: '10px',
                           transition: 'all 0.2s ease',
                           backgroundColor: isSelected ? 'var(--bs-primary)' : 'transparent',
@@ -207,9 +207,9 @@ const NotesPage = () => {
                           if (!isSelected) {
                             e.currentTarget.style.backgroundColor = 'transparent'
                           }
-                        }}
-                      >
-                        <div className="d-flex align-items-center gap-2">
+                      }}
+                    >
+                      <div className="d-flex align-items-center gap-2">
                           <div
                             className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
                             style={{
@@ -221,24 +221,24 @@ const NotesPage = () => {
                             <Icon
                               icon="mingcute:notebook-line"
                               style={{ fontSize: '1rem', color: isSelected ? '#ffffff' : 'var(--bs-primary)' }}
-                            />
+                        />
                           </div>
                           <div className="min-w-0 flex-grow-1 text-start">
                             <div className="fw-semibold text-truncate" style={{ fontSize: '0.85rem' }}>
-                              {series.seriesTitle}
-                            </div>
-                            <div 
+                            {series.seriesTitle}
+                          </div>
+                          <div
                               className="small" 
                               style={{ 
                                 fontSize: '0.7rem', 
                                 opacity: isSelected ? 0.8 : 0.6,
                               }}
-                            >
-                              {series.notes.length} not
-                            </div>
+                          >
+                            {series.notes.length} not
                           </div>
                         </div>
-                      </button>
+                      </div>
+                    </button>
                     )
                   })}
                 </div>

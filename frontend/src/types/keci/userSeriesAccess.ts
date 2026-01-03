@@ -9,6 +9,7 @@ export interface UserSeriesAccess {
   articleId?: number | null
   currentAccessibleSequence: number
   updatedAt: string
+  articleOrder?: number | null // NEW field from backend
   user?: User
   podcastSeries?: PodcastSeries
   article?: Article
@@ -23,6 +24,7 @@ export interface CreateUserSeriesAccess {
 
 export interface UpdateUserSeriesAccess {
   currentAccessibleSequence: number
+  articleOrder?: number | null // Optional: also update Article Order
 }
 
 export interface GrantAccessRequest {

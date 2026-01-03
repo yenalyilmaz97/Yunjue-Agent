@@ -40,6 +40,8 @@ const page = () => {
     )
   }, [items, search])
 
+
+
   return (
     <>
       <PageTitle subName={t('pages.access') || t('sidebar.access')} title={t('access.weeklyAssignment.title')} />
@@ -54,7 +56,7 @@ const page = () => {
               onChange={(e) => setSearch(e.target.value)}
               style={{ width: 260 }}
             />
-            {/* <Button size="sm" variant="primary">Assign Week</Button> */}
+
           </div>
         </CardHeader>
         <CardBody>

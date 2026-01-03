@@ -15,4 +15,5 @@ public interface IUserSeriesAccessService
     Task RevokeAccessAsync(RevokeAccessRequest request);
     Task<BulkGrantAccessResponseDTO> BulkGrantAccessToAllUsersAsync();
     Task<BulkGrantAccessResponseDTO> IncrementAccessibleSequenceForCompletedEpisodesAsync();
+    Task<UserSeriesAccessResponseDTO> GetCurrentArticleAccessAsync(int userId);
 }

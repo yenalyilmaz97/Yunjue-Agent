@@ -8,6 +8,7 @@ export interface Music {
 export interface Movie {
   movieId: number
   movieTitle: string
+  imageUrl?: string
 }
 
 export interface Task {

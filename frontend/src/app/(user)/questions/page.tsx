@@ -171,7 +171,7 @@ const QuestionsPage = () => {
             <CardBody className="p-3">
               <h6 className="mb-3 fw-semibold d-flex align-items-center gap-2" style={{ fontSize: '0.9rem' }}>
                 <Icon icon="mingcute:question-line" style={{ color: 'var(--bs-primary)' }} />
-                Podcast Serileri
+                İçerik Serileri
               </h6>
               {loading ? (
                 <div className="text-center py-4">
@@ -219,7 +219,7 @@ const QuestionsPage = () => {
                               height: '32px',
                               backgroundColor: isSelected 
                                 ? 'rgba(255,255,255,0.2)' 
-                                : unansweredCount > 0 
+                                : unansweredCount > 0
                                   ? 'rgba(var(--bs-danger-rgb), 0.1)' 
                                   : 'rgba(var(--bs-success-rgb), 0.1)',
                             }}
@@ -230,7 +230,7 @@ const QuestionsPage = () => {
                                 fontSize: '1rem',
                                 color: isSelected 
                                   ? '#ffffff' 
-                                  : unansweredCount > 0 
+                                  : unansweredCount > 0
                                     ? 'var(--bs-danger)' 
                                     : 'var(--bs-success)'
                               }}
@@ -292,13 +292,13 @@ const QuestionsPage = () => {
                 <div className="mb-3">
                   <h5 className="mb-1 fw-semibold" style={{ fontSize: '1rem' }}>{selectedSeries.seriesTitle}</h5>
                   <p className="text-muted small mb-0" style={{ fontSize: '0.8rem' }}>
-                    {selectedSeries.questions.length} soru
-                    {selectedSeries.questions.filter((q) => !q.isAnswered).length > 0 && (
+                      {selectedSeries.questions.length} soru
+                      {selectedSeries.questions.filter((q) => !q.isAnswered).length > 0 && (
                       <span className="ms-2" style={{ color: 'var(--bs-danger)' }}>
-                        • {selectedSeries.questions.filter((q) => !q.isAnswered).length} beklemede
-                      </span>
-                    )}
-                  </p>
+                          • {selectedSeries.questions.filter((q) => !q.isAnswered).length} beklemede
+                        </span>
+                      )}
+                    </p>
                 </div>
 
                 {selectedSeries.questions.length === 0 ? (
@@ -368,52 +368,52 @@ const QuestionsPage = () => {
                                   <div className="d-flex align-items-center gap-2 flex-wrap">
                                     <span 
                                       className="badge" 
-                                      style={{ 
+                                        style={{ 
                                         fontSize: '0.65rem',
                                         backgroundColor: `rgba(var(${accentColorRgb}), 0.1)`,
                                         color: `var(${accentColor})`,
                                         borderRadius: '6px',
-                                      }}
-                                    >
-                                      {question.isAnswered ? (
-                                        <>
+                                        }}
+                                      >
+                                        {question.isAnswered ? (
+                                          <>
                                           <Icon icon="mingcute:check-fill" className="me-1" style={{ fontSize: '0.6rem' }} />
-                                          Cevaplandı
-                                        </>
-                                      ) : (
-                                        <>
+                                            Cevaplandı
+                                          </>
+                                        ) : (
+                                          <>
                                           <Icon icon="mingcute:time-line" className="me-1" style={{ fontSize: '0.6rem' }} />
-                                          Beklemede
-                                        </>
-                                      )}
+                                            Beklemede
+                                          </>
+                                        )}
                                     </span>
                                   </div>
                                   <Icon
                                     icon={isExpanded ? 'mingcute:up-line' : 'mingcute:down-line'}
                                     style={{ fontSize: '1rem', color: `var(${accentColor})`, flexShrink: 0 }}
                                   />
-                                </div>
+                                    </div>
                                 
-                                {question.episodeTitle && (
+                                    {question.episodeTitle && (
                                   <p className="text-muted mb-1 d-flex align-items-center" style={{ fontSize: '0.75rem' }}>
                                     <Icon icon="mingcute:headphone-line" className="me-1" style={{ fontSize: '0.75rem' }} />
                                     {question.episodeTitle}
-                                  </p>
-                                )}
-                                
+                                      </p>
+                                    )}
+                                    
                                 {/* Soru Metni */}
                                 <p className="text-muted mb-0" style={{ fontSize: '0.8rem', lineHeight: '1.4' }}>
                                   {!isExpanded && question.questionText.length > 100
                                     ? `${question.questionText.substring(0, 100)}...`
-                                    : question.questionText}
-                                </p>
+                                          : question.questionText}
+                                      </p>
 
                                 {/* Cevap - Sadece expanded durumda göster */}
                                 {isExpanded && question.isAnswered && question.answer && (
                                   <div 
                                     className="mt-2 p-2 rounded" 
-                                    style={{ 
-                                      backgroundColor: 'rgba(var(--bs-primary-rgb), 0.05)',
+                                          style={{ 
+                                            backgroundColor: 'rgba(var(--bs-primary-rgb), 0.05)',
                                       border: '1px solid rgba(var(--bs-primary-rgb), 0.1)',
                                       borderRadius: '8px',
                                     }}
@@ -421,31 +421,31 @@ const QuestionsPage = () => {
                                     <div className="d-flex align-items-center gap-2 mb-1">
                                       <Icon icon="mingcute:message-2-line" style={{ fontSize: '0.75rem', color: 'var(--bs-primary)' }} />
                                       <span className="fw-semibold" style={{ fontSize: '0.75rem', color: 'var(--bs-primary)' }}>Cevap</span>
-                                      {question.answer.updatedAt && (
+                                                  {question.answer.updatedAt && (
                                         <span className="text-muted" style={{ fontSize: '0.65rem' }}>
-                                          {formatDateTime(question.answer.updatedAt)}
-                                        </span>
-                                      )}
-                                    </div>
+                                                      {formatDateTime(question.answer.updatedAt)}
+                                                    </span>
+                                                  )}
+                                                </div>
                                     <p className="mb-0" style={{ fontSize: '0.8rem', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
                                       {question.answer.answerText}
-                                    </p>
+                                                </p>
+                                      </div>
+                                    )}
                                   </div>
-                                )}
-                              </div>
-                            </div>
+                                </div>
                             
                             <div className="d-flex align-items-center justify-content-between mt-2 pt-2" style={{ borderTop: `1px solid rgba(var(${accentColorRgb}), 0.08)` }}>
                               <span className="text-muted d-flex align-items-center" style={{ fontSize: '0.7rem' }}>
                                 <Icon icon="mingcute:time-line" className="me-1" style={{ fontSize: '0.75rem' }} />
-                                <span className="d-none d-sm-inline">{formatDateTime(question.createdAt)}</span>
-                                <span className="d-inline d-sm-none">{formatDate(question.createdAt)}</span>
-                              </span>
-                              {question.episodeId && (
-                                <Button
-                                  variant="outline-primary"
-                                  size="sm"
-                                  onClick={(e) => handleGoToEpisode(question, e)}
+                                    <span className="d-none d-sm-inline">{formatDateTime(question.createdAt)}</span>
+                                    <span className="d-inline d-sm-none">{formatDate(question.createdAt)}</span>
+                                  </span>
+                                  {question.episodeId && (
+                                    <Button
+                                      variant="outline-primary"
+                                      size="sm"
+                                      onClick={(e) => handleGoToEpisode(question, e)}
                                   className="d-flex align-items-center gap-1"
                                   style={{ 
                                     fontSize: '0.7rem', 
@@ -469,8 +469,8 @@ const QuestionsPage = () => {
                                 >
                                   <span className="d-none d-sm-inline">Bölüme Git</span>
                                   <Icon icon="mingcute:arrow-right-line" style={{ fontSize: '0.85rem' }} />
-                                </Button>
-                              )}
+                                    </Button>
+                                  )}
                             </div>
                           </div>
                         </div>

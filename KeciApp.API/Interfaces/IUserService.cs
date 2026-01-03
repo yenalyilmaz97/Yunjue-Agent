@@ -19,5 +19,4 @@ public interface IUserService
     Task<UserResponseDTO> AssignRoleToUserAsync(int userId, int roleId);
     Task<UserResponseDTO> UpdateProfilePictureAsync(int userId, string profilePictureUrl);
     Task<UserResponseDTO> AddKeciTimeToUser(AddKeciTimeDTO dto);
-    
 }

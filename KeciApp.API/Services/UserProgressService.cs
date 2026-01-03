@@ -43,6 +43,15 @@ public class UserProgressService : IUserProgressService
             throw new InvalidOperationException("User not found");
         }
 
+        // Validate that at least one content ID is provided
+        if (!request.WeekId.HasValue && 
+            !request.ArticleId.HasValue && 
+            !request.DailyContentId.HasValue && 
+            !request.EpisodeId.HasValue)
+        {
+            throw new ArgumentException("At least one content identifier (WeekId, ArticleId, DailyContentId, or EpisodeId) must be provided.");
+        }
+
         UserProgress? existingProgress = null;
 
         // Check if progress already exists based on the type
@@ -53,6 +62,10 @@ public class UserProgressService : IUserProgressService
         else if (request.ArticleId.HasValue)
         {
             existingProgress = await _userProgressRepository.GetUserProgressByUserIdAndArticleIdAsync(request.UserId, request.ArticleId.Value);
+        }
+        else if (request.DailyContentId.HasValue)
+        {
+            existingProgress = await _userProgressRepository.GetUserProgressByUserIdAndDailyContentIdAsync(request.UserId, request.DailyContentId.Value);
         }
         else if (request.EpisodeId.HasValue)
         {
@@ -80,18 +93,93 @@ public class UserProgressService : IUserProgressService
         else
         {
             // Create new progress
+            // Double-check if progress exists (race condition protection)
+            UserProgress? doubleCheckProgress = null;
+            if (request.WeekId.HasValue)
+            {
+                doubleCheckProgress = await _userProgressRepository.GetUserProgressByUserIdAndWeekIdAsync(request.UserId, request.WeekId.Value);
+            }
+            else if (request.ArticleId.HasValue)
+            {
+                doubleCheckProgress = await _userProgressRepository.GetUserProgressByUserIdAndArticleIdAsync(request.UserId, request.ArticleId.Value);
+            }
+            else if (request.DailyContentId.HasValue)
+            {
+                doubleCheckProgress = await _userProgressRepository.GetUserProgressByUserIdAndDailyContentIdAsync(request.UserId, request.DailyContentId.Value);
+            }
+            else if (request.EpisodeId.HasValue)
+            {
+                doubleCheckProgress = await _userProgressRepository.GetUserProgressByUserIdAndEpisodeIdAsync(request.UserId, request.EpisodeId.Value);
+            }
+
+            if (doubleCheckProgress != null)
+            {
+                // Progress was created between our checks, update it instead
+                doubleCheckProgress.isCompleted = request.IsCompleted;
+                if (request.IsCompleted)
+                {
+                    doubleCheckProgress.CompleteTime = DateTime.UtcNow;
+                }
+                var updatedProgress = await _userProgressRepository.UpdateUserProgressAsync(doubleCheckProgress);
+                return _mapper.Map<UserProgressResponseDTO>(updatedProgress);
+            }
+
             var userProgress = new UserProgress
             {
                 UserId = request.UserId,
                 WeekId = request.WeekId,
                 ArticleId = request.ArticleId,
+                DailyContentId = request.DailyContentId,
                 EpisodeId = request.EpisodeId,
                 isCompleted = request.IsCompleted,
                 CompleteTime = request.IsCompleted ? DateTime.UtcNow : DateTime.MinValue
             };
 
-            var createdProgress = await _userProgressRepository.CreateUserProgressAsync(userProgress);
-            return _mapper.Map<UserProgressResponseDTO>(createdProgress);
+            try
+            {
+                var createdProgress = await _userProgressRepository.CreateUserProgressAsync(userProgress);
+                return _mapper.Map<UserProgressResponseDTO>(createdProgress);
+            }
+            catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
+            {
+                // Handle unique constraint violation (race condition)
+                if (ex.InnerException?.Message?.Contains("UNIQUE constraint") == true || 
+                    ex.InnerException?.Message?.Contains("duplicate key") == true)
+                {
+                    // Progress was created by another thread, fetch and return it
+                    UserProgress? existingProgressAfterException = null;
+                    if (request.WeekId.HasValue)
+                    {
+                        existingProgressAfterException = await _userProgressRepository.GetUserProgressByUserIdAndWeekIdAsync(request.UserId, request.WeekId.Value);
+                    }
+                    else if (request.ArticleId.HasValue)
+                    {
+                        existingProgressAfterException = await _userProgressRepository.GetUserProgressByUserIdAndArticleIdAsync(request.UserId, request.ArticleId.Value);
+                    }
+                    else if (request.DailyContentId.HasValue)
+                    {
+                        existingProgressAfterException = await _userProgressRepository.GetUserProgressByUserIdAndDailyContentIdAsync(request.UserId, request.DailyContentId.Value);
+                    }
+                    else if (request.EpisodeId.HasValue)
+                    {
+                        existingProgressAfterException = await _userProgressRepository.GetUserProgressByUserIdAndEpisodeIdAsync(request.UserId, request.EpisodeId.Value);
+                    }
+
+                    if (existingProgressAfterException != null)
+                    {
+                        // Update if needed
+                        if (request.IsCompleted && !existingProgressAfterException.isCompleted)
+                        {
+                            existingProgressAfterException.isCompleted = true;
+                            existingProgressAfterException.CompleteTime = DateTime.UtcNow;
+                            var updatedProgress = await _userProgressRepository.UpdateUserProgressAsync(existingProgressAfterException);
+                            return _mapper.Map<UserProgressResponseDTO>(updatedProgress);
+                        }
+                        return _mapper.Map<UserProgressResponseDTO>(existingProgressAfterException);
+                    }
+                }
+                throw; // Re-throw if it's not a unique constraint violation
+            }
         }
     }
 

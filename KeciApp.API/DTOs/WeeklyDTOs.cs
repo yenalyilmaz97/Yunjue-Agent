@@ -56,3 +56,10 @@ public class WeeklyContentResponseDTO
     public WeeklyQuestionResponseDTO WeeklyQuestion { get; set; }
 }
 
+public class BulkUpdateWeeklyContentResponseDTO
+{
+    public int UpdatedCount { get; set; }
+    public int SkippedCount { get; set; }
+    public string Message { get; set; } = string.Empty;
+}
+

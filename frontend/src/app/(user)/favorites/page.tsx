@@ -18,7 +18,7 @@ interface CategoryInfo {
 
 const CATEGORIES: CategoryInfo[] = [
   { key: 'all', label: 'Tümü', icon: 'mingcute:star-line', type: undefined },
-  { key: 'episode', label: 'Podcastler', icon: 'mingcute:headphone-line', type: 1 },
+  { key: 'episode', label: 'İçerikler', icon: 'mingcute:headphone-line', type: 1 },
   { key: 'article', label: 'Makaleler', icon: 'mingcute:book-3-line', type: 2 },
   { key: 'affirmation', label: 'Olumlamalar', icon: 'mingcute:heart-line', type: 3 },
   { key: 'aphorism', label: 'Aforizmalar', icon: 'mingcute:quote-line', type: 4 },
@@ -249,8 +249,8 @@ const FavoritesPage = () => {
                           )}
                           {/* Affirmation ve Aphorism için metin göster */}
                           {(favorite.favoriteType === 3 || favorite.favoriteType === 4) && (
-                            <p className="text-muted small mb-0 mt-1" style={{ fontSize: '0.85rem', lineHeight: '1.4' }}>
-                              {favorite.affirmationText || favorite.aphorismText}
+                            <p className="text-muted small mb-0 mt-1" style={{ fontSize: '0.85rem', lineHeight: '1.4', whiteSpace: 'pre-line' }}>
+                              {(favorite.affirmationText || favorite.aphorismText)?.trimEnd()}
                             </p>
                           )}
                         </div>

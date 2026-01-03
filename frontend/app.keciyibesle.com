@@ -1,8 +1,8 @@
 server {
     server_name app.keciyibesle.com;
 
-    # Increase max body size for file uploads
-    client_max_body_size 100M;
+    # Increase max body size for file uploads (2GB for large video files)
+    client_max_body_size 2048M;
 
     # Let's Encrypt HTTP-01 challenge
     location ^~ /.well-known/acme-challenge/ {
@@ -24,7 +24,7 @@ server {
 
     # API proxy
     location /api/ {
-        client_max_body_size 100M;
+        client_max_body_size 2048M;
         proxy_pass http://127.0.0.1:5000;
         proxy_http_version 1.1;
         proxy_set_header Host $host;

@@ -287,16 +287,6 @@ const ProfilePage = () => {
                     <p className="text-muted small mb-0 ms-4">{formatDate((user as any).keciTimeEnd)}</p>
                   </div>
                 )}
-
-                <div className="list-group-item border-0 px-0 py-2">
-                  <div className="d-flex align-items-center gap-2 mb-1">
-                    <Icon icon="mingcute:calendar-check-line" className="text-info" style={{ fontSize: '1.1rem' }} />
-                    <span className="fw-semibold small">İçerik Tercihi</span>
-                  </div>
-                  <p className="text-muted small mb-0 ms-4">
-                    {(user as any).dailyOrWeekly ? 'Günlük' : 'Haftalık'}
-                  </p>
-                </div>
               </div>
 
               <hr className="my-3" />

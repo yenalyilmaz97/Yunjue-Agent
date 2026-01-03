@@ -1,8 +1,9 @@
 import type { UserType } from '@/types/auth'
 import { deleteCookie, getCookie, hasCookie, setCookie } from 'cookies-next'
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { ChildrenType } from '../types/component-props'
+import { initializeTokenManager, isTokenValid, removeToken } from '@/utils/tokenManager'
 
 export type AuthContextType = {
   user: UserType | undefined
@@ -34,6 +35,26 @@ export function AuthProvider({ children }: ChildrenType) {
 
   const [user, setUser] = useState<UserType | undefined>(getSession())
 
+  // Initialize token manager on app load
+  useEffect(() => {
+    initializeTokenManager()
+    
+    // Check token validity periodically (every 5 minutes)
+    const interval = setInterval(() => {
+      if (!isTokenValid()) {
+        // Token is invalid or inactive, clear session
+        removeToken()
+        deleteCookie(authSessionKey)
+        setUser(undefined)
+        if (!window.location.pathname.includes('/auth/sign-in')) {
+          navigate('/auth/sign-in')
+        }
+      }
+    }, 5 * 60 * 1000) // Check every 5 minutes
+
+    return () => clearInterval(interval)
+  }, [navigate])
+
   const saveSession = (user: UserType) => {
     setCookie(authSessionKey, JSON.stringify(user))
     setUser(user)
@@ -45,7 +66,7 @@ export function AuthProvider({ children }: ChildrenType) {
   const removeSession = () => {
     deleteCookie(authSessionKey)
     setUser(undefined)
-    localStorage.removeItem('authToken')
+    removeToken()
     navigate('/auth/sign-in')
   }
 

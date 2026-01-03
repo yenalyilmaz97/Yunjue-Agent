@@ -80,7 +80,7 @@ public class AppDbContext : DbContext
             entity.ToTable("PodcastEpisodes");
             entity.HasKey(e => e.EpisodesId);
             entity.Property(e => e.SeriesId).IsRequired();
-            entity.Property(e => e.Title).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.Title).IsRequired();
             entity.Property(e => e.ContentJson).IsRequired();
             entity.Property(e => e.SequenceNumber).IsRequired();
             entity.Property(e => e.isActive).IsRequired();
@@ -140,12 +140,12 @@ public class AppDbContext : DbContext
             entity.ToTable("UserSeriesAccesses");
             entity.HasKey(e => e.UserSeriesAccessId);
             entity.Property(e => e.UserId).IsRequired();
-            entity.Property(e => e.SeriesId).IsRequired();
             entity.Property(e => e.CurrentAccessibleSequence).IsRequired();
             entity.Property(e => e.UpdatedAt).IsRequired();
 
-            // Unique constraint: One Access Per User and Series Id
-            entity.HasIndex(e => new { e.UserId, e.SeriesId })
+            // Unique constraint: Access is defined by User and (Series OR Article)
+            // Including ArticleId ensures uniqueness when SeriesId is null (provided DB treats NULLs as distinct or we want (User, Null, Article) unique)
+            entity.HasIndex(e => new { e.UserId, e.SeriesId, e.ArticleId })
                 .IsUnique();
         });
 
@@ -177,6 +177,7 @@ public class AppDbContext : DbContext
             entity.ToTable("Movies");
             entity.HasKey(e => e.MovieId);
             entity.Property(e => e.MovieTitle).IsRequired();
+            entity.Property(e => e.ImageUrl).IsRequired(false);
         });
 
         // WeeklyTask entity configuration
@@ -241,6 +242,24 @@ public class AppDbContext : DbContext
             entity.Property(e => e.UserId).IsRequired();
             entity.Property(e => e.isCompleted).IsRequired();
             entity.Property(e => e.CompleteTime).IsRequired();
+
+            // Unique constraints to prevent duplicate progress records
+            // Using partial unique indexes for nullable columns (PostgreSQL syntax)
+            entity.HasIndex(e => new { e.UserId, e.WeekId })
+                .IsUnique()
+                .HasFilter("\"WeekId\" IS NOT NULL");
+            
+            entity.HasIndex(e => new { e.UserId, e.ArticleId })
+                .IsUnique()
+                .HasFilter("\"ArticleId\" IS NOT NULL");
+            
+            entity.HasIndex(e => new { e.UserId, e.DailyContentId })
+                .IsUnique()
+                .HasFilter("\"DailyContentId\" IS NOT NULL");
+            
+            entity.HasIndex(e => new { e.UserId, e.EpisodeId })
+                .IsUnique()
+                .HasFilter("\"EpisodeId\" IS NOT NULL");
         });
 
         // Relationships configuration
@@ -259,6 +278,12 @@ public class AppDbContext : DbContext
             .HasOne(u => u.WeeklyContent)
             .WithMany()
             .HasForeignKey(u => u.WeeklyContentId);
+
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.DailyContent)
+            .WithMany()
+            .HasForeignKey(u => u.DailyContentId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<User>()
             .HasMany(u => u.Notes)
@@ -289,23 +314,27 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<PodcastSeries>()
             .HasMany(ps => ps.Episodes)
             .WithOne(pe => pe.PodcastSeries)
-            .HasForeignKey(pe => pe.SeriesId);
+            .HasForeignKey(pe => pe.SeriesId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // PodcastEpisodes relationships
         modelBuilder.Entity<PodcastEpisodes>()
             .HasMany(pe => pe.Questions)
             .WithOne(q => q.Episodes)
-            .HasForeignKey(q => q.EpisodeId);
+            .HasForeignKey(q => q.EpisodeId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<PodcastEpisodes>()
             .HasMany(pe => pe.Notes)
             .WithOne(n => n.PodcastEpisode)
-            .HasForeignKey(n => n.EpisodeId);
+            .HasForeignKey(n => n.EpisodeId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<PodcastEpisodes>()
             .HasMany(pe => pe.Favorites)
             .WithOne(f => f.PodcastEpisode)
-            .HasForeignKey(f => f.EpisodeId);
+            .HasForeignKey(f => f.EpisodeId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // Favorites relationships
         modelBuilder.Entity<Favorites>()
@@ -327,13 +356,15 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Questions>()
             .HasMany(q => q.Answers)
             .WithOne(a => a.Question)
-            .HasForeignKey(a => a.QuestionId);
+            .HasForeignKey(a => a.QuestionId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // UserSeriesAccess relationships
         modelBuilder.Entity<UserSeriesAccess>()
             .HasOne(usa => usa.PodcastSeries)
             .WithMany()
-            .HasForeignKey(usa => usa.SeriesId);
+            .HasForeignKey(usa => usa.SeriesId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // WeeklyContent relationships
         modelBuilder.Entity<WeeklyContent>()
@@ -384,8 +415,15 @@ public class AppDbContext : DbContext
             .HasForeignKey(up => up.ArticleId);
 
         modelBuilder.Entity<UserProgress>()
+            .HasOne(up => up.DailyContent)
+            .WithMany()
+            .HasForeignKey(up => up.DailyContentId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<UserProgress>()
             .HasOne(up => up.PodcastEpisodes)
             .WithMany()
-            .HasForeignKey(up => up.EpisodeId);
+            .HasForeignKey(up => up.EpisodeId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

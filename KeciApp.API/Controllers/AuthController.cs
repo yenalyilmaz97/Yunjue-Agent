@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using KeciApp.API.Services;
 using KeciApp.API.DTOs;
 using KeciApp.API.Models;
+using KeciApp.API.Interfaces;
 
 namespace KeciApp.API.Controllers;
 
@@ -11,11 +12,15 @@ public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
     private readonly IJwtService _jwtService;
+    private readonly IUserProgressService _userProgressService;
+    private readonly IDailyContentService _dailyContentService;
 
-    public AuthController(IAuthService authService, IJwtService jwtService)
+    public AuthController(IAuthService authService, IJwtService jwtService, IUserProgressService userProgressService, IDailyContentService dailyContentService)
     {
         _authService = authService;
         _jwtService = jwtService;
+        _userProgressService = userProgressService;
+        _dailyContentService = dailyContentService;
     }
 
     [HttpPost("login")]
@@ -39,6 +44,42 @@ public class AuthController : ControllerBase
                 Success = false,
                 Message = message
             });
+        }
+
+        // Mark daily content as completed when user logs in (if user is on daily content plan)
+        if (user.dailyOrWeekly)
+        {
+            try
+            {
+                int? dailyContentId = user.DailyContentId;
+                
+                // If user doesn't have DailyContentId, get/assign it first
+                if (!dailyContentId.HasValue)
+                {
+                    // Get user's daily content (this will assign first daily content if not exists)
+                    var dailyContent = await _dailyContentService.GetUsersDailyContentOrderAsync(user.UserId);
+                    if (dailyContent != null)
+                    {
+                        dailyContentId = dailyContent.DailyContentId;
+                    }
+                }
+
+                // Create progress record if we have a daily content ID
+                if (dailyContentId.HasValue)
+                {
+                    await _userProgressService.CreateOrUpdateUserProgressAsync(new CreateUserProgressRequest
+                    {
+                        UserId = user.UserId,
+                        DailyContentId = dailyContentId.Value,
+                        IsCompleted = true
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't fail login if progress update fails
+                Console.WriteLine($"Error marking daily content as completed: {ex.Message}");
+            }
         }
 
         var token = _jwtService.GenerateToken(user, roles);

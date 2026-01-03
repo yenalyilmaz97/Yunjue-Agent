@@ -13,15 +13,17 @@ public class UserService : IUserService
     private readonly IUserRepository _userRepository;
     private readonly IWeeklyRepository _weeklyRepository;
     private readonly IPodcastSeriesRepository _seriesRepository;
+    private readonly IDailyContentRepository _dailyContentRepository;
     private readonly IUserSeriesAccessRepository _userSeriesAccessRepository;
     private readonly IFileUploadService _fileUploadService;
     private readonly IMapper _mapper;
 
-    public UserService(IUserRepository userRepository,IUserSeriesAccessRepository userSeriesAccessRepository ,IPodcastSeriesRepository seriesRepository, IWeeklyRepository weeklyRepository, IFileUploadService fileUploadService, IMapper mapper)
+    public UserService(IUserRepository userRepository, IUserSeriesAccessRepository userSeriesAccessRepository, IPodcastSeriesRepository seriesRepository, IWeeklyRepository weeklyRepository, IDailyContentRepository dailyContentRepository, IFileUploadService fileUploadService, IMapper mapper)
     {
         _userRepository = userRepository;
         _seriesRepository = seriesRepository;
         _weeklyRepository = weeklyRepository;
+        _dailyContentRepository = dailyContentRepository;
         _userSeriesAccessRepository = userSeriesAccessRepository;
         _fileUploadService = fileUploadService;
         _mapper = mapper;
@@ -78,6 +80,14 @@ public class UserService : IUserService
         // Map request to user entity
         var user = _mapper.Map<User>(request);
         user.PasswordHash = passwordHash;
+        
+        // Ensure UTC for DateTimes
+        user.DateOfBirth = DateTime.SpecifyKind(user.DateOfBirth, DateTimeKind.Utc);
+        user.SubscriptionEnd = DateTime.SpecifyKind(user.SubscriptionEnd, DateTimeKind.Utc);
+        if (user.KeciTimeEnd.HasValue)
+        {
+            user.KeciTimeEnd = DateTime.SpecifyKind(user.KeciTimeEnd.Value, DateTimeKind.Utc);
+        }
 
         // Create user
         var createdUser = await _userRepository.CreateUserAsync(user);
@@ -132,14 +142,38 @@ public class UserService : IUserService
         existingUser.UserName = request.UserName;
         existingUser.FirstName = request.FirstName;
         existingUser.LastName = request.LastName;
-        existingUser.DateOfBirth = request.DateOfBirth;
+        existingUser.DateOfBirth = DateTime.SpecifyKind(request.DateOfBirth, DateTimeKind.Utc);
         existingUser.Email = request.Email;
         existingUser.Gender = request.Gender;
         existingUser.City = request.City;
         existingUser.Phone = request.Phone;
         existingUser.Description = request.Description;
-        existingUser.SubscriptionEnd = request.SubscriptionEnd;
+        existingUser.SubscriptionEnd = DateTime.SpecifyKind(request.SubscriptionEnd, DateTimeKind.Utc);
         existingUser.RoleId = request.RoleId;
+        
+        if (request.KeciTimeEnd.HasValue)
+        {
+            existingUser.KeciTimeEnd = DateTime.SpecifyKind(request.KeciTimeEnd.Value, DateTimeKind.Utc);
+        }
+        else
+        {
+            existingUser.KeciTimeEnd = null;
+        }
+        if (request.DailyContentDayOrder.HasValue)
+        {
+            var content = await _dailyContentRepository.GetDailyContentByDayOrderAsync(request.DailyContentDayOrder.Value);
+            if (content != null)
+            {
+                existingUser.DailyContentId = content.DailyContentId;
+            }
+            else
+            {
+                // Optionally handle case where day order doesn't exist. 
+                // For now, we ignore or could throw exception.
+                // existingUser.DailyContentId = null; // Or keep existing? keeping existing.
+            }
+        }
+
         existingUser.UpdatedAt = DateTime.UtcNow;
 
         // Update user
@@ -153,7 +187,7 @@ public class UserService : IUserService
         if (existinguser != null)
             throw new InvalidOperationException($"User with ID {dto.UserId} not found");
 
-        existinguser.KeciTimeEnd = dto.KeciTimeEnd;
+        existinguser.KeciTimeEnd = DateTime.SpecifyKind(dto.KeciTimeEnd, DateTimeKind.Utc);
 
         var updatedUser = await _userRepository.UpdateUserAsync(existinguser);
         return _mapper.Map<UserResponseDTO>(updatedUser);

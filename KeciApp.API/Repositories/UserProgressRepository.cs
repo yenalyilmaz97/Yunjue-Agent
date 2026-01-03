@@ -27,6 +27,7 @@ public class UserProgressRepository : IUserProgressRepository
             .Include(up => up.WeeklyContent)
                 .ThenInclude(wc => wc.WeeklyQuestion)
             .Include(up => up.Article)
+            .Include(up => up.DailyContent)
             .Include(up => up.PodcastEpisodes)
                 .ThenInclude(ep => ep.PodcastSeries)
             .OrderByDescending(up => up.CompleteTime)
@@ -56,6 +57,14 @@ public class UserProgressRepository : IUserProgressRepository
             .FirstOrDefaultAsync();
     }
 
+    public async Task<UserProgress?> GetUserProgressByUserIdAndDailyContentIdAsync(int userId, int dailyContentId)
+    {
+        return await _context.UserProgresses
+            .Where(up => up.UserId == userId && up.DailyContentId == dailyContentId)
+            .Include(up => up.DailyContent)
+            .FirstOrDefaultAsync();
+    }
+
     public async Task<UserProgress?> GetUserProgressByUserIdAndEpisodeIdAsync(int userId, int episodeId)
     {
         return await _context.UserProgresses
@@ -78,6 +87,7 @@ public class UserProgressRepository : IUserProgressRepository
             .Include(up => up.WeeklyContent)
                 .ThenInclude(wc => wc.WeeklyQuestion)
             .Include(up => up.Article)
+            .Include(up => up.DailyContent)
             .Include(up => up.PodcastEpisodes)
                 .ThenInclude(ep => ep.PodcastSeries)
             .FirstOrDefaultAsync();
@@ -117,6 +127,14 @@ public class UserProgressRepository : IUserProgressRepository
             .Where(up => up.EpisodeId.HasValue && up.isCompleted)
             .Include(up => up.PodcastEpisodes)
                 .ThenInclude(ep => ep.PodcastSeries)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<UserProgress>> GetCompletedArticleProgressesAsync()
+    {
+        return await _context.UserProgresses
+            .Where(up => up.ArticleId.HasValue && up.isCompleted)
+            .Include(up => up.Article)
             .ToListAsync();
     }
 }

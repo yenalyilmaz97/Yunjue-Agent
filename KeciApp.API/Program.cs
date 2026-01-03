@@ -4,6 +4,7 @@ using KeciApp.API.Services;
 using KeciApp.API.Repositories;
 using KeciApp.API.Mappings;
 using KeciApp.API.Interfaces;
+using KeciApp.API.DTOs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -33,15 +34,15 @@ builder.Host.UseSerilog();
 // Configure Kestrel server limits for large file uploads
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
-    options.Limits.MaxRequestBodySize = 500 * 1024 * 1024; // 500 MB
-    options.Limits.MaxRequestBufferSize = 500 * 1024 * 1024; // 500 MB
+    options.Limits.MaxRequestBodySize = 6L * 1024 * 1024 * 1024; // 6 GB
+    options.Limits.MaxRequestBufferSize = 6L * 1024 * 1024 * 1024; // 6 GB
     options.Limits.MaxRequestHeadersTotalSize = 32 * 1024; // 32 KB
 });
 
 // Configure form options for multipart/form-data uploads
 builder.Services.Configure<FormOptions>(options =>
 {
-    options.MultipartBodyLengthLimit = 500 * 1024 * 1024; // 500 MB
+    options.MultipartBodyLengthLimit = 6L * 1024 * 1024 * 1024; // 6 GB
     options.ValueLengthLimit = int.MaxValue;
     options.ValueCountLimit = int.MaxValue;
     options.MultipartHeadersLengthLimit = int.MaxValue;
@@ -100,6 +101,75 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["Jwt:Audience"],
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
+    };
+    
+    // Handle token validation events to mark daily content as completed
+    options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+    {
+        OnTokenValidated = async context =>
+        {
+            // Check if token has been inactive for more than 2 days
+            var lastActivityClaim = context.Principal?.FindFirst("LastActivity");
+            if (lastActivityClaim != null && DateTime.TryParse(lastActivityClaim.Value, out var lastActivity))
+            {
+                var daysSinceLastActivity = (DateTime.UtcNow - lastActivity).TotalDays;
+                if (daysSinceLastActivity >= 2)
+                {
+                    // Token inactive for 2+ days, reject it
+                    context.Fail("Token has been inactive for more than 2 days");
+                    return;
+                }
+            }
+
+            var userIdClaim = context.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out var userId))
+            {
+                var scope = context.HttpContext.RequestServices.CreateScope();
+                try
+                {
+                    var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+                    var userProgressService = scope.ServiceProvider.GetRequiredService<IUserProgressService>();
+                    var dailyContentService = scope.ServiceProvider.GetRequiredService<IDailyContentService>();
+                    
+                    var user = await userRepository.GetUserByIdAsync(userId);
+                    if (user != null && user.dailyOrWeekly)
+                    {
+                        int? dailyContentId = user.DailyContentId;
+                        
+                        // If user doesn't have DailyContentId, get/assign it first
+                        if (!dailyContentId.HasValue)
+                        {
+                            var dailyContent = await dailyContentService.GetUsersDailyContentOrderAsync(user.UserId);
+                            if (dailyContent != null)
+                            {
+                                dailyContentId = dailyContent.DailyContentId;
+                            }
+                        }
+
+                        // Create progress record if we have a daily content ID
+                        // CreateOrUpdateUserProgressAsync will check if it exists, so we can call it directly
+                        if (dailyContentId.HasValue)
+                        {
+                            await userProgressService.CreateOrUpdateUserProgressAsync(new CreateUserProgressRequest
+                            {
+                                UserId = user.UserId,
+                                DailyContentId = dailyContentId.Value,
+                                IsCompleted = true
+                            });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log error but don't fail authentication
+                    Serilog.Log.Warning(ex, "Error marking daily content as completed during token validation");
+                }
+                finally
+                {
+                    scope.Dispose();
+                }
+            }
+        }
     };
 });
 

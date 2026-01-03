@@ -71,8 +71,7 @@ const page = () => {
               )
             }}
             columns={[
-              { key: 'weeklyQuestionId', header: t('common.id') || 'ID', width: '80px', sortable: true },
-              { key: 'weeklyQuestionText', header: t('weeklyContent.weeklyQuestions.question'), sortable: true },
+              { key: 'weeklyQuestionText', header: t('weeklyContent.questions.textLabel'), sortable: true },
             ]}
           />
         </CardBody>

@@ -71,7 +71,23 @@ const page = () => {
               )
             }}
             columns={[
-              { key: 'movieId', header: t('common.id') || 'ID', width: '80px', sortable: true },
+              {
+                key: 'imageUrl',
+                header: 'Görsel',
+                width: '120px',
+                render: (row) => {
+                  const m = row as Movie
+                  return m.imageUrl ? (
+                    <img
+                      src={m.imageUrl}
+                      alt={m.movieTitle}
+                      style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '4px' }}
+                    />
+                  ) : (
+                    <span className="text-muted">-</span>
+                  )
+                }
+              },
               { key: 'movieTitle', header: t('weeklyContent.movies.titleLabel'), sortable: true },
             ]}
           />

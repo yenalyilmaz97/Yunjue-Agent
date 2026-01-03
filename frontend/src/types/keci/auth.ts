@@ -20,7 +20,7 @@ export interface AuthResponse {
   success: boolean
   message: string
   token: string
-  user: UserInfo
+  user: UserInfo | undefined
   roles: string[]
 }
 

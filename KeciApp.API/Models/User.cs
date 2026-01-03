@@ -56,6 +56,8 @@ public class User
     [Required]
     public int WeeklyContentId { get; set; }
     
+    public int? DailyContentId { get; set; }
+    
     [Required]
     public int RoleId { get; set; }
     
@@ -72,7 +74,10 @@ public class User
     public Role Role { get; set; }
     
     [ForeignKey("WeeklyContentId")]
-    public WeeklyContent WeeklyContent { get; set; } 
+    public WeeklyContent WeeklyContent { get; set; }
+    
+    [ForeignKey("DailyContentId")]
+    public DailyContent? DailyContent { get; set; }
     
     public ICollection<Notes> Notes { get; set; }
     public ICollection<Favorites> Favorites { get; set; }

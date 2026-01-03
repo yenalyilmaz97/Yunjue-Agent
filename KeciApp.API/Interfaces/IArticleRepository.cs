@@ -8,4 +8,5 @@ public interface IArticleRepository
     Task<Article> CreateArticleAsync(Article article);
     Task<Article> UpdateArticleAsync(Article article);
     Task RemoveArticleAsync(Article article);
+    Task<Article?> GetArticleByOrderAsync(int order);
 }
