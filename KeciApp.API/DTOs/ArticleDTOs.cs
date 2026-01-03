@@ -33,6 +33,7 @@ public class ArticleResponseDTO
     public int ArticleId { get; set; }
     public string Title { get; set; }
     public string PdfLink { get; set; }
+    public int Order { get; set; }
     public bool isActive { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
@@ -51,4 +52,3 @@ public class CreateArticleWithFileRequest
 
     public bool isActive { get; set; }
 }
-

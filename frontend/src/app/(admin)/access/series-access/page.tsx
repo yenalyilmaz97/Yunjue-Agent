@@ -70,7 +70,7 @@ const page = () => {
 
   const handleBulkGrant = async () => {
     if (!confirm(t('access.seriesAccess.bulkGrantConfirm') || 'Tüm kullanıcılara tüm serilerin 1. bölümlerine erişim vermek istediğinizden emin misiniz? Mevcut erişimler korunacaktır.')) return
-    
+
     setBulkGranting(true)
     try {
       const result = await userSeriesAccessService.bulkGrantAccess()
@@ -87,7 +87,7 @@ const page = () => {
 
   const handleIncrementSequence = async () => {
     if (!confirm(t('access.seriesAccess.incrementSequenceConfirm') || 'Tamamlanmış episode\'lere göre kullanıcıların erişilebilir bölüm numaralarını artırmak istediğinizden emin misiniz?')) return
-    
+
     setIncrementing(true)
     try {
       const result = await userSeriesAccessService.incrementAccessibleSequence()
@@ -116,17 +116,17 @@ const page = () => {
               onChange={(e) => setSearch(e.target.value)}
               style={{ width: 260 }}
             />
-            <Button 
-              size="sm" 
-              variant="info" 
+            <Button
+              size="sm"
+              variant="info"
               onClick={handleIncrementSequence}
               disabled={incrementing || bulkGranting}
             >
               {incrementing ? t('common.loading') || 'Yükleniyor...' : t('access.seriesAccess.incrementSequence') || 'Kontrol Et'}
             </Button>
-            <Button 
-              size="sm" 
-              variant="success" 
+            <Button
+              size="sm"
+              variant="success"
               onClick={handleBulkGrant}
               disabled={bulkGranting || incrementing}
             >

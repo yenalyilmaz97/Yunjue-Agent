@@ -43,6 +43,15 @@ public class UserProgressService : IUserProgressService
             throw new InvalidOperationException("User not found");
         }
 
+        // Validate that at least one content ID is provided
+        if (!request.WeekId.HasValue && 
+            !request.ArticleId.HasValue && 
+            !request.DailyContentId.HasValue && 
+            !request.EpisodeId.HasValue)
+        {
+            throw new ArgumentException("At least one content identifier (WeekId, ArticleId, DailyContentId, or EpisodeId) must be provided.");
+        }
+
         UserProgress? existingProgress = null;
 
         // Check if progress already exists based on the type

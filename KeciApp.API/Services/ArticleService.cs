@@ -110,4 +110,26 @@ public class ArticleService : IArticleService
         await _articleRepository.RemoveArticleAsync(article);
         return _mapper.Map<ArticleResponseDTO>(article);
     }
+
+    public async Task EnsureArticleOrdersAsync()
+    {
+        var articles = (await _articleRepository.GetAllArticlesAsync(false)).ToList();
+        
+        // If all have orders > 0, nothing to do (optimization)
+        if (articles.All(a => a.Order > 0)) return;
+
+        // Sort by creation date to determine logical order
+        var sortedArticles = articles.OrderBy(a => a.CreatedAt).ToList();
+        
+        for (int i = 0; i < sortedArticles.Count; i++)
+        {
+            var newOrder = i + 1;
+            if (sortedArticles[i].Order != newOrder)
+            {
+                sortedArticles[i].Order = newOrder;
+                sortedArticles[i].UpdatedAt = DateTime.UtcNow;
+                await _articleRepository.UpdateArticleAsync(sortedArticles[i]);
+            }
+        }
+    }
 }

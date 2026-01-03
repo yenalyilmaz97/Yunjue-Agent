@@ -20,8 +20,14 @@ public class ArticleRepository : IArticleRepository
             query = query.Where(a => a.isActive);
         }
         return await query
-            .OrderByDescending(a => a.CreatedAt)
+            .OrderBy(a => a.Order)
             .ToListAsync();
+    }
+
+    public async Task<Article?> GetArticleByOrderAsync(int order)
+    {
+        return await _context.Articles
+            .FirstOrDefaultAsync(a => a.Order == order);
     }
 
     public async Task<Article?> GetArticleByIdAsync(int articleId)
@@ -32,6 +38,9 @@ public class ArticleRepository : IArticleRepository
 
     public async Task<Article> CreateArticleAsync(Article article)
     {
+        var maxOrder = await _context.Articles.MaxAsync(a => (int?)a.Order) ?? 0;
+        article.Order = maxOrder + 1;
+
         _context.Articles.Add(article);
         await _context.SaveChangesAsync();
         return article;

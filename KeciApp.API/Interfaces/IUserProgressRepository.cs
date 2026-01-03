@@ -14,5 +14,6 @@ public interface IUserProgressRepository
     Task<UserProgress> UpdateUserProgressAsync(UserProgress userProgress);
     Task RemoveUserProgressAsync(UserProgress userProgress);
     Task<IEnumerable<UserProgress>> GetCompletedEpisodeProgressesAsync();
+    Task<IEnumerable<UserProgress>> GetCompletedArticleProgressesAsync();
 }
 

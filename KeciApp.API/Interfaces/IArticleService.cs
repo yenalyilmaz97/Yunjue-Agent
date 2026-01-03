@@ -8,4 +8,5 @@ public interface IArticleService
     Task<ArticleResponseDTO> AddArticleAsync(CreateArticleRequest request);
     Task<ArticleResponseDTO> EditArticleAsync(EditArticleRequest request);
     Task<ArticleResponseDTO> DeleteArticleAsync(int articleId);
+    Task EnsureArticleOrdersAsync();
 }

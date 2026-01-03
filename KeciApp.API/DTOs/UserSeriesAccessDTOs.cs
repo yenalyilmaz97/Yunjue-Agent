@@ -47,12 +47,15 @@ public class UserSeriesAccessResponseDTO
     public UserResponseDTO? User { get; set; }
     public PodcastSeriesResponseDTO? PodcastSeries { get; set; }
     public Article? Article { get; set; }
+    public int? ArticleOrder { get; set; } // Current Article Order
 }
 public class UpdateUserSeriesAccessRequest
 {
     [Required]
     [Range(1, int.MaxValue, ErrorMessage = "Erişilebilir bölüm sayısı en az 1 olmalıdır")]
     public int CurrentAccessibleSequence { get; set; }
+    
+    public int? ArticleOrder { get; set; } // Optional: also update Article Order
 }
 
 

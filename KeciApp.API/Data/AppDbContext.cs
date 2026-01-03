@@ -140,12 +140,12 @@ public class AppDbContext : DbContext
             entity.ToTable("UserSeriesAccesses");
             entity.HasKey(e => e.UserSeriesAccessId);
             entity.Property(e => e.UserId).IsRequired();
-            entity.Property(e => e.SeriesId).IsRequired();
             entity.Property(e => e.CurrentAccessibleSequence).IsRequired();
             entity.Property(e => e.UpdatedAt).IsRequired();
 
-            // Unique constraint: One Access Per User and Series Id
-            entity.HasIndex(e => new { e.UserId, e.SeriesId })
+            // Unique constraint: Access is defined by User and (Series OR Article)
+            // Including ArticleId ensures uniqueness when SeriesId is null (provided DB treats NULLs as distinct or we want (User, Null, Article) unique)
+            entity.HasIndex(e => new { e.UserId, e.SeriesId, e.ArticleId })
                 .IsUnique();
         });
 

@@ -129,5 +129,13 @@ public class UserProgressRepository : IUserProgressRepository
                 .ThenInclude(ep => ep.PodcastSeries)
             .ToListAsync();
     }
+
+    public async Task<IEnumerable<UserProgress>> GetCompletedArticleProgressesAsync()
+    {
+        return await _context.UserProgresses
+            .Where(up => up.ArticleId.HasValue && up.isCompleted)
+            .Include(up => up.Article)
+            .ToListAsync();
+    }
 }
 
