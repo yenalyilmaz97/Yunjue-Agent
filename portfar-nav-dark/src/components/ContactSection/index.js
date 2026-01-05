@@ -3,7 +3,7 @@ import ContactForm from '../ContactFrom'
 
 const ContactSection = () => {
 
-    return(
+    return (
         <section id="contact" className="tp-contact-pg-section section-padding">
             <div className="container">
                 <div className="row">
@@ -35,7 +35,7 @@ const ContactSection = () => {
                                             <p>iletisim@keciyibesle.com</p>
                                         </div>
                                     </div>
-                                </div> 
+                                </div>
                                 <div className="col col-xl-6 col-lg-6 col-md-6 col-12">
                                     <div className="office-info-item">
                                         <div className="office-info-icon">
@@ -46,13 +46,13 @@ const ContactSection = () => {
                                         <div className="office-info-text">
                                             <h2>Instagram</h2>
                                             <p>
-                                                <a href="https://www.instagram.com/ramazanmertdurak" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>
-                                                    @ramazanmertdurak
+                                                <a href="https://www.instagram.com/keciyibesle/" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>
+                                                    @keciyibesle
                                                 </a>
                                             </p>
                                         </div>
                                     </div>
-                                </div> 
+                                </div>
                             </div>
                         </div>
                         {/* <div className="section-title section-title2 text-center">
@@ -62,17 +62,17 @@ const ContactSection = () => {
                         <div className="tp-contact-form-area">
                             <ContactForm/>
                         </div> */}
-                    </div>                
+                    </div>
                 </div>
-            </div> 
+            </div>
             {/* <section className="tp-contact-map-section">
                 <div className="tp-contact-map">
                     <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d200065.484971909!2d26.914910011316778!3d38.417828663955994!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14bbd862a762cacd%3A0x628cbba1a59ce8fe!2zxLB6bWly!5e0!3m2!1sen!2str!4v1763064362523!5m2!1sen!2str"> </iframe>
                 </div>
             </section> */}
         </section>
-     )
-        
+    )
+
 }
 
 export default ContactSection;

@@ -5,7 +5,7 @@ import Slides from '../../images/slide-3.jpg';
 
 class Hero extends Component {
     render() {
-        return(
+        return (
             <section id="home" className="hero hero-slider-wrapper hero-style-1">
                 <div className="hero-slider">
                     <div className="slide" style={{ backgroundImage: `url(${Slides})` }}>
@@ -33,7 +33,7 @@ class Hero extends Component {
                         <li><a target="_blank" rel="noopener noreferrer" href="https://twitter.com/"><i className="fa fa-twitter"></i></a></li>
                         <li><a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/"><i className="fa fa-linkedin"></i></a></li>
                         <li><a target="_blank" rel="noopener noreferrer" href="https://www.pinterest.com/"><i className="fa fa-pinterest"></i></a></li> */}
-                        <li><a target="_blank" rel="noopener noreferrer" href="https://www.instagram.com/ramazanmertdurak"><i className="fa fa-instagram"></i></a></li>
+                        <li><a target="_blank" rel="noopener noreferrer" href="https://www.instagram.com/keciyibesle/"><i className="fa fa-instagram"></i></a></li>
                     </ul>
                 </div>
                 <div className="white_svg">
