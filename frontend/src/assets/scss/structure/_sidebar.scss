@@ -15,10 +15,14 @@
      .logo-sm {
          display: none;
          height: $logo-sm-height;
+         object-fit: contain;
+         width: auto;
      }
  
      .logo-lg {
          height: $logo-lg-height;
+         object-fit: contain;
+         width: auto;
      }
  
      .logo-light {
