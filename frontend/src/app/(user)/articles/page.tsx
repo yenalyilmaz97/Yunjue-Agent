@@ -10,7 +10,13 @@ const page = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    contentService.getPublicArticles().then(setArticles).catch(() => setArticles([]))
+    contentService.getPublicArticles()
+      .then(data => {
+        // Order desc sorting (highest order first)
+        const sorted = [...data].sort((a, b) => (b.order || 0) - (a.order || 0))
+        setArticles(sorted)
+      })
+      .catch(() => setArticles([]))
   }, [])
 
   return (
@@ -40,7 +46,7 @@ const page = () => {
               </CardHeader>
               <CardBody>
                 <p className="text-muted mb-2">{a.excerpt || ''}</p>
-                <div className="text-muted small">{(a.publishedAt || a.createdAt).slice(0,10)} • {a.authorUserName}</div>
+                <div className="text-muted small">{(a.publishedAt || a.createdAt).slice(0, 10)} • {a.authorUserName}</div>
               </CardBody>
             </Card>
           </div>

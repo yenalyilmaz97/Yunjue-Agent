@@ -39,6 +39,7 @@ export interface Aphorism {
 export interface Article {
   articleId: number
   title: string
+  order: number
   pdfLink: string
   isActive: boolean
   createdAt: string
