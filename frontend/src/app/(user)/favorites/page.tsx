@@ -152,10 +152,10 @@ const FavoritesPage = () => {
           <div className="d-none d-md-block mb-4">
             <Nav variant="tabs" activeKey={activeCategory} onSelect={(k) => setActiveCategory(k as FavoriteCategory)}>
               {CATEGORIES.map((category) => {
-                const count = category.key === 'all' 
-                  ? allFavorites.length 
+                const count = category.key === 'all'
+                  ? allFavorites.length
                   : allFavorites.filter((f) => f.favoriteType === category.type).length
-                
+
                 return (
                   <Nav.Item key={category.key}>
                     <Nav.Link eventKey={category.key} className="d-flex align-items-center gap-2">
@@ -181,10 +181,10 @@ const FavoritesPage = () => {
               className="form-select-lg"
             >
               {CATEGORIES.map((category) => {
-                const count = category.key === 'all' 
-                  ? allFavorites.length 
+                const count = category.key === 'all'
+                  ? allFavorites.length
                   : allFavorites.filter((f) => f.favoriteType === category.type).length
-                
+
                 return (
                   <option key={category.key} value={category.key}>
                     {category.label} ({count})
@@ -207,7 +207,7 @@ const FavoritesPage = () => {
                 {activeCategory === 'all' ? 'Henüz favori eklenmemiş' : `${activeCategoryInfo.label} kategorisinde favori bulunmuyor`}
               </h6>
               <p className="text-muted small mb-0">
-                {activeCategory === 'all' 
+                {activeCategory === 'all'
                   ? 'Beğendiğiniz içerikleri favorilere ekleyerek burada görebilirsiniz.'
                   : 'Bu kategoride favori eklemek için ilgili içerik sayfasından favori butonunu kullanın.'}
               </p>
@@ -246,12 +246,6 @@ const FavoritesPage = () => {
                           <h6 className="mb-1 fw-semibold">{getFavoriteTitle(favorite)}</h6>
                           {getFavoriteSubtitle(favorite) && (
                             <p className="text-muted small mb-0 text-truncate">{getFavoriteSubtitle(favorite)}</p>
-                          )}
-                          {/* Affirmation ve Aphorism için metin göster */}
-                          {(favorite.favoriteType === 3 || favorite.favoriteType === 4) && (
-                            <p className="text-muted small mb-0 mt-1" style={{ fontSize: '0.85rem', lineHeight: '1.4', whiteSpace: 'pre-line' }}>
-                              {(favorite.affirmationText || favorite.aphorismText)?.trimEnd()}
-                            </p>
                           )}
                         </div>
                         <Button

@@ -1,7 +1,7 @@
 import PageTitle from '@/components/PageTitle'
 import { useEffect, useState } from 'react'
 import { useAuthContext } from '@/context/useAuthContext'
-import { questionsService, podcastService } from '@/services'
+import { questionsService, podcastService, contentService } from '@/services'
 import type { Question } from '@/types/keci'
 import { Card, CardBody, Row, Col, Spinner, Button } from 'react-bootstrap'
 import { Icon } from '@iconify/react'
@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom'
 interface GroupedQuestions {
   seriesId: number
   seriesTitle: string
-  questions: Question[]
+  questions: (Question & { articleTitle?: string; articleSlug?: string })[]
 }
 
 const QuestionsPage = () => {
@@ -33,10 +33,11 @@ const QuestionsPage = () => {
         const userId = parseInt(user.id)
         const questions = await questionsService.getQuestionsByUser(userId)
 
-        // Sadece episode sorularını al (seri bilgisi olanlar)
+        // Episode ve Article sorularını ayır
         const episodeQuestions = questions.filter((q) => q.episodeId && q.seriesTitle)
+        const articleQuestions = questions.filter((q) => q.articleId)
 
-        // Serilere göre grupla
+        // Serilere göre grupla (Episode soruları için)
         const grouped: { [key: string]: GroupedQuestions } = {}
 
         episodeQuestions.forEach((question) => {
@@ -53,8 +54,41 @@ const QuestionsPage = () => {
           }
         })
 
-        // Her seri için seriesId'yi bul
+        // Article sorularını grupla
+        if (articleQuestions.length > 0) {
+          try {
+            // Makale detaylarını çek (Başlık ve slug için)
+            const articles = await contentService.getPublicArticles()
+
+            // Makale detaylarını sorularla eşleştir
+            const enrichedArticleQuestions = articleQuestions.map(q => {
+              const article = articles.find(a => a.articleId === q.articleId)
+              return {
+                ...q,
+                articleTitle: article?.title,
+                articleSlug: article?.slug
+              }
+            })
+
+            grouped['Makaleler'] = {
+              seriesId: -1,
+              seriesTitle: 'Makaleler',
+              questions: enrichedArticleQuestions
+            }
+          } catch (err) {
+            console.error('Error fetching articles:', err)
+            grouped['Makaleler'] = {
+              seriesId: -1,
+              seriesTitle: 'Makaleler',
+              questions: articleQuestions
+            }
+          }
+        }
+
+        // Her seri için seriesId'yi bul (Sadece episode grupları için)
         const seriesPromises = Object.values(grouped).map(async (group) => {
+          if (group.seriesId === -1) return group // Makaleler grubunu atla
+
           try {
             const allSeries = await podcastService.getAllSeries()
             const series = allSeries.find((s) => s.title === group.seriesTitle)
@@ -116,7 +150,7 @@ const QuestionsPage = () => {
     setExpandedQuestions(newExpanded)
   }
 
-  const handleGoToEpisode = async (question: Question, e: React.MouseEvent) => {
+  const handleGoToContent = async (question: Question & { articleSlug?: string }, e: React.MouseEvent) => {
     e.stopPropagation()
     if (question.episodeId && question.seriesTitle) {
       // Question'un seri ID'sini bul
@@ -138,7 +172,11 @@ const QuestionsPage = () => {
         },
       })
     } else if (question.articleId) {
-      navigate(`/articles/${question.articleId}`)
+      if (question.articleSlug) {
+        navigate(`/articles/${question.articleSlug}`)
+      } else {
+        navigate(`/articles/${question.articleId}`)
+      }
     }
   }
 
@@ -312,6 +350,7 @@ const QuestionsPage = () => {
                       const isExpanded = expandedQuestions.has(question.questionId)
                       const accentColor = question.isAnswered ? '--bs-primary' : '--bs-warning'
                       const accentColorRgb = question.isAnswered ? '--bs-primary-rgb' : '--bs-warning-rgb'
+                      const articleQuestion = question as Question & { articleTitle?: string; articleSlug?: string }
 
                       return (
                         <div
@@ -401,6 +440,13 @@ const QuestionsPage = () => {
                                   </p>
                                 )}
 
+                                {articleQuestion.articleTitle && (
+                                  <p className="text-muted mb-1 d-flex align-items-center" style={{ fontSize: '0.75rem' }}>
+                                    <Icon icon="mingcute:paper-line" className="me-1" style={{ fontSize: '0.75rem' }} />
+                                    {articleQuestion.articleTitle}
+                                  </p>
+                                )}
+
                                 {/* Soru Metni */}
                                 <p className="text-muted mb-0" style={{ fontSize: '0.8rem', lineHeight: '1.4' }}>
                                   {!isExpanded && question.questionText.length > 100
@@ -441,11 +487,11 @@ const QuestionsPage = () => {
                                 <span className="d-none d-sm-inline">{formatDateTime(question.createdAt)}</span>
                                 <span className="d-inline d-sm-none">{formatDate(question.createdAt)}</span>
                               </span>
-                              {question.episodeId && (
+                              {(question.episodeId || question.articleId) && (
                                 <Button
                                   variant="outline-primary"
                                   size="sm"
-                                  onClick={(e) => handleGoToEpisode(question, e)}
+                                  onClick={(e) => handleGoToContent(articleQuestion, e)}
                                   className="d-flex align-items-center gap-1"
                                   style={{
                                     fontSize: '0.7rem',
@@ -467,7 +513,7 @@ const QuestionsPage = () => {
                                     e.currentTarget.style.backgroundColor = 'rgba(var(--bs-primary-rgb), 0.05)'
                                   }}
                                 >
-                                  <span className="d-none d-sm-inline">Bölüme Git</span>
+                                  <span className="d-none d-sm-inline">{question.articleId ? 'Makaleye Git' : 'Bölüme Git'}</span>
                                   <Icon icon="mingcute:arrow-right-line" style={{ fontSize: '0.85rem' }} />
                                 </Button>
                               )}
