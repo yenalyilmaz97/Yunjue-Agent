@@ -32,13 +32,13 @@ const QuestionsPage = () => {
       try {
         const userId = parseInt(user.id)
         const questions = await questionsService.getQuestionsByUser(userId)
-        
+
         // Sadece episode sorularını al (seri bilgisi olanlar)
         const episodeQuestions = questions.filter((q) => q.episodeId && q.seriesTitle)
 
         // Serilere göre grupla
         const grouped: { [key: string]: GroupedQuestions } = {}
-        
+
         episodeQuestions.forEach((question) => {
           if (question.seriesTitle && question.episodeId) {
             const key = question.seriesTitle
@@ -68,7 +68,7 @@ const QuestionsPage = () => {
         })
 
         const groupedWithSeries = await Promise.all(seriesPromises)
-        
+
         // En son sorulan sorulara göre sırala
         groupedWithSeries.sort((a, b) => {
           const aLastQuestion = a.questions[0]?.createdAt || ''
@@ -130,7 +130,7 @@ const QuestionsPage = () => {
       } catch (error) {
         console.error('Error finding series:', error)
       }
-      
+
       navigate('/podcasts', {
         state: {
           episodeId: question.episodeId,
@@ -188,7 +188,7 @@ const QuestionsPage = () => {
                     const unansweredCount = series.questions.filter((q) => !q.isAnswered).length
                     const answeredCount = series.questions.filter((q) => q.isAnswered).length
                     const isSelected = selectedSeries?.seriesTitle === series.seriesTitle
-                    
+
                     return (
                       <button
                         key={index}
@@ -217,21 +217,21 @@ const QuestionsPage = () => {
                             style={{
                               width: '32px',
                               height: '32px',
-                              backgroundColor: isSelected 
-                                ? 'rgba(255,255,255,0.2)' 
+                              backgroundColor: isSelected
+                                ? 'rgba(255,255,255,0.2)'
                                 : unansweredCount > 0
-                                  ? 'rgba(var(--bs-danger-rgb), 0.1)' 
+                                  ? 'rgba(var(--bs-danger-rgb), 0.1)'
                                   : 'rgba(var(--bs-success-rgb), 0.1)',
                             }}
                           >
                             <Icon
                               icon={unansweredCount > 0 ? 'mingcute:time-line' : 'mingcute:check-fill'}
-                              style={{ 
+                              style={{
                                 fontSize: '1rem',
-                                color: isSelected 
-                                  ? '#ffffff' 
+                                color: isSelected
+                                  ? '#ffffff'
                                   : unansweredCount > 0
-                                    ? 'var(--bs-danger)' 
+                                    ? 'var(--bs-danger)'
                                     : 'var(--bs-success)'
                               }}
                             />
@@ -242,9 +242,9 @@ const QuestionsPage = () => {
                             </div>
                             <div className="d-flex align-items-center gap-1 flex-wrap" style={{ fontSize: '0.65rem' }}>
                               {unansweredCount > 0 && (
-                                <span 
-                                  className="badge" 
-                                  style={{ 
+                                <span
+                                  className="badge"
+                                  style={{
                                     fontSize: '0.6rem',
                                     backgroundColor: isSelected ? 'rgba(255,255,255,0.2)' : 'rgba(var(--bs-danger-rgb), 0.15)',
                                     color: isSelected ? '#ffffff' : 'var(--bs-danger)',
@@ -254,9 +254,9 @@ const QuestionsPage = () => {
                                 </span>
                               )}
                               {answeredCount > 0 && (
-                                <span 
-                                  className="badge" 
-                                  style={{ 
+                                <span
+                                  className="badge"
+                                  style={{
                                     fontSize: '0.6rem',
                                     backgroundColor: isSelected ? 'rgba(255,255,255,0.2)' : 'rgba(var(--bs-success-rgb), 0.15)',
                                     color: isSelected ? '#ffffff' : 'var(--bs-success)',
@@ -292,13 +292,13 @@ const QuestionsPage = () => {
                 <div className="mb-3">
                   <h5 className="mb-1 fw-semibold" style={{ fontSize: '1rem' }}>{selectedSeries.seriesTitle}</h5>
                   <p className="text-muted small mb-0" style={{ fontSize: '0.8rem' }}>
-                      {selectedSeries.questions.length} soru
-                      {selectedSeries.questions.filter((q) => !q.isAnswered).length > 0 && (
+                    {selectedSeries.questions.length} soru
+                    {selectedSeries.questions.filter((q) => !q.isAnswered).length > 0 && (
                       <span className="ms-2" style={{ color: 'var(--bs-danger)' }}>
-                          • {selectedSeries.questions.filter((q) => !q.isAnswered).length} beklemede
-                        </span>
-                      )}
-                    </p>
+                        • {selectedSeries.questions.filter((q) => !q.isAnswered).length} beklemede
+                      </span>
+                    )}
+                  </p>
                 </div>
 
                 {selectedSeries.questions.length === 0 ? (
@@ -312,7 +312,7 @@ const QuestionsPage = () => {
                       const isExpanded = expandedQuestions.has(question.questionId)
                       const accentColor = question.isAnswered ? '--bs-primary' : '--bs-warning'
                       const accentColorRgb = question.isAnswered ? '--bs-primary-rgb' : '--bs-warning-rgb'
-                      
+
                       return (
                         <div
                           key={question.questionId}
@@ -322,11 +322,11 @@ const QuestionsPage = () => {
                             transition: 'all 0.2s ease',
                             overflow: 'hidden',
                             borderRadius: '12px',
-                            borderColor: isExpanded 
-                              ? `var(${accentColor})` 
+                            borderColor: isExpanded
+                              ? `var(${accentColor})`
                               : `rgba(var(${accentColorRgb}), 0.15)`,
-                            background: isExpanded 
-                              ? `linear-gradient(135deg, rgba(var(${accentColorRgb}), 0.03) 0%, rgba(var(${accentColorRgb}), 0.06) 100%)` 
+                            background: isExpanded
+                              ? `linear-gradient(135deg, rgba(var(${accentColorRgb}), 0.03) 0%, rgba(var(${accentColorRgb}), 0.06) 100%)`
                               : 'transparent',
                           }}
                           onClick={() => handleQuestionClick(question)}
@@ -352,8 +352,8 @@ const QuestionsPage = () => {
                             <div className="d-flex align-items-start gap-2">
                               <div
                                 className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                                style={{ 
-                                  width: '36px', 
+                                style={{
+                                  width: '36px',
                                   height: '36px',
                                   backgroundColor: `rgba(var(${accentColorRgb}), 0.1)`,
                                 }}
@@ -366,54 +366,54 @@ const QuestionsPage = () => {
                               <div className="flex-grow-1 min-w-0">
                                 <div className="d-flex align-items-center justify-content-between gap-2">
                                   <div className="d-flex align-items-center gap-2 flex-wrap">
-                                    <span 
-                                      className="badge" 
-                                        style={{ 
+                                    <span
+                                      className="badge"
+                                      style={{
                                         fontSize: '0.65rem',
                                         backgroundColor: `rgba(var(${accentColorRgb}), 0.1)`,
                                         color: `var(${accentColor})`,
                                         borderRadius: '6px',
-                                        }}
-                                      >
-                                        {question.isAnswered ? (
-                                          <>
+                                      }}
+                                    >
+                                      {question.isAnswered ? (
+                                        <>
                                           <Icon icon="mingcute:check-fill" className="me-1" style={{ fontSize: '0.6rem' }} />
-                                            Cevaplandı
-                                          </>
-                                        ) : (
-                                          <>
+                                          Cevaplandı
+                                        </>
+                                      ) : (
+                                        <>
                                           <Icon icon="mingcute:time-line" className="me-1" style={{ fontSize: '0.6rem' }} />
-                                            Beklemede
-                                          </>
-                                        )}
+                                          Beklemede
+                                        </>
+                                      )}
                                     </span>
                                   </div>
                                   <Icon
                                     icon={isExpanded ? 'mingcute:up-line' : 'mingcute:down-line'}
                                     style={{ fontSize: '1rem', color: `var(${accentColor})`, flexShrink: 0 }}
                                   />
-                                    </div>
-                                
-                                    {question.episodeTitle && (
+                                </div>
+
+                                {question.episodeTitle && (
                                   <p className="text-muted mb-1 d-flex align-items-center" style={{ fontSize: '0.75rem' }}>
                                     <Icon icon="mingcute:headphone-line" className="me-1" style={{ fontSize: '0.75rem' }} />
                                     {question.episodeTitle}
-                                      </p>
-                                    )}
-                                    
+                                  </p>
+                                )}
+
                                 {/* Soru Metni */}
                                 <p className="text-muted mb-0" style={{ fontSize: '0.8rem', lineHeight: '1.4' }}>
                                   {!isExpanded && question.questionText.length > 100
                                     ? `${question.questionText.substring(0, 100)}...`
-                                          : question.questionText}
-                                      </p>
+                                    : question.questionText}
+                                </p>
 
                                 {/* Cevap - Sadece expanded durumda göster */}
                                 {isExpanded && question.isAnswered && question.answer && (
-                                  <div 
-                                    className="mt-2 p-2 rounded" 
-                                          style={{ 
-                                            backgroundColor: 'rgba(var(--bs-primary-rgb), 0.05)',
+                                  <div
+                                    className="mt-2 p-2 rounded"
+                                    style={{
+                                      backgroundColor: 'rgba(var(--bs-primary-rgb), 0.05)',
                                       border: '1px solid rgba(var(--bs-primary-rgb), 0.1)',
                                       borderRadius: '8px',
                                     }}
@@ -421,34 +421,34 @@ const QuestionsPage = () => {
                                     <div className="d-flex align-items-center gap-2 mb-1">
                                       <Icon icon="mingcute:message-2-line" style={{ fontSize: '0.75rem', color: 'var(--bs-primary)' }} />
                                       <span className="fw-semibold" style={{ fontSize: '0.75rem', color: 'var(--bs-primary)' }}>Cevap</span>
-                                                  {question.answer.updatedAt && (
+                                      {question.answer.updatedAt && (
                                         <span className="text-muted" style={{ fontSize: '0.65rem' }}>
-                                                      {formatDateTime(question.answer.updatedAt)}
-                                                    </span>
-                                                  )}
-                                                </div>
+                                          {formatDateTime(question.answer.updatedAt)}
+                                        </span>
+                                      )}
+                                    </div>
                                     <p className="mb-0" style={{ fontSize: '0.8rem', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
                                       {question.answer.answerText}
-                                                </p>
-                                      </div>
-                                    )}
+                                    </p>
                                   </div>
-                                </div>
-                            
+                                )}
+                              </div>
+                            </div>
+
                             <div className="d-flex align-items-center justify-content-between mt-2 pt-2" style={{ borderTop: `1px solid rgba(var(${accentColorRgb}), 0.08)` }}>
                               <span className="text-muted d-flex align-items-center" style={{ fontSize: '0.7rem' }}>
                                 <Icon icon="mingcute:time-line" className="me-1" style={{ fontSize: '0.75rem' }} />
-                                    <span className="d-none d-sm-inline">{formatDateTime(question.createdAt)}</span>
-                                    <span className="d-inline d-sm-none">{formatDate(question.createdAt)}</span>
-                                  </span>
-                                  {question.episodeId && (
-                                    <Button
-                                      variant="outline-primary"
-                                      size="sm"
-                                      onClick={(e) => handleGoToEpisode(question, e)}
+                                <span className="d-none d-sm-inline">{formatDateTime(question.createdAt)}</span>
+                                <span className="d-inline d-sm-none">{formatDate(question.createdAt)}</span>
+                              </span>
+                              {question.episodeId && (
+                                <Button
+                                  variant="outline-primary"
+                                  size="sm"
+                                  onClick={(e) => handleGoToEpisode(question, e)}
                                   className="d-flex align-items-center gap-1"
-                                  style={{ 
-                                    fontSize: '0.7rem', 
+                                  style={{
+                                    fontSize: '0.7rem',
                                     borderRadius: '8px',
                                     padding: '0.25rem 0.5rem',
                                     borderWidth: '1.5px',
@@ -469,8 +469,8 @@ const QuestionsPage = () => {
                                 >
                                   <span className="d-none d-sm-inline">Bölüme Git</span>
                                   <Icon icon="mingcute:arrow-right-line" style={{ fontSize: '0.85rem' }} />
-                                    </Button>
-                                  )}
+                                </Button>
+                              )}
                             </div>
                           </div>
                         </div>

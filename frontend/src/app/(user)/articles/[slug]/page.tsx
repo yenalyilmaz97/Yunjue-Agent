@@ -13,17 +13,17 @@ const ArticleDetailPage = () => {
   const params = useParams()
   const slugOrId = params['*'] || ''
   const { user } = useAuthContext()
-  
+
   const [article, setArticle] = useState<Article | null>(null)
   const [loading, setLoading] = useState(true)
-  
+
   // Notes & Questions state
   const [showNotesAndQuestions, setShowNotesAndQuestions] = useState(false)
   const [noteText, setNoteText] = useState('')
   const [noteTitle, setNoteTitle] = useState('')
   const [existingNote, setExistingNote] = useState<Note | null>(null)
   const [noteLoading, setNoteLoading] = useState(false)
-  
+
   const [questionText, setQuestionText] = useState('')
   const [existingQuestion, setExistingQuestion] = useState<Question | null>(null)
   const [questionLoading, setQuestionLoading] = useState(false)
@@ -34,7 +34,7 @@ const ArticleDetailPage = () => {
       setLoading(false)
       return
     }
-    
+
     const loadArticle = async () => {
       setLoading(true)
       try {
@@ -63,7 +63,7 @@ const ArticleDetailPage = () => {
         setLoading(false)
       }
     }
-    
+
     loadArticle()
   }, [slugOrId])
 
@@ -94,7 +94,7 @@ const ArticleDetailPage = () => {
   useEffect(() => {
     if (article && user?.id) {
       const userId = parseInt(user.id)
-      
+
       // Load existing note
       notesService
         .getNoteByUserAndArticle(userId, article.articleId)
@@ -114,7 +114,7 @@ const ArticleDetailPage = () => {
           setNoteTitle('')
           setNoteText('')
         })
-      
+
       // Load existing question
       questionsService
         .getQuestionByUserAndArticle(userId, article.articleId)
@@ -148,19 +148,19 @@ const ArticleDetailPage = () => {
       const userId = parseInt(user.id)
       const savedNote = existingNote
         ? await notesService.updateNote({
-            userId,
-            articleId: article.articleId,
-            title: noteTitle || article.title,
-            noteText: noteText.trim(),
-          })
+          userId,
+          articleId: article.articleId,
+          title: noteTitle || article.title,
+          noteText: noteText.trim(),
+        })
         : await notesService.createNote({
-            userId,
-            articleId: article.articleId,
-            title: noteTitle || article.title,
-            noteText: noteText.trim(),
-          })
+          userId,
+          articleId: article.articleId,
+          title: noteTitle || article.title,
+          noteText: noteText.trim(),
+        })
       setExistingNote(savedNote)
-      
+
       // Success notification
       const successMsg = document.createElement('div')
       successMsg.className = 'alert alert-success position-fixed'
@@ -189,7 +189,7 @@ const ArticleDetailPage = () => {
       })
       setExistingQuestion(newQuestion)
       setQuestionText('')
-      
+
       // Success notification
       const successMsg = document.createElement('div')
       successMsg.className = 'alert alert-success position-fixed'
@@ -240,11 +240,11 @@ const ArticleDetailPage = () => {
   return (
     <>
       <PageTitle subName="Makale" title={article.title} />
-      
+
       {/* Article Header Card */}
-      <Card 
+      <Card
         className="border-0 shadow-sm mb-3 mb-md-4 overflow-hidden"
-        style={{ 
+        style={{
           borderRadius: '16px',
           background: 'linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.03) 0%, rgba(var(--bs-primary-rgb), 0.08) 100%)'
         }}
@@ -252,19 +252,19 @@ const ArticleDetailPage = () => {
         <Card.Body className="p-3 p-md-4">
           {article.coverImageUrl && (
             <div className="mb-3 overflow-hidden" style={{ borderRadius: '12px' }}>
-              <img 
-                src={article.coverImageUrl} 
-                alt={article.title} 
-                className="img-fluid w-100" 
-                style={{ 
-                  maxHeight: '300px', 
+              <img
+                src={article.coverImageUrl}
+                alt={article.title}
+                className="img-fluid w-100"
+                style={{
+                  maxHeight: '300px',
                   objectFit: 'cover',
                   transition: 'transform 0.3s ease'
-                }} 
+                }}
               />
             </div>
           )}
-          
+
           <div className="d-flex align-items-center flex-wrap gap-2 text-muted small mb-3">
             <span className="d-flex align-items-center gap-1">
               <Icon icon="mingcute:calendar-line" style={{ fontSize: '0.9rem' }} />
@@ -303,9 +303,9 @@ const ArticleDetailPage = () => {
               />
               <span>Not ve Soru</span>
               {existingNote && (
-                <span 
-                  className="badge ms-1" 
-                  style={{ 
+                <span
+                  className="badge ms-1"
+                  style={{
                     fontSize: '0.65rem',
                     backgroundColor: 'rgba(var(--bs-primary-rgb), 0.15)',
                     color: 'var(--bs-primary)',
@@ -318,9 +318,9 @@ const ArticleDetailPage = () => {
                 </span>
               )}
               {existingQuestion && (
-                <span 
-                  className="badge ms-1" 
-                  style={{ 
+                <span
+                  className="badge ms-1"
+                  style={{
                     fontSize: '0.65rem',
                     backgroundColor: 'rgba(var(--bs-warning-rgb), 0.15)',
                     color: 'var(--bs-warning)',
@@ -362,7 +362,7 @@ const ArticleDetailPage = () => {
                   >
                     <Card.Body className="p-2 p-md-3">
                       <div className="d-flex align-items-center gap-2 mb-2">
-                        <div 
+                        <div
                           className="d-flex align-items-center justify-content-center"
                           style={{
                             width: '28px',
@@ -371,24 +371,24 @@ const ArticleDetailPage = () => {
                             backgroundColor: 'rgba(var(--bs-primary-rgb), 0.1)'
                           }}
                         >
-                          <Icon 
-                            icon="mingcute:notebook-3-line" 
-                            style={{ 
+                          <Icon
+                            icon="mingcute:notebook-3-line"
+                            style={{
                               fontSize: '1rem',
                               color: 'var(--bs-primary)'
-                            }} 
+                            }}
                           />
                         </div>
-                        <h6 
+                        <h6
                           className="mb-0 fw-semibold"
                           style={{ fontSize: '0.9rem' }}
                         >
                           Notlarım
                         </h6>
                         {existingNote && (
-                          <span 
-                            className="badge ms-auto" 
-                            style={{ 
+                          <span
+                            className="badge ms-auto"
+                            style={{
                               fontSize: '0.65rem',
                               backgroundColor: 'rgba(var(--bs-primary-rgb), 0.1)',
                               color: 'var(--bs-primary)',
@@ -402,11 +402,11 @@ const ArticleDetailPage = () => {
                           </span>
                         )}
                       </div>
-                      
+
                       {existingNote && (
-                        <div 
+                        <div
                           className="py-2 px-2 mb-2 rounded"
-                          style={{ 
+                          style={{
                             fontSize: '0.75rem',
                             backgroundColor: 'rgba(var(--bs-info-rgb), 0.08)',
                             border: '1px solid rgba(var(--bs-info-rgb), 0.15)',
@@ -417,7 +417,7 @@ const ArticleDetailPage = () => {
                           Mevcut notunuz düzenlenebilir.
                         </div>
                       )}
-                      
+
                       <Form.Group className="mb-2">
                         <Form.Control
                           type="text"
@@ -426,7 +426,7 @@ const ArticleDetailPage = () => {
                           onChange={(e) => setNoteTitle(e.target.value)}
                           size="sm"
                           className="mb-2"
-                          style={{ 
+                          style={{
                             fontSize: '0.8rem',
                             borderRadius: '8px',
                             borderColor: 'rgba(var(--bs-primary-rgb), 0.15)',
@@ -449,7 +449,7 @@ const ArticleDetailPage = () => {
                           }}
                         />
                       </Form.Group>
-                      
+
                       <Button
                         variant="primary"
                         size="sm"
@@ -508,7 +508,7 @@ const ArticleDetailPage = () => {
                   >
                     <Card.Body className="p-2 p-md-3">
                       <div className="d-flex align-items-center gap-2 mb-2">
-                        <div 
+                        <div
                           className="d-flex align-items-center justify-content-center"
                           style={{
                             width: '28px',
@@ -517,24 +517,24 @@ const ArticleDetailPage = () => {
                             backgroundColor: 'rgba(var(--bs-warning-rgb), 0.1)'
                           }}
                         >
-                          <Icon 
-                            icon="mingcute:question-line" 
-                            style={{ 
+                          <Icon
+                            icon="mingcute:question-line"
+                            style={{
                               fontSize: '1rem',
                               color: 'var(--bs-warning)'
-                            }} 
+                            }}
                           />
                         </div>
-                        <h6 
+                        <h6
                           className="mb-0 fw-semibold"
                           style={{ fontSize: '0.9rem' }}
                         >
                           Soru Sor
                         </h6>
                         {existingQuestion ? (
-                          <span 
-                            className="badge ms-auto" 
-                            style={{ 
+                          <span
+                            className="badge ms-auto"
+                            style={{
                               fontSize: '0.65rem',
                               backgroundColor: 'rgba(var(--bs-primary-rgb), 0.1)',
                               color: 'var(--bs-primary)',
@@ -547,9 +547,9 @@ const ArticleDetailPage = () => {
                             Gönderildi
                           </span>
                         ) : (
-                          <span 
-                            className="badge ms-auto" 
-                            style={{ 
+                          <span
+                            className="badge ms-auto"
+                            style={{
                               fontSize: '0.65rem',
                               backgroundColor: 'rgba(var(--bs-warning-rgb), 0.1)',
                               color: 'var(--bs-warning)',
@@ -562,23 +562,10 @@ const ArticleDetailPage = () => {
                           </span>
                         )}
                       </div>
-                      
+
                       {existingQuestion ? (
                         <>
-                          <div 
-                            className="py-2 px-2 mb-2 rounded"
-                            style={{ 
-                              fontSize: '0.75rem',
-                              backgroundColor: 'rgba(var(--bs-info-rgb), 0.08)',
-                              border: '1px solid rgba(var(--bs-info-rgb), 0.15)',
-                              borderRadius: '8px'
-                            }}
-                          >
-                            <Icon icon="mingcute:information-line" className="me-1" style={{ fontSize: '0.8rem', color: 'var(--bs-info)' }} />
-                            Sorunuz admin tarafından inceleniyor.
-                          </div>
-                          
-                          <div 
+                          <div
                             className="border rounded p-2"
                             style={{
                               backgroundColor: 'rgba(var(--bs-primary-rgb), 0.02)',
@@ -601,9 +588,9 @@ const ArticleDetailPage = () => {
                             <p className="text-muted mb-0" style={{ lineHeight: '1.5', fontSize: '0.8rem' }}>
                               {existingQuestion.questionText}
                             </p>
-                            
+
                             {existingQuestion.isAnswered && existingQuestion.answer && (
-                              <div 
+                              <div
                                 className="mt-2 pt-2 border-top rounded p-2"
                                 style={{
                                   backgroundColor: 'rgba(var(--bs-primary-rgb), 0.05)',
@@ -640,7 +627,7 @@ const ArticleDetailPage = () => {
                               }}
                             />
                           </Form.Group>
-                          
+
                           <Button
                             variant="warning"
                             size="sm"
@@ -688,19 +675,19 @@ const ArticleDetailPage = () => {
 
       {/* HTML Content */}
       {hasHtmlContent && (
-        <Card 
+        <Card
           className="border-0 shadow-sm"
           style={{ borderRadius: '16px' }}
         >
           <Card.Body className="p-3 p-md-4">
-            <div 
+            <div
               className="article-content"
-              style={{ 
+              style={{
                 fontSize: '1rem',
                 lineHeight: '1.8',
                 color: 'var(--bs-body-color)'
               }}
-              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.contentHtml || '') }} 
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.contentHtml || '') }}
             />
           </Card.Body>
         </Card>
@@ -708,7 +695,7 @@ const ArticleDetailPage = () => {
 
       {/* No content message */}
       {!hasPdf && !hasHtmlContent && (
-        <Card 
+        <Card
           className="border-0 shadow-sm"
           style={{ borderRadius: '16px' }}
         >

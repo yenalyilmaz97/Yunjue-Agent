@@ -46,9 +46,6 @@ public class AuthController : ControllerBase
             });
         }
 
-        // Mark daily content as completed when user logs in (if user is on daily content plan)
-        if (user.dailyOrWeekly)
-        {
             try
             {
                 int? dailyContentId = user.DailyContentId;
@@ -80,7 +77,6 @@ public class AuthController : ControllerBase
                 // Log error but don't fail login if progress update fails
                 Console.WriteLine($"Error marking daily content as completed: {ex.Message}");
             }
-        }
 
         var token = _jwtService.GenerateToken(user, roles);
 
