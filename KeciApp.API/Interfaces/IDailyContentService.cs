@@ -12,5 +12,6 @@ public interface IDailyContentService
     Task<DailyContentResponseDTO> UpdateDailyContentAsync(UpdateDailyContentRequest request);
     Task<DailyContentResponseDTO> DeleteDailyContentAsync(int dailyContentId);
     Task<BulkUpdateDailyContentResponseDTO> IncrementDailyContentForAllUsersAsync();
+    Task<IEnumerable<DailyContentResponseDTO>> GetUsersDailyContentHistoryAsync(int userId);
 }
 

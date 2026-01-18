@@ -175,5 +175,32 @@ public class DailyContentService : IDailyContentService
             Message = $"Successfully updated daily content for {dailyUpdatedCount} users. Skipped {skippedCount} users."
         };
     }
+    public async Task<IEnumerable<DailyContentResponseDTO>> GetUsersDailyContentHistoryAsync(int userId)
+    {
+        var user = await _userRepository.GetUserByIdAsync(userId);
+        if (user == null)
+        {
+            throw new InvalidOperationException("User not found");
+        }
+
+        int currentDayOrder = 1;
+
+        // Determine current day order
+        if (user.DailyContentId.HasValue)
+        {
+            var content = await _dailyContentRepository.GetDailyContentByIdAsync(user.DailyContentId.Value);
+            if (content != null)
+            {
+                currentDayOrder = content.DayOrder;
+            }
+        }
+
+        var allContent = await _dailyContentRepository.GetAllDailyContentAsync();
+        var unlockedContent = allContent
+            .Where(c => c.DayOrder <= currentDayOrder)
+            .OrderByDescending(c => c.DayOrder);
+
+        return _mapper.Map<IEnumerable<DailyContentResponseDTO>>(unlockedContent);
+    }
 }
 

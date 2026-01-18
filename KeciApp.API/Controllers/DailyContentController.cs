@@ -70,6 +70,20 @@ public class DailyContentController : ControllerBase
         }
     }
 
+    [HttpGet("daily-content/user/{userId}/history")]
+    public async Task<ActionResult<IEnumerable<DailyContentResponseDTO>>> GetUsersDailyContentHistory(int userId)
+    {
+        try
+        {
+            var history = await _dailyContentService.GetUsersDailyContentHistoryAsync(userId);
+            return Ok(history);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpPost("daily-content")]
     public async Task<ActionResult<DailyContentResponseDTO>> CreateDailyContent([FromBody] CreateDailyContentRequest request)
     {
