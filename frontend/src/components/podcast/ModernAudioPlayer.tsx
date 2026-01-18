@@ -68,7 +68,7 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
     const updateDuration = () => {
       const newDuration = audio.duration || 0
       setDuration(newDuration)
-      
+
       if (episodeId && newDuration > 0) {
         const resumeTime = getResumeTime(episodeId, newDuration)
         if (resumeTime > 0 && audio.currentTime === 0) {
@@ -147,6 +147,19 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
     }
   }
 
+  const skipTime = (seconds: number) => {
+    const audio = audioRef.current
+    if (!audio || !duration) return
+
+    const newTime = Math.max(0, Math.min(duration, currentTime + seconds))
+    audio.currentTime = newTime
+    setCurrentTime(newTime)
+
+    if (episodeId && duration > 0) {
+      saveEpisodeProgress(episodeId, newTime, duration)
+    }
+  }
+
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const audio = audioRef.current
     const progressBar = progressBarRef.current
@@ -159,7 +172,7 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
 
     audio.currentTime = newTime
     setCurrentTime(newTime)
-    
+
     if (episodeId && duration > 0) {
       saveEpisodeProgress(episodeId, newTime, duration)
     }
@@ -220,50 +233,72 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
         {/* Main Controls */}
         <div className="d-flex align-items-center gap-2 gap-md-3">
           {/* Play/Pause Button */}
-          <Button
-            variant="primary"
-            onClick={togglePlayPause}
-            className="d-flex align-items-center justify-content-center flex-shrink-0"
-            style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: '50%',
-              border: 'none',
-              background: 'var(--bs-primary)',
-              boxShadow: isPlaying
-                ? '0 6px 16px rgba(var(--bs-primary-rgb), 0.35)'
-                : '0 3px 10px rgba(var(--bs-primary-rgb), 0.25)',
-              transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-              padding: 0,
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.08)'
-              e.currentTarget.style.boxShadow = '0 8px 20px rgba(var(--bs-primary-rgb), 0.4)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'scale(1)'
-              e.currentTarget.style.boxShadow = isPlaying
-                ? '0 6px 16px rgba(var(--bs-primary-rgb), 0.35)'
-                : '0 3px 10px rgba(var(--bs-primary-rgb), 0.25)'
-            }}
-            onTouchStart={(e) => {
-              e.currentTarget.style.transform = 'scale(0.95)'
-            }}
-            onTouchEnd={(e) => {
-              e.currentTarget.style.transform = 'scale(1)'
-            }}
-          >
-            {isPlaying ? (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <rect x="6" y="4" width="4" height="16" fill="white" rx="1" />
-                <rect x="14" y="4" width="4" height="16" fill="white" rx="1" />
-              </svg>
-            ) : (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ marginLeft: '2px' }}>
-                <path d="M8 5v14l11-7z" fill="white" />
-              </svg>
-            )}
-          </Button>
+          <div className="d-flex align-items-center gap-2">
+            <Button
+              variant="link"
+              onClick={() => skipTime(-10)}
+              className="p-0 border-0"
+              style={{ color: 'var(--bs-primary)', opacity: 0.8 }}
+              title="-10s"
+            >
+              <Icon icon="mingcute:arrow-left-line" style={{ fontSize: '24px' }} />
+            </Button>
+
+            <Button
+              variant="primary"
+              onClick={togglePlayPause}
+              className="d-flex align-items-center justify-content-center flex-shrink-0"
+              style={{
+                width: '44px',
+                height: '44px',
+                borderRadius: '50%',
+                border: 'none',
+                background: 'var(--bs-primary)',
+                boxShadow: isPlaying
+                  ? '0 6px 16px rgba(var(--bs-primary-rgb), 0.35)'
+                  : '0 3px 10px rgba(var(--bs-primary-rgb), 0.25)',
+                transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                padding: 0,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.08)'
+                e.currentTarget.style.boxShadow = '0 8px 20px rgba(var(--bs-primary-rgb), 0.4)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)'
+                e.currentTarget.style.boxShadow = isPlaying
+                  ? '0 6px 16px rgba(var(--bs-primary-rgb), 0.35)'
+                  : '0 3px 10px rgba(var(--bs-primary-rgb), 0.25)'
+              }}
+              onTouchStart={(e) => {
+                e.currentTarget.style.transform = 'scale(0.95)'
+              }}
+              onTouchEnd={(e) => {
+                e.currentTarget.style.transform = 'scale(1)'
+              }}
+            >
+              {isPlaying ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <rect x="6" y="4" width="4" height="16" fill="white" rx="1" />
+                  <rect x="14" y="4" width="4" height="16" fill="white" rx="1" />
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ marginLeft: '2px' }}>
+                  <path d="M8 5v14l11-7z" fill="white" />
+                </svg>
+              )}
+            </Button>
+
+            <Button
+              variant="link"
+              onClick={() => skipTime(10)}
+              className="p-0 border-0"
+              style={{ color: 'var(--bs-primary)', opacity: 0.8 }}
+              title="+10s"
+            >
+              <Icon icon="mingcute:arrow-right-line" style={{ fontSize: '24px' }} />
+            </Button>
+          </div>
 
           {/* Time and Progress */}
           <div className="flex-grow-1" style={{ minWidth: 0 }}>

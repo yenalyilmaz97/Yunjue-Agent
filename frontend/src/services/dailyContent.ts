@@ -42,6 +42,9 @@ export const dailyContentService = {
   async getDailyContentByUser(userId: number): Promise<DailyContentResponseDTO> {
     return api.get<DailyContentResponseDTO>(`${DAILY_CONTENT_ENDPOINT}/daily-content/user/${userId}`)
   },
+  async getDailyContentHistory(userId: number): Promise<DailyContentResponseDTO[]> {
+    return api.get<DailyContentResponseDTO[]>(`${DAILY_CONTENT_ENDPOINT}/daily-content/user/${userId}/history`)
+  },
   async createDailyContent(data: CreateDailyContentRequest): Promise<DailyContentResponseDTO> {
     return api.post<DailyContentResponseDTO>(`${DAILY_CONTENT_ENDPOINT}/daily-content`, data)
   },

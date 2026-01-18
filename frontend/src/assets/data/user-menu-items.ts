@@ -29,6 +29,12 @@ export const USER_MENU_ITEMS: MenuItemType[] = [
         url: '/podcasts',
         parentKey: 'content',
       },
+      {
+        key: 'aphorisms',
+        label: 'Aforizmalar & Olumlamalar',
+        url: '/aphorisms',
+        parentKey: 'content',
+      },
     ],
   },
   {

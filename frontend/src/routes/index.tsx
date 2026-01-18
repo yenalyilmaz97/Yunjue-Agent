@@ -8,6 +8,7 @@ const UserPodcasts = lazy(() => import('@/app/(user)/podcasts/page'))
 const UserFavorites = lazy(() => import('@/app/(user)/favorites/page'))
 const UserNotes = lazy(() => import('@/app/(user)/notes/page'))
 const UserQuestions = lazy(() => import('@/app/(user)/questions/page'))
+const UserAphorisms = lazy(() => import('@/app/(user)/aphorisms/page'))
 const UserProfile = lazy(() => import('@/app/(user)/profile/page'))
 
 // Base UI Routes
@@ -472,6 +473,11 @@ export const appRoutes = [
     name: 'User Questions',
     path: '/questions',
     element: <UserQuestions />,
+  },
+  {
+    name: 'User Aphorisms',
+    path: '/aphorisms',
+    element: <UserAphorisms />,
   },
   {
     name: 'User Profile',
