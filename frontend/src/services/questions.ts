@@ -6,7 +6,7 @@ const QUESTIONS_ENDPOINT = API_CONFIG.ENDPOINTS.QUESTIONS
 const QUESTIONS_ENDPOINTS = {
   LIST: `${QUESTIONS_ENDPOINT}/questions`,
   CREATE: `${QUESTIONS_ENDPOINT}/questions`,
-  UPDATE: `${QUESTIONS_ENDPOINT}/questions`,
+  EDIT: `${QUESTIONS_ENDPOINT}/questions/edit`,
   UPDATE_BY_ID: (questionId: number) => `${QUESTIONS_ENDPOINT}/questions/${questionId}`,
   BY_USER: (userId: number) => `${QUESTIONS_ENDPOINT}/questions/user/${userId}`,
   BY_EPISODE: (episodeId: number) => `${QUESTIONS_ENDPOINT}/questions/episode/${episodeId}`,
@@ -30,8 +30,7 @@ export interface EditQuestionRequest {
 
 export interface UpdateQuestionRequest {
   questionId: number
-  questionText?: string | null
-  isAnswered?: boolean | null
+  questionText: string
 }
 
 export const questionsService = {
@@ -41,11 +40,11 @@ export const questionsService = {
   async createQuestion(questionData: AddQuestionRequest): Promise<Question> {
     return await api.post<Question>(QUESTIONS_ENDPOINTS.CREATE, questionData)
   },
-  async updateQuestion(questionData: EditQuestionRequest): Promise<Question> {
-    return await api.put<Question>(QUESTIONS_ENDPOINTS.UPDATE, questionData)
-  },
   async updateQuestionById(questionId: number, questionData: UpdateQuestionRequest): Promise<Question> {
-    return await api.put<Question>(QUESTIONS_ENDPOINTS.UPDATE_BY_ID(questionId), questionData)
+    return await api.put<Question>(QUESTIONS_ENDPOINTS.EDIT, {
+      questionId: questionId,
+      questionText: questionData.questionText,
+    })
   },
   async getQuestionsByUser(userId: number): Promise<Question[]> {
     return await api.get<Question[]>(QUESTIONS_ENDPOINTS.BY_USER(userId))

@@ -49,7 +49,7 @@ const PodcastsPage = () => {
       try {
         const userId = parseInt(user.id)
         const accesses = await userSeriesAccessService.getAccessByUserId(userId)
-        
+
         const seriesPromises = accesses
           .filter((access) => access.seriesId && access.podcastSeries)
           .map(async (access) => {
@@ -59,7 +59,7 @@ const PodcastsPage = () => {
           })
 
         const series = (await Promise.all(seriesPromises)).filter((s): s is PodcastSeries => s !== null)
-        
+
         const sortedSeries = series.sort((a, b) => {
           const accessA = accesses.find((acc) => acc.seriesId === a.seriesId)
           const accessB = accesses.find((acc) => acc.seriesId === b.seriesId)
@@ -68,7 +68,7 @@ const PodcastsPage = () => {
         })
 
         setSeriesList(sortedSeries)
-        
+
         const locationState = location.state as { seriesId?: number; episodeId?: number } | null
         if (locationState?.seriesId) {
           const targetSeries = sortedSeries.find((s) => s.seriesId === locationState.seriesId)
@@ -97,7 +97,7 @@ const PodcastsPage = () => {
         const userId = parseInt(user.id)
         const userAccess = await userSeriesAccessService.getUserSeriesAccess(userId, selectedSeries.seriesId)
         const allEpisodes = await podcastService.getEpisodesBySeries(selectedSeries.seriesId)
-        
+
         const accessibleEpisodes = allEpisodes.filter(
           (ep) => ep.isActive && ep.sequenceNumber <= userAccess.currentAccessibleSequence
         )
@@ -171,7 +171,7 @@ const PodcastsPage = () => {
   useEffect(() => {
     if (currentEpisode && user?.id) {
       const userId = parseInt(user.id)
-      
+
       favoritesService
         .isFavorited(userId, currentEpisode.episodesId)
         .then((favorited) => setIsFavorited(favorited))
@@ -238,17 +238,17 @@ const PodcastsPage = () => {
       const userId = parseInt(user.id)
       const savedNote = existingNote
         ? await notesService.updateNote({
-            userId,
-            episodeId: currentEpisode.episodesId,
-            title: noteTitle || currentEpisode.title,
-            noteText: noteText.trim(),
-          })
+          userId,
+          episodeId: currentEpisode.episodesId,
+          title: noteTitle || currentEpisode.title,
+          noteText: noteText.trim(),
+        })
         : await notesService.createNote({
-            userId,
-            episodeId: currentEpisode.episodesId,
-            title: noteTitle || currentEpisode.title,
-            noteText: noteText.trim(),
-          })
+          userId,
+          episodeId: currentEpisode.episodesId,
+          title: noteTitle || currentEpisode.title,
+          noteText: noteText.trim(),
+        })
       setExistingNote(savedNote)
       showSuccessToast('Not kaydedildi.')
     } catch (error) {
@@ -260,22 +260,37 @@ const PodcastsPage = () => {
   }
 
   const handleSubmitQuestion = async () => {
-    if (!currentEpisode || !user?.id || !questionText.trim() || existingQuestion) return
+    if (!currentEpisode || !user?.id || !questionText.trim()) return
 
     setQuestionLoading(true)
     try {
       const userId = parseInt(user.id)
-      const newQuestion = await questionsService.createQuestion({
-        userId,
-        episodeId: currentEpisode.episodesId,
-        questionText: questionText.trim(),
-      })
-      setExistingQuestion(newQuestion)
-      setQuestionText('')
-      showSuccessToast("Sorunuz admin'e gönderildi.")
+
+      if (existingQuestion) {
+        // Update existing question
+        await questionsService.updateQuestionById(existingQuestion.questionId, {
+          questionId: existingQuestion.questionId,
+          questionText: questionText.trim(),
+        })
+        setExistingQuestion({
+          ...existingQuestion,
+          questionText: questionText.trim()
+        })
+        showSuccessToast("Soru güncellendi.")
+      } else {
+        // Create new question
+        const newQuestion = await questionsService.createQuestion({
+          userId,
+          episodeId: currentEpisode.episodesId,
+          questionText: questionText.trim(),
+        })
+        setExistingQuestion(newQuestion)
+        // Keep text for continuity
+        showSuccessToast("Sorunuz admin'e gönderildi.")
+      }
     } catch (error) {
       console.error('Error submitting question:', error)
-      alert('Soru gönderilirken bir hata oluştu. Lütfen tekrar deneyin.')
+      alert('İşlem sırasında bir hata oluştu. Lütfen tekrar deneyin.')
     } finally {
       setQuestionLoading(false)
     }
@@ -361,8 +376,8 @@ const PodcastsPage = () => {
   const getContentType = (episode: PodcastEpisode): ContentType => {
     const hasVideo = episode.content?.video && episode.content.video !== null && episode.content.video !== 'null' && episode.content.video.trim() !== ''
     const hasAudio = (episode.content?.audio && episode.content.audio !== null && episode.content.audio !== 'null' && episode.content.audio.trim() !== '') ||
-                     (episode.audioLink && episode.audioLink !== null && episode.audioLink !== 'null' && episode.audioLink.trim() !== '')
-    
+      (episode.audioLink && episode.audioLink !== null && episode.audioLink !== 'null' && episode.audioLink.trim() !== '')
+
     if (hasVideo) return 'video'
     if (hasAudio) return 'audio'
     if (getPdfUrl(episode)) return 'pdf'
@@ -428,16 +443,16 @@ const PodcastsPage = () => {
   return (
     <>
       <PageTitle subName="KeciApp" title="Podcasts" />
-      
+
       {/* Player/Viewer */}
       {currentEpisode && (() => {
         const contentType = getContentType(currentEpisode)
 
         return (
           <div ref={playerRef} className="mb-3 mb-md-4">
-            <Card 
+            <Card
               className="border-0 shadow-sm overflow-hidden"
-              style={{ 
+              style={{
                 borderRadius: '16px',
                 background: 'linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.03) 0%, rgba(var(--bs-primary-rgb), 0.06) 100%)'
               }}
@@ -496,9 +511,9 @@ const PodcastsPage = () => {
                 {/* Content Renderer */}
                 <div className="mb-3">
                   {contentType === 'video' && (
-                    <VideoPlayer 
-                      src={getVideoUrl(currentEpisode) || ''} 
-                      episodeId={currentEpisode.episodesId} 
+                    <VideoPlayer
+                      src={getVideoUrl(currentEpisode) || ''}
+                      episodeId={currentEpisode.episodesId}
                       userId={user?.id ? parseInt(user.id) : undefined}
                     />
                   )}
@@ -514,8 +529,8 @@ const PodcastsPage = () => {
                     <PDFViewer pdfUrl={getPdfUrl(currentEpisode) || ''} title={currentEpisode.title} />
                   )}
                   {contentType === 'gallery' && (
-                    <GalleryViewer 
-                      images={getGalleryImages(currentEpisode)} 
+                    <GalleryViewer
+                      images={getGalleryImages(currentEpisode)}
                       title={currentEpisode.title}
                       episodeId={currentEpisode.episodesId}
                       userId={user?.id ? parseInt(user.id) : undefined}
@@ -534,7 +549,7 @@ const PodcastsPage = () => {
                   const prevEpisode = getPreviousEpisode()
                   const nextEpisode = getNextEpisode()
                   if (!prevEpisode && !nextEpisode) return null
-                  
+
                   return (
                     <div className="d-flex align-items-center justify-content-between gap-2 mb-3 pt-3 border-top" style={{ borderColor: 'rgba(var(--bs-primary-rgb), 0.1) !important' }}>
                       <Button
@@ -594,8 +609,13 @@ const PodcastsPage = () => {
                     </span>
                   )}
                   {existingQuestion && (
-                    <span className="badge" style={{ fontSize: '0.6rem', backgroundColor: 'rgba(var(--bs-warning-rgb), 0.15)', color: 'var(--bs-warning)', borderRadius: '6px' }}>
-                      Soru Var
+                    <span className="badge" style={{
+                      fontSize: '0.6rem',
+                      backgroundColor: existingQuestion.isAnswered ? 'rgba(var(--bs-primary-rgb), 0.15)' : 'rgba(var(--bs-warning-rgb), 0.15)',
+                      color: existingQuestion.isAnswered ? 'var(--bs-primary)' : 'var(--bs-warning)',
+                      borderRadius: '6px'
+                    }}>
+                      {existingQuestion.isAnswered ? 'Cevaplandı' : 'Soru Var'}
                     </span>
                   )}
                 </Button>
@@ -663,14 +683,14 @@ const PodcastsPage = () => {
                                 <Icon icon="mingcute:question-line" style={{ fontSize: '0.9rem', color: 'var(--bs-warning)' }} />
                               </div>
                               <h6 className="mb-0 fw-semibold" style={{ fontSize: '0.85rem' }}>Soru Sor</h6>
-                              <span className="badge ms-auto" style={{ fontSize: '0.6rem', backgroundColor: existingQuestion ? 'rgba(var(--bs-primary-rgb), 0.1)' : 'rgba(var(--bs-warning-rgb), 0.1)', color: existingQuestion ? 'var(--bs-primary)' : 'var(--bs-warning)', borderRadius: '6px' }}>
-                                {existingQuestion ? 'Gönderildi' : "Admin'e Gönderilir"}
+                              <span className="badge ms-auto" style={{ fontSize: '0.6rem', backgroundColor: existingQuestion?.isAnswered ? 'rgba(var(--bs-primary-rgb), 0.1)' : 'rgba(var(--bs-warning-rgb), 0.1)', color: existingQuestion?.isAnswered ? 'var(--bs-primary)' : 'var(--bs-warning)', borderRadius: '6px' }}>
+                                {existingQuestion ? (existingQuestion.isAnswered ? 'Cevaplandı' : 'Gönderildi') : "Admin'e Gönderilir"}
                               </span>
                             </div>
-                            {existingQuestion ? (
+                            {existingQuestion && existingQuestion.isAnswered ? (
                               <div className="border rounded p-2" style={{ backgroundColor: 'rgba(var(--bs-primary-rgb), 0.02)', borderRadius: '8px', borderColor: 'rgba(var(--bs-primary-rgb), 0.1)' }}>
                                 <p className="text-muted small mb-1" style={{ fontSize: '0.75rem' }}>{existingQuestion.questionText}</p>
-                                {existingQuestion.isAnswered && existingQuestion.answer && (
+                                {existingQuestion.answer && (
                                   <div className="mt-2 pt-2 border-top">
                                     <div className="d-flex align-items-center gap-1 mb-1">
                                       <Icon icon="mingcute:check-fill" style={{ fontSize: '0.75rem', color: 'var(--bs-primary)' }} />
@@ -700,8 +720,8 @@ const PodcastsPage = () => {
                                   className="w-100 d-flex align-items-center justify-content-center gap-2"
                                   style={{ fontSize: '0.8rem', borderRadius: '8px', color: '#1a1a1a' }}
                                 >
-                                  {questionLoading ? <Spinner animation="border" size="sm" /> : <Icon icon="mingcute:send-line" style={{ fontSize: '0.9rem' }} />}
-                                  <span>Gönder</span>
+                                  {questionLoading ? <Spinner animation="border" size="sm" /> : <Icon icon={existingQuestion ? "mingcute:save-line" : "mingcute:send-line"} style={{ fontSize: '0.9rem' }} />}
+                                  <span>{existingQuestion ? 'Güncelle' : 'Gönder'}</span>
                                 </Button>
                               </>
                             )}
@@ -776,10 +796,10 @@ const PodcastsPage = () => {
                         <div className="min-w-0 flex-grow-1 overflow-hidden">
                           <div className="fw-semibold text-truncate" style={{ fontSize: '0.85rem' }}>{series.title}</div>
                           {series.description && (
-                            <div 
-                              className="small" 
-                              style={{ 
-                                fontSize: '0.7rem', 
+                            <div
+                              className="small"
+                              style={{
+                                fontSize: '0.7rem',
                                 opacity: selectedSeries?.seriesId === series.seriesId ? 0.8 : 0.6,
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
