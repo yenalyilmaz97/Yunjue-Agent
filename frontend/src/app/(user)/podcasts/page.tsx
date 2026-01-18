@@ -1,8 +1,8 @@
 import PageTitle from '@/components/PageTitle'
 import { useEffect, useState, useRef } from 'react'
 import { useAuthContext } from '@/context/useAuthContext'
-import { userSeriesAccessService, podcastService, favoritesService, notesService, questionsService } from '@/services'
-import type { PodcastSeries, PodcastEpisode, Question, Note } from '@/types/keci'
+import { userSeriesAccessService, podcastService, favoritesService, notesService, questionsService, userProgressService } from '@/services'
+import type { PodcastSeries, PodcastEpisode, Question, Note, UserProgressResponseDTO } from '@/types/keci'
 import { Card, CardBody, Row, Col, Spinner, Button, Form, Collapse } from 'react-bootstrap'
 import { Icon } from '@iconify/react'
 import { useLocation } from 'react-router-dom'
@@ -36,6 +36,7 @@ const PodcastsPage = () => {
   const [questionLoading, setQuestionLoading] = useState(false)
   const [existingNote, setExistingNote] = useState<Note | null>(null)
   const [showNotesAndQuestions, setShowNotesAndQuestions] = useState(false)
+  const [userProgress, setUserProgress] = useState<UserProgressResponseDTO[]>([])
   const playerRef = useRef<HTMLDivElement>(null)
 
   // Load user's accessible series
@@ -86,6 +87,19 @@ const PodcastsPage = () => {
 
     loadSeries()
   }, [user])
+
+  // Load user progress
+  useEffect(() => {
+    if (user?.id) {
+      userProgressService.getAllUserProgressByUserId(parseInt(user.id))
+        .then(setUserProgress)
+        .catch(err => console.error('Error loading user progress:', err))
+    }
+  }, [user])
+
+  const isEpisodeCompleted = (episodeId: number) => {
+    return userProgress.some(p => p.episodeId === episodeId && p.isCompleted)
+  }
 
   // Load episodes for selected series
   useEffect(() => {
@@ -887,8 +901,8 @@ const PodcastsPage = () => {
                               style={{ width: '36px', height: '36px', backgroundColor: 'rgba(var(--bs-primary-rgb), 0.1)' }}
                             >
                               <Icon
-                                icon={getContentIcon(getContentType(episodes[0]))}
-                                style={{ fontSize: '1rem', color: 'var(--bs-primary)' }}
+                                icon={isEpisodeCompleted(episodes[0].episodesId) ? 'mingcute:check-circle-fill' : getContentIcon(getContentType(episodes[0]))}
+                                style={{ fontSize: '1rem', color: isEpisodeCompleted(episodes[0].episodesId) ? 'var(--bs-success)' : 'var(--bs-primary)' }}
                               />
                             </div>
                             <div className="min-w-0 flex-grow-1">
@@ -953,8 +967,8 @@ const PodcastsPage = () => {
                                     style={{ width: '36px', height: '36px', backgroundColor: 'rgba(var(--bs-primary-rgb), 0.1)' }}
                                   >
                                     <Icon
-                                      icon={getContentIcon(getContentType(episode))}
-                                      style={{ fontSize: '1rem', color: 'var(--bs-primary)' }}
+                                      icon={isEpisodeCompleted(episode.episodesId) ? 'mingcute:check-circle-fill' : getContentIcon(getContentType(episode))}
+                                      style={{ fontSize: '1rem', color: isEpisodeCompleted(episode.episodesId) ? 'var(--bs-success)' : 'var(--bs-primary)' }}
                                     />
                                   </div>
                                   <div className="min-w-0 flex-grow-1">

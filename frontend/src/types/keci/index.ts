@@ -8,3 +8,4 @@ export * from './userWeeklyAssignment'
 export * from './common'
 
 
+export * from './userProgress'
