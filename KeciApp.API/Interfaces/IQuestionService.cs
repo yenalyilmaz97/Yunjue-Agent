@@ -10,8 +10,9 @@ public interface IQuestionService
     Task<QuestionResponseDTO?> GetQuestionByUserIdAndEpisodeIdAsync(int userId, int episodeId);
     Task<QuestionResponseDTO?> GetQuestionByUserIdAndArticleIdAsync(int userId, int articleId);
     Task<QuestionResponseDTO> AddQuestionAsync(AddQuestionRequest request);
+    Task<QuestionResponseDTO> UpdateQuestionAsync(EditQuestionRequest request);
+    Task<bool> DeleteQuestionAsync(int questionId);
     Task<QuestionResponseDTO> AddQuestionToPodcastEpisodeAsync(AddQuestionRequest request);
-    Task<QuestionResponseDTO> EditQuestionOfPodcastEpisodeAsync(EditQuestionRequest request);
-    Task<QuestionResponseDTO> UpdateQuestionAsync(UpdateQuestionRequest request);
+
 
 }

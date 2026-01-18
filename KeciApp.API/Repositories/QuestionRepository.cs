@@ -107,4 +107,17 @@ public class QuestionRepository : IQuestionRepository
         
         return await GetQuestionByIdAsync(question.QuestionId) ?? question;
     }
+
+    public async Task<bool> DeleteQuestionAsync(int questionId)
+    {
+        var question = await _context.Questions.FindAsync(questionId);
+        if (question == null)
+        {
+            return false;
+        }
+
+        _context.Questions.Remove(question);
+        await _context.SaveChangesAsync();
+        return true;
+    }
 }

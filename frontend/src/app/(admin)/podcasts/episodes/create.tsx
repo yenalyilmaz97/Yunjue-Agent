@@ -33,7 +33,10 @@ const EpisodeCreateEditPage = () => {
     description: yup.string().trim().optional(),
     content: yup.object({
       audio: yup.string().trim().optional(),
-      video: yup.string().trim().optional(),
+      video: yup.string().trim().test('is-vimeo', 'Only Vimeo links are allowed', (value) => {
+        if (!value) return true; // allow empty
+        return value.includes('vimeo.com');
+      }).optional(),
       images: yup.array().of(yup.string().required()).optional(),
     }),
     isActive: yup.boolean().required(),
@@ -49,17 +52,19 @@ const EpisodeCreateEditPage = () => {
       isActive: true,
     },
   })
+
+  // Watch content.video to disable video upload if link is present, or vice versa?
+  // User didn't ask for disable, just "link update area". Sticking to basic valid input.
+
   const { isSubmitting } = formState
   const state = (location.state as any) || {}
   const isEdit = state.mode === 'edit'
   const editItem = state.item
   const [uploadedFiles, setUploadedFiles] = useState<{
     audio: File | null
-    video: File | null
     images: File[]
   }>({
     audio: null,
-    video: null,
     images: [],
   })
   const [uploadProgress, setUploadProgress] = useState<number>(0)
@@ -70,11 +75,9 @@ const EpisodeCreateEditPage = () => {
     if (!ext) return null
 
     const audioExts = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac', 'wma']
-    const videoExts = ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv', 'flv', 'wmv']
     const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp']
 
     if (audioExts.includes(ext)) return 'audio'
-    if (videoExts.includes(ext)) return 'video'
     if (imageExts.includes(ext)) return 'image'
     return null
   }
@@ -91,22 +94,11 @@ const EpisodeCreateEditPage = () => {
         }
 
         if (fileType === 'audio') {
-          // Only one audio file allowed, clear video if audio is set
+          // Only one audio file allowed
           setUploadedFiles((prev) => ({
             ...prev,
             audio: fileObj,
-            video: null,
           }))
-          setValue('content.audio', '', { shouldDirty: true })
-          setValue('content.video', '', { shouldDirty: true })
-        } else if (fileType === 'video') {
-          // Only one video file allowed, clear audio if video is set
-          setUploadedFiles((prev) => ({
-            ...prev,
-            video: fileObj,
-            audio: null,
-          }))
-          setValue('content.video', '', { shouldDirty: true })
           setValue('content.audio', '', { shouldDirty: true })
         } else if (fileType === 'image') {
           // Multiple images allowed - check if file already exists
@@ -148,21 +140,23 @@ const EpisodeCreateEditPage = () => {
       if (isEdit && editItem) {
         // For edit mode: get existing content
         const existingContent = editItem.content || { audio: editItem.audioLink || '', video: '', images: [] }
-        
+
         // Check if new files are uploaded
-        const hasNewFiles = !!(uploadedFiles.audio || uploadedFiles.video || uploadedFiles.images.length > 0)
-        
-        // Validation: At least one content type must exist (either existing or new)
+        // Check if new files are uploaded
+        const hasNewFiles = !!(uploadedFiles.audio || uploadedFiles.images.length > 0)
+
+        // Validation: At least one content type must exist (either existing, new file, or new link)
         const hasExistingContent = !!(existingContent.audio || existingContent.video || (existingContent.images && existingContent.images.length > 0))
-        
-        if (!hasExistingContent && !hasNewFiles) {
+        const hasLinkContent = !!(data.content.video || data.content.audio)
+
+        if (!hasExistingContent && !hasNewFiles && !hasLinkContent) {
           alert(t('podcasts.episodes.uploadAtLeastOneOrExisting'))
           return
         }
-        
-        // Determine isVideo: prioritize new video, then existing video
-        const isVideo = !!(uploadedFiles.video || existingContent.video)
-        
+
+        // Determine isVideo: prioritize video link, then existing video
+        const isVideo = !!(data.content.video || existingContent.video)
+
         // If new files are uploaded, use FormData approach with file upload endpoint
         if (hasNewFiles) {
           const formData = new FormData()
@@ -175,30 +169,28 @@ const EpisodeCreateEditPage = () => {
           formData.append('sequenceNumber', editItem.sequenceNumber.toString())
           formData.append('isActive', data.isActive.toString())
           formData.append('isVideo', isVideo.toString())
-          
+
           // Add files if uploaded
           if (uploadedFiles.audio) {
             formData.append('audioFile', uploadedFiles.audio)
-            console.log('Adding audio file:', uploadedFiles.audio.name, 'Size:', uploadedFiles.audio.size)
           }
-          
-          if (uploadedFiles.video) {
-            formData.append('videoFile', uploadedFiles.video)
-            console.log('Adding video file:', uploadedFiles.video.name, 'Size:', uploadedFiles.video.size)
+
+          // Add Links (VideoUrl)
+          if (data.content.video) {
+            formData.append('videoUrl', data.content.video)
           }
-          
+
           if (uploadedFiles.images.length > 0) {
-            uploadedFiles.images.forEach((file, index) => {
+            uploadedFiles.images.forEach((file) => {
               formData.append('imageFiles', file)
-              console.log(`Adding image file ${index + 1}:`, file.name, 'Size:', file.size)
             })
           }
-          
+
           // If existing images should be preserved, add them as JSON
           if (uploadedFiles.images.length === 0 && existingContent.images && existingContent.images.length > 0) {
             formData.append('imageUrlsJson', JSON.stringify(existingContent.images))
           }
-          
+
           console.log('Updating episode with files...')
           setIsUploading(true)
           setUploadProgress(0)
@@ -210,12 +202,13 @@ const EpisodeCreateEditPage = () => {
           setUploadProgress(0)
         } else {
           // No new files, use existing content with regular update endpoint
+          // But wait, if we changed the LINK in data.content.video, updateEpisode JSON handles it.
           const content: EpisodeContent = {
-            audio: existingContent.audio || '',
-            video: existingContent.video || '',
+            audio: data.content.audio || existingContent.audio || '', // data.content.audio might be empty if we didn't add logic for it, but video is focus
+            video: data.content.video || '', // Use the form data!
             images: existingContent.images || [],
           }
-          
+
           await podcastService.updateEpisode(editItem.episodesId, {
             seriesId: data.seriesId,
             title: data.title,
@@ -227,15 +220,25 @@ const EpisodeCreateEditPage = () => {
           })
         }
       } else {
-        // Validation: At least one content type must be provided for create
-        if (!uploadedFiles.audio && !uploadedFiles.video && uploadedFiles.images.length === 0) {
+        // Create Mode
+
+        // Validation: At least one content type must be provided
+        const hasLinkContent = !!data.content.video
+        if (!uploadedFiles.audio && uploadedFiles.images.length === 0 && !hasLinkContent) {
           alert(t('podcasts.episodes.uploadAtLeastOne'))
           return
         }
-        
-        // Determine isVideo based on content - if video exists, it's a video episode
-        const isVideo = !!uploadedFiles.video
-        // Create FormData for file upload
+
+        // Determine isVideo based on content
+        const isVideo = !!data.content.video
+
+        // Create FormData for file upload (Create always uses FormData endpoint in this component structure?)
+        // Yes, line 269: createEpisodeWithFiles.
+        // Even if no files, we can use it if it supports VideoUrl.
+        // Does createEpisodeWithFiles support no files only URLs?
+        // Controller: CreateNewPodcastEpisode checks AudioFile, then AudioUrl. VideoFile, then VideoUrl.
+        // Yes it supports it.
+
         const formData = new FormData()
         formData.append('seriesId', data.seriesId.toString())
         formData.append('title', data.title)
@@ -248,22 +251,20 @@ const EpisodeCreateEditPage = () => {
         // Add files
         if (uploadedFiles.audio) {
           formData.append('audioFile', uploadedFiles.audio)
-          console.log('Adding audio file:', uploadedFiles.audio.name, 'Size:', uploadedFiles.audio.size)
         }
 
-        if (uploadedFiles.video) {
-          formData.append('videoFile', uploadedFiles.video)
-          console.log('Adding video file:', uploadedFiles.video.name, 'Size:', uploadedFiles.video.size)
+        // Add Link
+        if (data.content.video) {
+          formData.append('videoUrl', data.content.video)
         }
 
         if (uploadedFiles.images.length > 0) {
-          uploadedFiles.images.forEach((file, index) => {
+          uploadedFiles.images.forEach((file) => {
             formData.append('imageFiles', file)
-            console.log(`Adding image file ${index + 1}:`, file.name, 'Size:', file.size)
           })
         }
 
-        console.log('Submitting episode with files...')
+        console.log('Submitting episode...')
         setIsUploading(true)
         setUploadProgress(0)
         const result = await podcastService.createEpisodeWithFiles(formData, (progress) => {
@@ -302,7 +303,6 @@ const EpisodeCreateEditPage = () => {
                   />
                 </Form.Group>
               </Col>
-              {/* Sequence is auto-assigned on create; kept editable only on edit via separate page if needed */}
               <Col md={6}>
                 <TextFormInput control={control} name="title" label={t('podcasts.episodes.titleLabel')} placeholder={t('podcasts.episodes.titleLabel')} />
               </Col>
@@ -318,11 +318,19 @@ const EpisodeCreateEditPage = () => {
               <Col md={12}>
                 <TextAreaFormInput control={control} name="description" rows={3} label={t('podcasts.episodes.descriptionLabel')} placeholder={t('podcasts.episodes.descriptionLabel')} />
               </Col>
+
               <Col md={12}>
                 <hr />
                 <h6 className="mb-3">{t('podcasts.episodes.content')}</h6>
-                <p className="text-muted small mb-3">
-                  {isEdit 
+                <TextFormInput
+                  control={control}
+                  name="content.video"
+                  label="Vimeo Video Link (Opsiyonel)"
+                  placeholder="https://vimeo.com/..."
+                />
+
+                <p className="text-muted small mb-3 mt-3">
+                  {isEdit
                     ? t('podcasts.episodes.contentHelpEdit')
                     : t('podcasts.episodes.contentHelpCreate')}
                 </p>
@@ -337,11 +345,9 @@ const EpisodeCreateEditPage = () => {
                   onFileRemove={(file) => {
                     const fileObj = file as File
                     const fileType = getFileType(fileObj.name)
-                    
+
                     if (fileType === 'audio') {
                       setUploadedFiles((prev) => ({ ...prev, audio: null }))
-                    } else if (fileType === 'video') {
-                      setUploadedFiles((prev) => ({ ...prev, video: null }))
                     } else if (fileType === 'image') {
                       setUploadedFiles((prev) => ({
                         ...prev,
@@ -349,9 +355,8 @@ const EpisodeCreateEditPage = () => {
                       }))
                     }
                   }}
-                  accept={{ 
+                  accept={{
                     'audio/*': ['.mp3', '.wav', '.ogg', '.m4a', '.aac', '.flac', '.wma'],
-                    'video/*': ['.mp4', '.webm', '.ogg', '.mov', '.avi', '.mkv', '.flv', '.wmv'],
                     'image/*': ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp']
                   }}
                   maxFiles={10}

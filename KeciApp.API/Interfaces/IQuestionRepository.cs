@@ -12,5 +12,6 @@ public interface IQuestionRepository
     Task<Questions?> GetQuestionByArticleAsync(int userId, int articleId);
     Task<Questions> AddQuestionAsync(Questions question);
     Task<Questions> UpdateQuestionAsync(Questions question);
+    Task<bool> DeleteQuestionAsync(int questionId);
 
 }
