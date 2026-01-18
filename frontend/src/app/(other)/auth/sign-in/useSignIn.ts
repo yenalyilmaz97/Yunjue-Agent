@@ -22,6 +22,7 @@ const useSignIn = () => {
   const loginFormSchema = yup.object({
     email: yup.string().email('Please enter a valid email').required('Please enter your email'),
     password: yup.string().required('Please enter your password'),
+    rememberMe: yup.boolean().default(false),
   })
 
   const { control, handleSubmit } = useForm({
@@ -29,6 +30,7 @@ const useSignIn = () => {
     defaultValues: {
       email: '',
       password: '',
+      rememberMe: false,
     },
   })
 
@@ -61,41 +63,41 @@ const useSignIn = () => {
           token: res.token,
           password: '',
         }
-        saveSession(sessionUser)
+        saveSession(sessionUser, values.rememberMe)
         redirectUser(sessionUser.role)
         showNotification({ message: 'Successfully logged in. Redirecting....', variant: 'success' })
         return
       }
       // Check if login failed due to wrong password
       const errorMessage = res.message || ''
-      const isPasswordError = 
-        !res.success && 
-        (errorMessage.toLowerCase().includes('password') || 
-         errorMessage.toLowerCase().includes('şifre') ||
-         errorMessage.toLowerCase().includes('invalid') ||
-         errorMessage.toLowerCase().includes('yanlış') ||
-         errorMessage.toLowerCase().includes('wrong'))
-      
-      const displayMessage = isPasswordError 
-        ? 'Geçersiz bilgi. Lütfen tekrar deneyin.' 
+      const isPasswordError =
+        !res.success &&
+        (errorMessage.toLowerCase().includes('password') ||
+          errorMessage.toLowerCase().includes('şifre') ||
+          errorMessage.toLowerCase().includes('invalid') ||
+          errorMessage.toLowerCase().includes('yanlış') ||
+          errorMessage.toLowerCase().includes('wrong'))
+
+      const displayMessage = isPasswordError
+        ? 'Geçersiz bilgi. Lütfen tekrar deneyin.'
         : (errorMessage || 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.')
-      
+
       showNotification({ message: displayMessage, variant: 'danger' })
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       const status = e?.response?.status
       // Try multiple ways to get error message
-      const errorMessage = 
-        e?.response?.data?.message || 
+      const errorMessage =
+        e?.response?.data?.message ||
         e?.response?.data?.Message ||
         e?.response?.data?.error ||
-        e?.message || 
+        e?.message ||
         ''
-      
+
       console.log('Login error:', { status, errorMessage, error: e })
-      
+
       // Check for 401 Unauthorized or password-related errors
-      const isPasswordError = 
+      const isPasswordError =
         status === 401 ||
         errorMessage.toLowerCase().includes('password') ||
         errorMessage.toLowerCase().includes('şifre') ||
@@ -104,11 +106,11 @@ const useSignIn = () => {
         errorMessage.toLowerCase().includes('unauthorized') ||
         errorMessage.toLowerCase().includes('yanlış') ||
         errorMessage.toLowerCase().includes('wrong')
-      
+
       const displayMessage = isPasswordError
         ? 'Geçersiz bilgi. Lütfen tekrar deneyin.'
         : (errorMessage || 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.')
-      
+
       showNotification({ message: displayMessage, variant: 'danger' })
     } finally {
       setLoading(false)

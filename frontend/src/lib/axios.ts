@@ -2,8 +2,8 @@ import axios from 'axios'
 import type { AxiosInstance, AxiosRequestConfig } from 'axios'
 
 export const API_CONFIG = {
-  BASE_URL: (import.meta as any).env?.VITE_API_BASE_URL || 'https://app.keciyibesle.com/api',
-  //BASE_URL: (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5294/api',
+  //BASE_URL: (import.meta as any).env?.VITE_API_BASE_URL || 'https://app.keciyibesle.com/api',
+  BASE_URL: (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5294/api',
   TIMEOUT: 10000,
   ENDPOINTS: {
     AUTH: '/Auth',
@@ -53,10 +53,14 @@ const createAxiosInstance = (): AxiosInstance => {
         const lastActivity = localStorage.getItem('lastActivity')
         if (lastActivity) {
           const daysSinceLastActivity = (Date.now() - new Date(lastActivity).getTime()) / (1000 * 60 * 60 * 24)
-          if (daysSinceLastActivity >= 2) {
-            // Token inactive for 2+ days, remove it
+          const rememberMe = localStorage.getItem('rememberMe') === 'true'
+          const threshold = rememberMe ? 30 : 2
+
+          if (daysSinceLastActivity >= threshold) {
+            // Token inactive for threshold+ days, remove it
             localStorage.removeItem('authToken')
             localStorage.removeItem('lastActivity')
+            localStorage.removeItem('rememberMe')
             if (!window.location.pathname.includes('/auth/sign-in')) {
               window.location.href = '/auth/sign-in'
             }
