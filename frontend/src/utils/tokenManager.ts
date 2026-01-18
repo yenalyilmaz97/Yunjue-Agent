@@ -53,10 +53,13 @@ export function isTokenInactive(): boolean {
   const lastActivity = getLastActivity()
   if (!lastActivity) return true
 
+  const rememberMe = localStorage.getItem('rememberMe') === 'true'
+  const threshold = rememberMe ? 30 : INACTIVITY_THRESHOLD_DAYS
+
   const now = new Date()
   const daysSinceLastActivity = (now.getTime() - lastActivity.getTime()) / (1000 * 60 * 60 * 24)
-  
-  return daysSinceLastActivity >= INACTIVITY_THRESHOLD_DAYS
+
+  return daysSinceLastActivity >= threshold
 }
 
 /**
@@ -77,7 +80,7 @@ export function isTokenValid(): boolean {
     const payload = JSON.parse(atob(token.split('.')[1]))
     const exp = payload.exp * 1000 // Convert to milliseconds
     const now = Date.now()
-    
+
     if (now >= exp) {
       removeToken()
       return false

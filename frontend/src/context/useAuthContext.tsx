@@ -8,7 +8,7 @@ import { initializeTokenManager, isTokenValid, removeToken } from '@/utils/token
 export type AuthContextType = {
   user: UserType | undefined
   isAuthenticated: any
-  saveSession: (session: UserType) => void
+  saveSession: (session: UserType, rememberMe?: boolean) => void
   removeSession: () => void
 }
 
@@ -38,7 +38,7 @@ export function AuthProvider({ children }: ChildrenType) {
   // Initialize token manager on app load
   useEffect(() => {
     initializeTokenManager()
-    
+
     // Check token validity periodically (every 5 minutes)
     const interval = setInterval(() => {
       if (!isTokenValid()) {
@@ -55,11 +55,45 @@ export function AuthProvider({ children }: ChildrenType) {
     return () => clearInterval(interval)
   }, [navigate])
 
-  const saveSession = (user: UserType) => {
-    setCookie(authSessionKey, JSON.stringify(user))
+  // Sync token from cookie to localStorage if missing
+  useEffect(() => {
+    if (user && (user as any).token && !localStorage.getItem('authToken')) {
+      localStorage.setItem('authToken', (user as any).token)
+      // If we have a user from cookie but no token in localStorage, it means we probably started a new session
+      // with a persistent cookie. We should treat this as a "Remember Me" session.
+      localStorage.setItem('rememberMe', 'true')
+    }
+  }, [user])
+
+  // Check daily content on auth state change (login or initial load if authenticated)
+  useEffect(() => {
+    const checkDaily = async () => {
+      if (hasCookie(authSessionKey) && user) {
+        try {
+          const { authService } = await import('@/services')
+          await authService.checkDailyContent()
+        } catch (error) {
+          console.error('Failed to check daily content check', error)
+        }
+      }
+    }
+
+    if (user) {
+      checkDaily()
+    }
+  }, [user])
+
+  const saveSession = (user: UserType, rememberMe: boolean = false) => {
+    const cookieOptions = rememberMe ? { maxAge: 30 * 24 * 60 * 60 } : undefined // 30 days if remember me
+    setCookie(authSessionKey, JSON.stringify(user), cookieOptions)
     setUser(user)
     if ((user as any)?.token) {
       localStorage.setItem('authToken', (user as any).token)
+      if (rememberMe) {
+        localStorage.setItem('rememberMe', 'true')
+      } else {
+        localStorage.removeItem('rememberMe')
+      }
     }
   }
 

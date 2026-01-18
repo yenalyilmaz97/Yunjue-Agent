@@ -5,18 +5,34 @@ import PasswordFormInput from '@/components/from/PasswordFormInput'
 import { useEffect } from 'react'
 import { Card, CardBody, Col, Row } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
+import { Controller } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 import useSignIn from '../useSignIn'
 import { useI18n } from '@/i18n/context'
+import { useAuthContext } from '@/context/useAuthContext'
 
 const SignIn = () => {
   const { t } = useI18n()
-  
+
   useEffect(() => {
     document.body.classList.add('authentication-bg')
     return () => {
       document.body.classList.remove('authentication-bg')
     }
   }, [])
+
+  const { isAuthenticated, user } = useAuthContext()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      if (user.role === 'Admin') {
+        navigate('/dashboards')
+      } else {
+        navigate('/user/dashboard')
+      }
+    }
+  }, [isAuthenticated, user, navigate])
 
   const { loading, login, control } = useSignIn()
 
@@ -52,7 +68,20 @@ const SignIn = () => {
                     </div>
 
                     <div className="form-check mb-3">
-                      <input type="checkbox" className="form-check-input" id="remember-me" />
+                      <Controller
+                        name="rememberMe"
+                        control={control}
+                        render={({ field: { onChange, value, ref } }) => (
+                          <input
+                            type="checkbox"
+                            className="form-check-input"
+                            id="remember-me"
+                            onChange={onChange}
+                            checked={value}
+                            ref={ref}
+                          />
+                        )}
+                      />
                       <label className="form-check-label" htmlFor="remember-me">
                         {t('auth.rememberMe')}
                       </label>

@@ -6,9 +6,23 @@ const AUTH_ENDPOINTS = {
   LOGIN: '/Auth/login',
   REGISTER: '/Auth/register',
   VALIDATE_TOKEN: '/Auth/validate-token',
+  CHECK_DAILY_CONTENT: '/Auth/check-daily-content',
 } as const
 
 export const authService = {
+  async checkDailyContent(): Promise<void> {
+    const isValid = isTokenValid()
+    if (isValid) {
+      try {
+        await api.post(AUTH_ENDPOINTS.CHECK_DAILY_CONTENT)
+        console.log('Daily content check successful')
+      } catch (error) {
+        console.error('Error checking daily content:', error)
+      }
+    } else {
+      console.warn('Token invalid, skipping daily content check')
+    }
+  },
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     const response = await api.post<AuthResponse>(AUTH_ENDPOINTS.LOGIN, credentials)
     if (response.success && response.token && response.user) {
@@ -38,7 +52,7 @@ export const authService = {
         roles: [],
       }
     }
-    
+
     const response = await api.post<AuthResponse>(AUTH_ENDPOINTS.VALIDATE_TOKEN)
     if (response.success) {
       updateLastActivity()
