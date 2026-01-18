@@ -195,65 +195,40 @@ public class QuestionService : IQuestionService
         return responseDto;
     }
 
-    public async Task<QuestionResponseDTO> EditQuestionOfPodcastEpisodeAsync(EditQuestionRequest request)
+    public async Task<bool> DeleteQuestionAsync(int questionId)
     {
-        // Get existing question
-        var existingQuestion = await _questionRepository.GetQuestionAsync(request.UserId, request.EpisodeId);
+        var question = await _questionRepository.GetQuestionByIdAsync(questionId);
+        if (question == null)
+        {
+            return false;
+        }
+
+        return await _questionRepository.DeleteQuestionAsync(questionId);
+    }
+
+    public async Task<QuestionResponseDTO> UpdateQuestionAsync(EditQuestionRequest request)
+    {
+        var existingQuestion = await _questionRepository.GetQuestionByIdAsync(request.QuestionId);
         if (existingQuestion == null)
         {
-            throw new InvalidOperationException("Question not found");
+            throw new KeyNotFoundException("Question not found");
         }
 
         // Check if question is already answered
         if (existingQuestion.isAnswered)
         {
-            throw new InvalidOperationException("Cannot edit question that has been answered");
+             throw new InvalidOperationException("Cannot edit a question that has already been answered.");
         }
 
-        // Get episode with series information
-        var episode = await _episodesRepository.GetPodcastEpisodeByIdAsync(request.EpisodeId);
-        if (episode == null)
-        {
-            throw new InvalidOperationException("Episode not found");
-        }
-
-        // Update question
+        // Update properties
         existingQuestion.QuestionText = request.QuestionText;
         existingQuestion.UpdatedAt = DateTime.UtcNow;
+
         var updatedQuestion = await _questionRepository.UpdateQuestionAsync(existingQuestion);
 
-        // Map to response DTO with series information
+        // Map and return
         var responseDto = _mapper.Map<QuestionResponseDTO>(updatedQuestion);
-        responseDto.SeriesTitle = episode.PodcastSeries?.Title ?? string.Empty;
-        responseDto.EpisodeTitle = episode.Title;
-
-        return responseDto;
-    }
-
-    public async Task<QuestionResponseDTO> UpdateQuestionAsync(UpdateQuestionRequest request)
-    {
-        var existingQuestion = await _questionRepository.GetQuestionByIdAsync(request.QuestionId);
-        if (existingQuestion == null)
-        {
-            throw new InvalidOperationException("Question not found");
-        }
-
-        // Update the question properties
-        if (request.IsAnswered.HasValue)
-        {
-            existingQuestion.isAnswered = request.IsAnswered.Value;
-        }
-        if (!string.IsNullOrEmpty(request.QuestionText))
-        {
-            existingQuestion.QuestionText = request.QuestionText;
-        }
-
-        existingQuestion.UpdatedAt = DateTime.UtcNow;
-        var updatedQuestion = await _questionRepository.UpdateQuestionAsync(existingQuestion);
-
-        // Map to response DTO with series information
-        var responseDto = _mapper.Map<QuestionResponseDTO>(updatedQuestion);
-        if (updatedQuestion.Episodes != null)
+         if (updatedQuestion.Episodes != null)
         {
             responseDto.SeriesTitle = updatedQuestion.Episodes.PodcastSeries?.Title ?? string.Empty;
             responseDto.EpisodeTitle = updatedQuestion.Episodes.Title;

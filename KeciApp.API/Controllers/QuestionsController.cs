@@ -125,22 +125,21 @@ public class QuestionsController : ControllerBase
         }
     }
 
-    [HttpPut("questions")]
-    public async Task<ActionResult<QuestionResponseDTO>> EditQuestionOfPodcastEpisode([FromBody] EditQuestionRequest request)
+
+
+
+
+    [HttpDelete("questions/{questionId}")]
+    public async Task<ActionResult<bool>> DeleteQuestion(int questionId)
     {
         try
         {
-            if (!ModelState.IsValid)
+            var result = await _questionService.DeleteQuestionAsync(questionId);
+            if (!result)
             {
-                return BadRequest(ModelState);
+                return NotFound(new { message = "Question not found" });
             }
-
-            var question = await _questionService.EditQuestionOfPodcastEpisodeAsync(request);
-            return Ok(question);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { message = ex.Message });
+            return Ok(result);
         }
         catch (Exception ex)
         {
@@ -148,8 +147,8 @@ public class QuestionsController : ControllerBase
         }
     }
 
-    [HttpPut("questions/{questionId}")]
-    public async Task<ActionResult<QuestionResponseDTO>> UpdateQuestion(int questionId, [FromBody] UpdateQuestionRequest request)
+    [HttpPut("questions/edit")]
+    public async Task<ActionResult<QuestionResponseDTO>> EditQuestion([FromBody] EditQuestionRequest request)
     {
         try
         {
@@ -158,11 +157,14 @@ public class QuestionsController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            request.QuestionId = questionId;
             var question = await _questionService.UpdateQuestionAsync(request);
             return Ok(question);
         }
         catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (KeyNotFoundException ex)
         {
             return NotFound(new { message = ex.Message });
         }

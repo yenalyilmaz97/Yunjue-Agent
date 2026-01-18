@@ -17,11 +17,8 @@ public class AddQuestionRequest
 public class EditQuestionRequest
 {
     [Required]
-    public int UserId { get; set; }
-    
-    [Required]
-    public int EpisodeId { get; set; }
-    
+    public int QuestionId { get; set; }
+
     [Required]
     public string QuestionText { get; set; }
 }
