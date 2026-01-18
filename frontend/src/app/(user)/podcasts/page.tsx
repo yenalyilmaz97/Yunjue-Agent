@@ -609,8 +609,13 @@ const PodcastsPage = () => {
                     </span>
                   )}
                   {existingQuestion && (
-                    <span className="badge" style={{ fontSize: '0.6rem', backgroundColor: 'rgba(var(--bs-warning-rgb), 0.15)', color: 'var(--bs-warning)', borderRadius: '6px' }}>
-                      Soru Var
+                    <span className="badge" style={{
+                      fontSize: '0.6rem',
+                      backgroundColor: existingQuestion.isAnswered ? 'rgba(var(--bs-primary-rgb), 0.15)' : 'rgba(var(--bs-warning-rgb), 0.15)',
+                      color: existingQuestion.isAnswered ? 'var(--bs-primary)' : 'var(--bs-warning)',
+                      borderRadius: '6px'
+                    }}>
+                      {existingQuestion.isAnswered ? 'Cevaplandı' : 'Soru Var'}
                     </span>
                   )}
                 </Button>
