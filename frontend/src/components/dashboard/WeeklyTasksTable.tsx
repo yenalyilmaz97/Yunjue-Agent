@@ -27,7 +27,7 @@ const WeeklyTasksTable = () => {
       ])
         .then(([weeklyData]) => {
           setWeeklyContent(weeklyData)
-          
+
           // Kullanıcının görev durumunu UserProgress'ten kontrol et
           if (weeklyData?.weekId) {
             userProgressService
@@ -41,7 +41,7 @@ const WeeklyTasksTable = () => {
           } else {
             setTaskCompleted(false)
           }
-          
+
           // Soru yanıtının olup olmadığını kontrol et
           if (weeklyData?.weeklyQuestionId) {
             weeklyQuestionAnswerService
@@ -53,7 +53,7 @@ const WeeklyTasksTable = () => {
                 setQuestionAnswered(false)
               })
           }
-          
+
           setLoading(false)
         })
         .catch(() => {
@@ -175,9 +175,6 @@ const WeeklyTasksTable = () => {
                       <i className="bx bx-music me-2 text-primary"></i>
                       {weeklyContent.music?.musicTitle || t('dashboard.musicNotFound')}
                     </h6>
-                    {weeklyContent.music?.musicDescription && (
-                      <p className="text-muted mb-3">{weeklyContent.music.musicDescription}</p>
-                    )}
                     {weeklyContent.music?.musicURL && (
                       <div className="mt-3">
                         <Button
