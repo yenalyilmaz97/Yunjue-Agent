@@ -1,9 +1,18 @@
 import axios from 'axios'
-import type { AxiosInstance, AxiosRequestConfig } from 'axios'
+import type { AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios'
+import {
+  getToken,
+  saveToken,
+  removeToken,
+  getRefreshToken,
+  saveRefreshToken,
+  isRefreshTokenValid,
+  updateLastActivity,
+} from '@/utils/tokenManager'
 
 export const API_CONFIG = {
-  BASE_URL: (import.meta as any).env?.VITE_API_BASE_URL || 'https://app.keciyibesle.com/api',
-  //BASE_URL: (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5294/api',
+  //BASE_URL: (import.meta as any).env?.VITE_API_BASE_URL || 'https://app.keciyibesle.com/api',
+  BASE_URL: (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5294/api',
   TIMEOUT: 10000,
   ENDPOINTS: {
     AUTH: '/Auth',
@@ -36,6 +45,27 @@ axios.defaults.baseURL = API_CONFIG.BASE_URL
 axios.defaults.timeout = API_CONFIG.TIMEOUT
 axios.defaults.headers.common['Content-Type'] = 'application/json'
 
+// Track if we're currently refreshing
+let isRefreshing = false
+// Queue of requests waiting for token refresh
+let failedQueue: Array<{
+  resolve: (value: unknown) => void
+  reject: (reason?: unknown) => void
+  config: InternalAxiosRequestConfig
+}> = []
+
+const processQueue = (error: unknown, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error)
+    } else if (token) {
+      prom.config.headers.Authorization = `Bearer ${token}`
+      prom.resolve(apiClient.request(prom.config))
+    }
+  })
+  failedQueue = []
+}
+
 const createAxiosInstance = (): AxiosInstance => {
   const instance = axios.create({
     baseURL: API_CONFIG.BASE_URL,
@@ -47,30 +77,13 @@ const createAxiosInstance = (): AxiosInstance => {
 
   instance.interceptors.request.use(
     (config) => {
-      const token = localStorage.getItem('authToken')
+      const token = getToken()
       if (token && config.headers) {
-        // Check if token is still valid (not inactive)
-        const lastActivity = localStorage.getItem('lastActivity')
-        if (lastActivity) {
-          const daysSinceLastActivity = (Date.now() - new Date(lastActivity).getTime()) / (1000 * 60 * 60 * 24)
-          const rememberMe = localStorage.getItem('rememberMe') === 'true'
-          const threshold = rememberMe ? 30 : 2
-
-          if (daysSinceLastActivity >= threshold) {
-            // Token inactive for threshold+ days, remove it
-            localStorage.removeItem('authToken')
-            localStorage.removeItem('lastActivity')
-            localStorage.removeItem('rememberMe')
-            if (!window.location.pathname.includes('/auth/sign-in')) {
-              window.location.href = '/auth/sign-in'
-            }
-            return Promise.reject(new Error('Token inactive'))
-          }
-        }
-
+        // Check if we should proactively refresh (token about to expire)
+        // This is handled by response interceptor now
         config.headers.Authorization = `Bearer ${token}`
         // Update last activity on each request
-        localStorage.setItem('lastActivity', new Date().toISOString())
+        updateLastActivity()
       }
       // If data is FormData, remove Content-Type to let browser set it with boundary
       if (config.data instanceof FormData) {
@@ -83,15 +96,80 @@ const createAxiosInstance = (): AxiosInstance => {
 
   instance.interceptors.response.use(
     (response) => response,
-    (error) => {
-      if (error.response?.status === 401) {
-        // Don't redirect if already on login page
+    async (error) => {
+      const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
+
+      // If the error is 401 and we haven't tried to refresh yet
+      if (error.response?.status === 401 && !originalRequest._retry) {
+        // Check if we're on the login page or refresh endpoint
         const isLoginPage = window.location.pathname.includes('/auth/sign-in')
-        if (!isLoginPage) {
-          localStorage.removeItem('authToken')
+        const isRefreshEndpoint = originalRequest.url?.includes('/Auth/refresh-token')
+
+        if (isLoginPage || isRefreshEndpoint) {
+          return Promise.reject(error)
+        }
+
+        // Check if we have a valid refresh token
+        if (!isRefreshTokenValid()) {
+          removeToken()
           window.location.href = '/auth/sign-in'
+          return Promise.reject(error)
+        }
+
+        // If already refreshing, queue this request
+        if (isRefreshing) {
+          return new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject, config: originalRequest })
+          })
+        }
+
+        originalRequest._retry = true
+        isRefreshing = true
+
+        try {
+          const refreshToken = getRefreshToken()
+          const response = await axios.post(
+            `${API_CONFIG.BASE_URL}/Auth/refresh-token`,
+            { refreshToken },
+            { headers: { 'Content-Type': 'application/json' } }
+          )
+
+          if (response.data.success) {
+            const { token, refreshToken: newRefreshToken, refreshTokenExpiration } = response.data
+
+            // Save new tokens
+            saveToken(token)
+            saveRefreshToken(newRefreshToken, refreshTokenExpiration)
+
+            // Update user info if provided
+            if (response.data.user) {
+              localStorage.setItem('user', JSON.stringify(response.data.user))
+            }
+            if (response.data.roles) {
+              localStorage.setItem('userRoles', JSON.stringify(response.data.roles))
+            }
+
+            // Process queued requests with new token
+            processQueue(null, token)
+
+            // Retry the original request
+            originalRequest.headers.Authorization = `Bearer ${token}`
+            return instance.request(originalRequest)
+          } else {
+            throw new Error('Refresh failed')
+          }
+        } catch (refreshError) {
+          processQueue(refreshError, null)
+          removeToken()
+          localStorage.removeItem('user')
+          localStorage.removeItem('userRoles')
+          window.location.href = '/auth/sign-in'
+          return Promise.reject(refreshError)
+        } finally {
+          isRefreshing = false
         }
       }
+
       return Promise.reject(error)
     },
   )
@@ -137,5 +215,3 @@ export const api = {
     }).then(response => response.data as T)
   },
 }
-
-

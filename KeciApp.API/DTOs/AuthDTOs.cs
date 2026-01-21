@@ -11,6 +11,8 @@ public class LoginRequest
     [Required(ErrorMessage = "Şifre gereklidir")]
     [MinLength(6, ErrorMessage = "Şifre en az 6 karakter olmalıdır")]
     public string Password { get; set; }
+
+    public bool RememberMe { get; set; } = false;
 }
 
 public class RegisterRequest
@@ -59,8 +61,22 @@ public class AuthResponse
     public bool Success { get; set; }
     public string Message { get; set; }
     public string Token { get; set; }
+    public string RefreshToken { get; set; }
+    public DateTime? RefreshTokenExpiration { get; set; }
     public UserInfo User { get; set; }
     public List<string> Roles { get; set; }
+}
+
+public class RefreshTokenRequest
+{
+    [Required(ErrorMessage = "Refresh token gereklidir")]
+    public string RefreshToken { get; set; }
+}
+
+public class RevokeTokenRequest
+{
+    [Required(ErrorMessage = "Refresh token gereklidir")]
+    public string RefreshToken { get; set; }
 }
 
 public class UserInfo

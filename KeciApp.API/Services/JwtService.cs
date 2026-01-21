@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using KeciApp.API.Models;
@@ -9,6 +10,7 @@ namespace KeciApp.API.Services;
 public interface IJwtService
 {
     string GenerateToken(User user, List<string> roles);
+    string GenerateRefreshToken();
     ClaimsPrincipal ValidateToken(string token);
     string GetUserIdFromToken(string token);
     List<string> GetRolesFromToken(string token);
@@ -27,7 +29,7 @@ public class JwtService : IJwtService
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_configuration["Jwt:SecretKey"]);
-        
+
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
@@ -45,10 +47,12 @@ public class JwtService : IJwtService
             claims.Add(new Claim(ClaimTypes.Role, role));
         }
 
+        var accessTokenMinutes = Convert.ToDouble(_configuration["Jwt:AccessTokenExpirationMinutes"] ?? "15");
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpirationMinutes"])),
+            Expires = DateTime.UtcNow.AddMinutes(accessTokenMinutes),
             Issuer = _configuration["Jwt:Issuer"],
             Audience = _configuration["Jwt:Audience"],
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -56,6 +60,14 @@ public class JwtService : IJwtService
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
+    }
+
+    public string GenerateRefreshToken()
+    {
+        var randomBytes = new byte[64];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randomBytes);
+        return Convert.ToBase64String(randomBytes);
     }
 
     public ClaimsPrincipal ValidateToken(string token)
