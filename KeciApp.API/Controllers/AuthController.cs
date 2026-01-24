@@ -51,12 +51,15 @@ public class AuthController : ControllerBase
         await CheckAndAssignDailyContentAsync(user);
 
         var token = _jwtService.GenerateToken(user, roles);
+        var refreshToken = await _authService.CreateRefreshTokenAsync(user.UserId, request.RememberMe);
 
         return Ok(new AuthResponse
         {
             Success = true,
             Message = message,
             Token = token,
+            RefreshToken = refreshToken.Token,
+            RefreshTokenExpiration = refreshToken.ExpiresAt,
             User = new UserInfo
             {
                 UserId = user.UserId,
@@ -76,6 +79,98 @@ public class AuthController : ControllerBase
         });
     }
 
+    [HttpPost("refresh-token")]
+    public async Task<ActionResult<AuthResponse>> RefreshToken([FromBody] RefreshTokenRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new AuthResponse
+            {
+                Success = false,
+                Message = "Geçersiz veri formatı"
+            });
+        }
+
+        var storedToken = await _authService.GetRefreshTokenAsync(request.RefreshToken);
+
+        if (storedToken == null)
+        {
+            return Unauthorized(new AuthResponse
+            {
+                Success = false,
+                Message = "Geçersiz refresh token"
+            });
+        }
+
+        if (!storedToken.IsActive)
+        {
+            return Unauthorized(new AuthResponse
+            {
+                Success = false,
+                Message = "Refresh token süresi dolmuş veya iptal edilmiş"
+            });
+        }
+
+        var user = storedToken.User;
+        var roles = await _authService.GetUserRolesAsync(user.UserId);
+
+        // Revoke the old refresh token
+        await _authService.RevokeRefreshTokenAsync(request.RefreshToken);
+
+        // Generate new tokens
+        var newAccessToken = _jwtService.GenerateToken(user, roles);
+
+        // Determine if this was a "remember me" token based on its original expiration
+        var originalDuration = (storedToken.ExpiresAt - storedToken.CreatedAt).TotalDays;
+        var isRememberMe = originalDuration > 14; // If original duration was more than 14 days, it was a remember me token
+
+        var newRefreshToken = await _authService.CreateRefreshTokenAsync(user.UserId, isRememberMe);
+
+        return Ok(new AuthResponse
+        {
+            Success = true,
+            Message = "Token yenilendi",
+            Token = newAccessToken,
+            RefreshToken = newRefreshToken.Token,
+            RefreshTokenExpiration = newRefreshToken.ExpiresAt,
+            User = new UserInfo
+            {
+                UserId = user.UserId,
+                UserName = user.UserName,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Gender = user.Gender,
+                City = user.City,
+                Phone = user.Phone,
+                Description = user.Description,
+                DateOfBirth = user.DateOfBirth,
+                SubscriptionEnd = user.SubscriptionEnd,
+                WeeklyContentId = user.WeeklyContentId
+            },
+            Roles = roles
+        });
+    }
+
+    [HttpPost("revoke-token")]
+    [Authorize]
+    public async Task<IActionResult> RevokeToken([FromBody] RevokeTokenRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new { success = false, message = "Geçersiz veri formatı" });
+        }
+
+        var result = await _authService.RevokeRefreshTokenAsync(request.RefreshToken);
+
+        if (!result)
+        {
+            return BadRequest(new { success = false, message = "Refresh token bulunamadı veya zaten iptal edilmiş" });
+        }
+
+        return Ok(new { success = true, message = "Token başarıyla iptal edildi" });
+    }
+
     [HttpPost("check-daily-content")]
     [Authorize]
     public async Task<IActionResult> CheckDailyContent()
@@ -88,36 +183,11 @@ public class AuthController : ControllerBase
                 return Unauthorized(new { message = "User ID not found in token" });
             }
 
-            // recover user entity to pass to helper (or overload helper to take ID)
-            // For now, let's fetch the user or just work with ID if possible.
-            // But the daily content logic relies on user.DailyContentId property.
-            // Let's assume we can fetch the user briefly or refactor helper.
-            // To be safe and quick, let's fetch the user. 
-            // NOTE: AuthService might not have GetById, let's see. 
-            // If not available easily, we can replicate the logic using just ID since we access services directly.
-            
-            // Re-implementing logic specifically for ID to avoid unnecessary full user fetch if possible, 
-            // but actually we need to check if they already have one assigned in the DB.
-            // Let's use the helper but we need the User object.
-            // Assuming _authService or a repo can get user.
-            // Let's modify the helper to take userId and dailyContentId (nullable).
-            
-            // Actually, we don't have safe access to "GetById" on AuthService in this context easily shown?
-            // Let's assume we can rely on what we have. 
-            // Let's query the DB or use what we have.
-            // Using logic similar to Login but fetching current state.
-            
             var dailyContent = await _dailyContentService.GetUsersDailyContentOrderAsync(userId);
-            int? dailyContentId = dailyContent?.DailyContentId; // logic: existing assignment?
-            
-            // Wait, the original logic in Login used `user.DailyContentId`. 
-            // This implies the user entity itself holds the current assignment?
-            // If `GetUsersDailyContentOrderAsync` gets the *next* or *current* valid content based on logic,
-            // we should trust it.
-            
+
             if (dailyContent != null)
             {
-                 // Create progress record
+                // Create progress record
                 await _userProgressService.CreateOrUpdateUserProgressAsync(new CreateUserProgressRequest
                 {
                     UserId = userId,
@@ -126,7 +196,7 @@ public class AuthController : ControllerBase
                 });
                 return Ok(new { message = "Daily content checked and progress updated", dailyContentId = dailyContent.DailyContentId });
             }
-            
+
             return Ok(new { message = "No daily content available or assigned" });
 
         }
@@ -141,7 +211,7 @@ public class AuthController : ControllerBase
         try
         {
             int? dailyContentId = user.DailyContentId;
-            
+
             // If user doesn't have DailyContentId, get/assign it first
             if (!dailyContentId.HasValue)
             {
@@ -211,12 +281,15 @@ public class AuthController : ControllerBase
 
         var roles = await _authService.GetUserRolesAsync(createdUser.UserId);
         var token = _jwtService.GenerateToken(createdUser, roles);
+        var refreshToken = await _authService.CreateRefreshTokenAsync(createdUser.UserId, false);
 
         return Ok(new AuthResponse
         {
             Success = true,
             Message = message,
             Token = token,
+            RefreshToken = refreshToken.Token,
+            RefreshTokenExpiration = refreshToken.ExpiresAt,
             User = new UserInfo
             {
                 UserId = createdUser.UserId,
@@ -235,8 +308,6 @@ public class AuthController : ControllerBase
             Roles = roles
         });
     }
-
-
 
     [HttpPost("validate-token")]
     public ActionResult<AuthResponse> ValidateToken([FromHeader(Name = "Authorization")] string authorization)
@@ -272,4 +343,4 @@ public class AuthController : ControllerBase
             Roles = roles
         });
     }
-} 
+}

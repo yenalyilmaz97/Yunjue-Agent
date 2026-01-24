@@ -30,6 +30,7 @@ public class AppDbContext : DbContext
     public DbSet<Article> Articles { get; set; }
     public DbSet<DailyContent> DailyContents { get; set; }
     public DbSet<UserProgress> UserProgresses { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -248,18 +249,33 @@ public class AppDbContext : DbContext
             entity.HasIndex(e => new { e.UserId, e.WeekId })
                 .IsUnique()
                 .HasFilter("\"WeekId\" IS NOT NULL");
-            
+
             entity.HasIndex(e => new { e.UserId, e.ArticleId })
                 .IsUnique()
                 .HasFilter("\"ArticleId\" IS NOT NULL");
-            
+
             entity.HasIndex(e => new { e.UserId, e.DailyContentId })
                 .IsUnique()
                 .HasFilter("\"DailyContentId\" IS NOT NULL");
-            
+
             entity.HasIndex(e => new { e.UserId, e.EpisodeId })
                 .IsUnique()
                 .HasFilter("\"EpisodeId\" IS NOT NULL");
+        });
+
+        // RefreshToken entity configuration
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.ToTable("RefreshTokens");
+            entity.HasKey(e => e.RefreshTokenId);
+            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.Token).HasMaxLength(256).IsRequired();
+            entity.Property(e => e.ExpiresAt).IsRequired();
+            entity.Property(e => e.CreatedAt).IsRequired();
+
+            // Index for faster token lookups
+            entity.HasIndex(e => e.Token).IsUnique();
+            entity.HasIndex(e => e.UserId);
         });
 
         // Relationships configuration
@@ -424,6 +440,13 @@ public class AppDbContext : DbContext
             .HasOne(up => up.PodcastEpisodes)
             .WithMany()
             .HasForeignKey(up => up.EpisodeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // RefreshToken relationships
+        modelBuilder.Entity<RefreshToken>()
+            .HasOne(rt => rt.User)
+            .WithMany()
+            .HasForeignKey(rt => rt.UserId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

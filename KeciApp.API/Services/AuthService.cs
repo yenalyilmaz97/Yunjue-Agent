@@ -13,17 +13,24 @@ public interface IAuthService
     Task<List<string>> GetUserRolesAsync(int userId);
     Task<bool> HasRoleAsync(int userId, string roleName);
     Task<bool> HasAnyRoleAsync(int userId, params string[] roleNames);
+    Task<RefreshToken> CreateRefreshTokenAsync(int userId, bool rememberMe);
+    Task<RefreshToken> GetRefreshTokenAsync(string token);
+    Task<bool> RevokeRefreshTokenAsync(string token);
+    Task RevokeAllUserRefreshTokensAsync(int userId);
+    Task<User> GetUserByIdAsync(int userId);
 }
 
 public class AuthService : IAuthService
 {
     private readonly AppDbContext _context;
     private readonly IJwtService _jwtService;
+    private readonly IConfiguration _configuration;
 
-    public AuthService(AppDbContext context, IJwtService jwtService)
+    public AuthService(AppDbContext context, IJwtService jwtService, IConfiguration configuration)
     {
         _context = context;
         _jwtService = jwtService;
+        _configuration = configuration;
     }
 
     public async Task<(bool success, string message, User user, List<string> roles)> LoginAsync(string email, string password)
@@ -113,6 +120,71 @@ public class AuthService : IAuthService
             .AnyAsync(u => u.UserId == userId && lowered.Contains(u.Role.RoleName.ToLower()));
     }
 
+    public async Task<RefreshToken> CreateRefreshTokenAsync(int userId, bool rememberMe)
+    {
+        var refreshTokenDays = rememberMe
+            ? Convert.ToInt32(_configuration["Jwt:RememberMeRefreshTokenExpirationDays"] ?? "30")
+            : Convert.ToInt32(_configuration["Jwt:RefreshTokenExpirationDays"] ?? "7");
+
+        var refreshToken = new RefreshToken
+        {
+            UserId = userId,
+            Token = _jwtService.GenerateRefreshToken(),
+            ExpiresAt = DateTime.UtcNow.AddDays(refreshTokenDays),
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.RefreshTokens.Add(refreshToken);
+        await _context.SaveChangesAsync();
+
+        return refreshToken;
+    }
+
+    public async Task<RefreshToken> GetRefreshTokenAsync(string token)
+    {
+        return await _context.RefreshTokens
+            .Include(rt => rt.User)
+            .ThenInclude(u => u.Role)
+            .FirstOrDefaultAsync(rt => rt.Token == token);
+    }
+
+    public async Task<bool> RevokeRefreshTokenAsync(string token)
+    {
+        var refreshToken = await _context.RefreshTokens
+            .FirstOrDefaultAsync(rt => rt.Token == token);
+
+        if (refreshToken == null || !refreshToken.IsActive)
+        {
+            return false;
+        }
+
+        refreshToken.RevokedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+
+    public async Task RevokeAllUserRefreshTokensAsync(int userId)
+    {
+        var activeTokens = await _context.RefreshTokens
+            .Where(rt => rt.UserId == userId && rt.RevokedAt == null && rt.ExpiresAt > DateTime.UtcNow)
+            .ToListAsync();
+
+        foreach (var token in activeTokens)
+        {
+            token.RevokedAt = DateTime.UtcNow;
+        }
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<User> GetUserByIdAsync(int userId)
+    {
+        return await _context.Users
+            .Include(u => u.Role)
+            .FirstOrDefaultAsync(u => u.UserId == userId);
+    }
+
     private string HashPassword(string password)
     {
         using var sha256 = SHA256.Create();
@@ -125,4 +197,4 @@ public class AuthService : IAuthService
         var hashedPassword = HashPassword(password);
         return hashedPassword == hash;
     }
-} 
+}

@@ -1,6 +1,7 @@
 export interface LoginRequest {
   email: string
   password: string
+  rememberMe?: boolean
 }
 
 export interface RegisterRequest {
@@ -20,6 +21,22 @@ export interface AuthResponse {
   success: boolean
   message: string
   token: string
+  refreshToken?: string
+  refreshTokenExpiration?: string
+  user: UserInfo | undefined
+  roles: string[]
+}
+
+export interface RefreshTokenRequest {
+  refreshToken: string
+}
+
+export interface RefreshTokenResponse {
+  success: boolean
+  message: string
+  token: string
+  refreshToken: string
+  refreshTokenExpiration: string
   user: UserInfo | undefined
   roles: string[]
 }
