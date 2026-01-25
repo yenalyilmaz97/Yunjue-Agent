@@ -8,7 +8,7 @@ const REFRESH_TOKEN_KEY = 'refreshToken'
 const REFRESH_TOKEN_EXPIRATION_KEY = 'refreshTokenExpiration'
 const LAST_ACTIVITY_KEY = 'lastActivity'
 const REMEMBER_ME_KEY = 'rememberMe'
-const INACTIVITY_THRESHOLD_DAYS = 2 // 2 days of inactivity
+const INACTIVITY_THRESHOLD_DAYS = 1 // 1 day of inactivity (30 days with remember me)
 
 /**
  * Get token from localStorage
@@ -161,12 +161,48 @@ export function isTokenValid(): boolean {
 }
 
 /**
+ * Check if user should be logged out
+ * Returns true only if BOTH access token and refresh token are invalid
+ * This allows axios interceptor to refresh the token before logging out
+ */
+export function shouldLogout(): boolean {
+  // Check inactivity first (applies to both remember me and non-remember me)
+  if (isTokenInactive()) {
+    return true
+  }
+
+  // If refresh token is still valid, don't logout (axios will refresh access token)
+  if (isRefreshTokenValid()) {
+    return false
+  }
+
+  // Refresh token is invalid, check if access token is still valid
+  const token = getToken()
+  if (!token) return true
+
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    const exp = payload.exp * 1000
+    // If access token is not expired, don't logout
+    if (Date.now() < exp) {
+      return false
+    }
+  } catch {
+    // Malformed token
+    return true
+  }
+
+  // Both tokens are invalid
+  return true
+}
+
+/**
  * Initialize token manager - should be called on app startup
  */
 export function initializeTokenManager(): void {
   // Check token validity on app load
-  if (!isTokenValid() && !isRefreshTokenValid()) {
-    // Both tokens are invalid, clear everything
+  if (shouldLogout()) {
+    // Both tokens are invalid or user is inactive, clear everything
     removeToken()
   } else if (isTokenValid()) {
     // Token is valid, update last activity

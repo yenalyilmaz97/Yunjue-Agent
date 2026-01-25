@@ -21,6 +21,7 @@ public class ArticleController : ControllerBase
     }
     
     [HttpGet("articles")]
+    [Microsoft.AspNetCore.Authorization.Authorize]
     public async Task<ActionResult<IEnumerable<ArticleResponseDTO>>> GetAllArticles()
     {
         try
@@ -28,20 +29,13 @@ public class ArticleController : ControllerBase
             // Self-healing: Ensure regular ordering
             await _articleService.EnsureArticleOrdersAsync();
 
-            var userIdString = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value 
+            var userIdString = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
                              ?? User.FindFirst("UserId")?.Value;
 
             if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
             {
-                // If no user (unauthorized or public?), maybe return empty or all? 
-                // Assuming auth is required or existing logic handles it. 
-                // If public, show Order 1? existing logic was "return all".
-                // I will assume if NO user ID found (logic issue), return empty.
-                // But wait, the endpoint is [HttpGet("articles")]. Does it have [Authorize]? 
-                // It does not have explicit [Authorize]. But usually User claims are present if middleware runs.
-                // I'll be safe: If no user, show only Order 1.
-                var allArticles = await _articleService.GetAllArticlesAsync(true);
-                return Ok(allArticles.Where(a => a.Order == 1)); 
+                // This should not happen with [Authorize], but handle defensively
+                return Unauthorized(new { message = "User not authenticated" });
             }
 
             var accessDTO = await _userSeriesAccessService.GetCurrentArticleAccessAsync(userId);
@@ -49,7 +43,7 @@ public class ArticleController : ControllerBase
 
             var articles = await _articleService.GetAllArticlesAsync(true);
             var filtered = articles.Where(a => a.Order > 0 && a.Order <= maxOrder);
-            
+
             return Ok(filtered);
         }
         catch (Exception ex)

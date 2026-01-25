@@ -308,27 +308,29 @@ public class UserSeriesAccessService : IUserSeriesAccessService
 
     public async Task<BulkGrantAccessResponseDTO> IncrementAccessibleSequenceForCompletedEpisodesAsync()
     {
+        int episodeUpdatedCount = 0;
+        int articleUpdatedCount = 0;
+        int skippedCount = 0;
+        var usersWithNewEpisodeCompletion = new HashSet<int>();
+        var usersWithNewArticleCompletion = new HashSet<int>();
+
         // Step 1: Update Series Access based on Completed Episodes
-        var completedProgresses = await _userProgressRepository.GetCompletedEpisodeProgressesAsync();
-        
+        var completedEpisodeProgresses = await _userProgressRepository.GetCompletedEpisodeProgressesAsync();
+
         // Group completed episodes by user and series to find max completed sequence
         var completedEpisodesByUserSeries = new Dictionary<(int UserId, int SeriesId), int>();
-        foreach (var progress in completedProgresses)
+        foreach (var progress in completedEpisodeProgresses)
         {
             if (!progress.EpisodeId.HasValue || progress.PodcastEpisodes == null) continue;
 
             var key = (progress.UserId, progress.PodcastEpisodes.SeriesId);
             int seq = progress.PodcastEpisodes.SequenceNumber;
-            
+
             if (!completedEpisodesByUserSeries.ContainsKey(key) || seq > completedEpisodesByUserSeries[key])
             {
                 completedEpisodesByUserSeries[key] = seq;
             }
         }
-
-        int updatedCount = 0;
-        int skippedCount = 0;
-        var usersWithSeriesActivity = new HashSet<int>();
 
         foreach (var kvp in completedEpisodesByUserSeries)
         {
@@ -347,8 +349,8 @@ public class UserSeriesAccessService : IUserSeriesAccessService
             {
                 userAccess.CurrentAccessibleSequence++;
                 await _userSeriesAccessRepository.UpdateUserSeriesAccessAsync(userAccess);
-                updatedCount++;
-                usersWithSeriesActivity.Add(userId);
+                episodeUpdatedCount++;
+                usersWithNewEpisodeCompletion.Add(userId);
             }
             else
             {
@@ -356,12 +358,60 @@ public class UserSeriesAccessService : IUserSeriesAccessService
             }
         }
 
-        // Step 2: Check Weekly Advancement (Requires BOTH Article and Episode Completion)
-        // Candidates: Users who just advanced a series OR users who have completed the relevant article
-        var completedArticles = await _userProgressRepository.GetCompletedArticleProgressesAsync();
-        var usersWithArticleActivity = completedArticles.Select(a => a.UserId).Distinct();
-        
-        var candidatesForWeeklyUpdate = usersWithSeriesActivity.Union(usersWithArticleActivity).Distinct().ToList();
+        // Step 2: Update Article Access based on Completed Articles
+        var completedArticleProgresses = await _userProgressRepository.GetCompletedArticleProgressesAsync();
+
+        // Group completed articles by user to find max completed order
+        var completedArticlesByUser = new Dictionary<int, int>();
+        foreach (var progress in completedArticleProgresses)
+        {
+            if (!progress.ArticleId.HasValue || progress.Article == null) continue;
+
+            var userId = progress.UserId;
+            int order = progress.Article.Order;
+
+            if (!completedArticlesByUser.ContainsKey(userId) || order > completedArticlesByUser[userId])
+            {
+                completedArticlesByUser[userId] = order;
+            }
+        }
+
+        foreach (var kvp in completedArticlesByUser)
+        {
+            var userId = kvp.Key;
+            var highestCompletedOrder = kvp.Value;
+
+            // Get user's article access (SeriesId = null)
+            var articleAccess = await _userSeriesAccessRepository.GetUserSeriesAccessAsync(userId, null);
+            if (articleAccess == null)
+            {
+                skippedCount++;
+                continue;
+            }
+
+            // If user finished the article they were "on", bump them up
+            if (highestCompletedOrder == articleAccess.CurrentAccessibleSequence)
+            {
+                var nextOrder = highestCompletedOrder + 1;
+                var nextArticle = await _articleRepository.GetArticleByOrderAsync(nextOrder);
+
+                if (nextArticle != null)
+                {
+                    articleAccess.CurrentAccessibleSequence = nextArticle.Order;
+                    articleAccess.ArticleId = nextArticle.ArticleId;
+                    await _userSeriesAccessRepository.UpdateUserSeriesAccessAsync(articleAccess);
+                    articleUpdatedCount++;
+                    usersWithNewArticleCompletion.Add(userId);
+                }
+            }
+            else
+            {
+                skippedCount++;
+            }
+        }
+
+        // Step 3: Advance Weekly Content if user completed ANY new episode OR article
+        var candidatesForWeeklyUpdate = usersWithNewEpisodeCompletion.Union(usersWithNewArticleCompletion).Distinct().ToList();
 
         int weeklyContentUpdatedCount = 0;
         var allWeeklyContents = await _weeklyRepository.GetAllWeeklyContentAsync();
@@ -377,51 +427,13 @@ public class UserSeriesAccessService : IUserSeriesAccessService
 
             int currentWeekOrder = currentWeeklyContent.WeekOrder;
 
-            // Check 1: Article Completion for Current Week
-            // We assume Article.Order matches WeekOrder.
-            var articleForWeek = await _articleRepository.GetArticleByOrderAsync(currentWeekOrder);
-            bool isArticleCompleted = false;
-            
-            if (articleForWeek != null)
-            {
-                // Method to avoid redundant DB call inside loop if we could map from `completedArticles` list
-                // but checking direct is safer/cleaner code-wise for now.
-                var artProgress = await _userProgressRepository.GetUserProgressByUserIdAndArticleIdAsync(userId, articleForWeek.ArticleId);
-                if (artProgress != null && artProgress.isCompleted)
-                {
-                    isArticleCompleted = true;
-                }
-            }
-            else
-            {
-                // If no article exists for this week, assume completion (don't block)
-                isArticleCompleted = true;
-            }
-
-            if (!isArticleCompleted) continue;
-
-            // Check 2: Episode Completion for Current Week
-            // We verify if ANY Series Access for the user has surpassed the current WeekOrder.
-            // (Assumes Week N requires finishing Episode N, so Access should be > N, i.e., N+1).
-            var userSeriesAccesses = await _userSeriesAccessRepository.GetUserSeriesAccessByUserIdAsync(userId);
-            
-            // Only consider actual Series (SeriesId != null)
-            // If user has access to multiple series, finishing ANY of them potentially unlocks the week.
-            // Requirement: "Episode value checked...". 
-            // Condition: CurrentAccessibleSequence > currentWeekOrder.
-            // Example: Week 1 requires Ep 1. Ep 1 Done -> Access is 2. 2 > 1 -> True.
-            bool isEpisodeCompleted = userSeriesAccesses.Any(usa => usa.SeriesId.HasValue && usa.CurrentAccessibleSequence > currentWeekOrder);
-
-            if (!isEpisodeCompleted) continue;
-
-
-            // Both Met -> Advance Week
+            // Advance to next week (user completed either an episode or article)
             if (maxWeekOrder > 0)
             {
                 var nextWeekOrder = currentWeekOrder + 1;
                 if (nextWeekOrder > maxWeekOrder)
                 {
-                    nextWeekOrder = 1; // Cycle
+                    nextWeekOrder = 1; // Cycle back to week 1
                 }
 
                 var nextWeeklyContent = allWeeklyContents.FirstOrDefault(wc => wc.WeekOrder == nextWeekOrder);
@@ -430,9 +442,6 @@ public class UserSeriesAccessService : IUserSeriesAccessService
                     user.WeeklyContentId = nextWeeklyContent.WeekId;
                     await _userRepository.UpdateUserAsync(user);
                     weeklyContentUpdatedCount++;
-
-                    // Update Article Access to match the new Week
-                    await UpdateArticleAccessForUserAsync(userId, nextWeeklyContent.WeekOrder);
                 }
             }
         }
@@ -441,9 +450,9 @@ public class UserSeriesAccessService : IUserSeriesAccessService
         {
             TotalUsers = candidatesForWeeklyUpdate.Count,
             TotalSeries = completedEpisodesByUserSeries.Keys.Select(k => k.SeriesId).Distinct().Count(),
-            GrantedCount = updatedCount,
+            GrantedCount = episodeUpdatedCount + articleUpdatedCount,
             SkippedCount = skippedCount,
-            Message = $"Updated Series Access for {updatedCount} records. Advanced Weekly Content for {weeklyContentUpdatedCount} users."
+            Message = $"Updated Episode Access for {episodeUpdatedCount} records. Updated Article Access for {articleUpdatedCount} records. Advanced Weekly Content for {weeklyContentUpdatedCount} users."
         };
     }
 

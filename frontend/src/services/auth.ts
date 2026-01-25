@@ -1,6 +1,6 @@
 import { api } from '@/lib/axios'
 import type { LoginRequest, RegisterRequest, AuthResponse, RefreshTokenRequest, RefreshTokenResponse } from '@/types/keci'
-import { saveToken, removeToken, updateLastActivity, isTokenValid, saveRefreshToken, getRefreshToken } from '@/utils/tokenManager'
+import { saveToken, removeToken, updateLastActivity, isTokenValid, isRefreshTokenValid, saveRefreshToken, getRefreshToken } from '@/utils/tokenManager'
 
 const AUTH_ENDPOINTS = {
   LOGIN: '/Auth/login',
@@ -13,8 +13,8 @@ const AUTH_ENDPOINTS = {
 
 export const authService = {
   async checkDailyContent(): Promise<void> {
-    const isValid = isTokenValid()
-    if (isValid) {
+    // Allow request if access token is valid OR refresh token is valid (axios will handle refresh)
+    if (isTokenValid() || isRefreshTokenValid()) {
       try {
         await api.post(AUTH_ENDPOINTS.CHECK_DAILY_CONTENT)
         console.log('Daily content check successful')
@@ -22,7 +22,7 @@ export const authService = {
         console.error('Error checking daily content:', error)
       }
     } else {
-      console.warn('Token invalid, skipping daily content check')
+      console.warn('No valid tokens, skipping daily content check')
     }
   },
 
@@ -62,7 +62,8 @@ export const authService = {
 
   async validateToken(): Promise<AuthResponse> {
     // Check if token is valid before making request
-    if (!isTokenValid()) {
+    // Allow request if refresh token is valid (axios will handle refresh)
+    if (!isTokenValid() && !isRefreshTokenValid()) {
       return {
         success: false,
         message: 'Token is invalid or inactive',

@@ -3,7 +3,7 @@ import { deleteCookie, getCookie, hasCookie, setCookie } from 'cookies-next'
 import { createContext, useContext, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { ChildrenType } from '../types/component-props'
-import { initializeTokenManager, isTokenValid, removeToken } from '@/utils/tokenManager'
+import { initializeTokenManager, shouldLogout, removeToken } from '@/utils/tokenManager'
 
 export type AuthContextType = {
   user: UserType | undefined
@@ -39,10 +39,11 @@ export function AuthProvider({ children }: ChildrenType) {
   useEffect(() => {
     initializeTokenManager()
 
-    // Check token validity periodically (every 5 minutes)
+    // Check if user should be logged out periodically (every 5 minutes)
+    // Only logs out if BOTH access and refresh tokens are invalid
     const interval = setInterval(() => {
-      if (!isTokenValid()) {
-        // Token is invalid or inactive, clear session
+      if (shouldLogout()) {
+        // Both tokens are invalid or user is inactive, clear session
         removeToken()
         deleteCookie(authSessionKey)
         setUser(undefined)
