@@ -12,6 +12,9 @@ using Serilog;
 using Serilog.Events;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Hangfire;
+using Hangfire.PostgreSql;
+using KeciApp.API.Jobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -247,6 +250,20 @@ builder.Services.AddCors(options =>
         });
 });
 
+// Add Hangfire services
+builder.Services.AddHangfire(configuration => configuration
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UsePostgreSqlStorage(options => 
+        options.UseNpgsqlConnection(builder.Configuration.GetConnectionString("DefaultConnection"))));
+
+// Add the processing server as IHostedService
+builder.Services.AddHangfireServer();
+
+// Register Job classes
+builder.Services.AddScoped<TestLogJob>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -272,6 +289,30 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Hangfire Dashboard - accessible at /hangfire
+// In production, you should add authorization
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    // For development, allow all access. In production, add authorization!
+    Authorization = app.Environment.IsDevelopment() 
+        ? new[] { new Hangfire.Dashboard.LocalRequestsOnlyAuthorizationFilter() }
+        : new[] { new Hangfire.Dashboard.LocalRequestsOnlyAuthorizationFilter() }
+});
+
+// Register recurring jobs
+// Turkey timezone for scheduling
+var turkeyTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul");
+
+// This test job runs every day at midnight (00:00) Turkish time
+RecurringJob.AddOrUpdate<TestLogJob>(
+    "test-log-job",
+    job => job.Execute(),
+    "0 0 * * *", // Cron expression: every day at midnight
+    new RecurringJobOptions { TimeZone = turkeyTimeZone });
+
+Log.Information("🐐 Hangfire configured! Dashboard available at /hangfire");
+Log.Information("🐐 Test job scheduled to run daily at midnight (Turkey time)");
 
 try
 {
