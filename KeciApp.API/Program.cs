@@ -4,6 +4,7 @@ using KeciApp.API.Services;
 using KeciApp.API.Repositories;
 using KeciApp.API.Mappings;
 using KeciApp.API.Interfaces;
+using KeciApp.API.Middleware;
 using KeciApp.API.DTOs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -195,6 +196,7 @@ builder.Services.AddScoped<IAffirmationRepository, AffirmationRepository>();
 builder.Services.AddScoped<IDailyContentRepository, DailyContentRepository>();
 builder.Services.AddScoped<IWeeklyQuestionAnswerRepository, WeeklyQuestionAnswerRepository>();
 builder.Services.AddScoped<IUserProgressRepository, UserProgressRepository>();
+builder.Services.AddScoped<IApiLogRepository, ApiLogRepository>();
 
 // Add Services
 builder.Services.AddScoped<IUserService, UserService>();
@@ -270,6 +272,9 @@ if (!app.Environment.IsDevelopment())
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Request logging middleware - logs all API requests to database
+app.UseRequestLogging();
 
 app.MapControllers();
 
