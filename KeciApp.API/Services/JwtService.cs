@@ -38,7 +38,8 @@ public class JwtService : IJwtService
             new Claim("FirstName", user.FirstName),
             new Claim("LastName", user.LastName),
             new Claim("SubscriptionEnd", user.SubscriptionEnd.ToString("yyyy-MM-dd")),
-            new Claim("LastActivity", DateTime.UtcNow.ToString("O")) // ISO 8601 format for last activity
+            new Claim("LastActivity", DateTime.UtcNow.ToString("O")), // ISO 8601 format for last activity
+            new Claim("isActive", user.IsActive.ToString().ToLower())
         };
 
         // Add roles to claims

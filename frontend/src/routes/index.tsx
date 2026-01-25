@@ -62,6 +62,7 @@ const ResetPassword = lazy(() => import('@/app/(other)/auth/reset-password/page'
 const LockScreen = lazy(() => import('@/app/(other)/auth/lock-screen/page'))
 const Error404 = lazy(() => import('@/app/(other)/error-pages/pages-404/page'))
 const ErrorAlt = lazy(() => import('@/app/(admin)/pages-404-alt/page'))
+const InactiveAccount = lazy(() => import('@/app/(auth)/inactive/page'))
 
 //layoutsRoutes
 
@@ -128,6 +129,10 @@ const RootRedirect = () => {
     return <Navigate to="/auth/sign-in" />
   }
 
+  if (user && !user.isActive) {
+    return <Navigate to="/auth/inactive" />
+  }
+
   if (user?.role === 'Admin') {
     return <Navigate to="/dashboards" />
   }
@@ -187,6 +192,11 @@ export const authRoutes: RoutesProps[] = [
     name: '404 Error',
     path: '/error-pages/pages-404',
     element: <Error404 />,
+  },
+  {
+    name: 'Inactive Account',
+    path: '/auth/inactive',
+    element: <InactiveAccount />,
   },
 ]
 

@@ -59,6 +59,9 @@ public class User
     public int? DailyContentId { get; set; }
     
     [Required]
+    public bool IsActive { get; set; }
+
+    [Required]
     public int RoleId { get; set; }
     
     [Required]
