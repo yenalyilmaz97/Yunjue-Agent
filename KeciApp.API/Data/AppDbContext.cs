@@ -31,6 +31,7 @@ public class AppDbContext : DbContext
     public DbSet<DailyContent> DailyContents { get; set; }
     public DbSet<UserProgress> UserProgresses { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<ApiLog> ApiLogs { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
