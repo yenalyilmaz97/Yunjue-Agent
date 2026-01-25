@@ -19,10 +19,19 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [volume, setVolume] = useState(1)
+  const [playbackRate, setPlaybackRate] = useState(1.0)
   const [showVolumeControl, setShowVolumeControl] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const saveProgressIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const completedRef = useRef(false)
+
+  // Update playback rate when state changes
+  useEffect(() => {
+    const audio = audioRef.current
+    if (audio) {
+      audio.playbackRate = playbackRate
+    }
+  }, [playbackRate])
 
   useEffect(() => {
     const audio = audioRef.current
@@ -145,6 +154,15 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
       console.error('Error toggling play/pause:', error)
       setIsPlaying(false)
     }
+  }
+
+  const handleSpeedChange = () => {
+    // Cycle through 1.0 -> 1.25 -> 1.5 -> 1.0
+    setPlaybackRate((prev) => {
+      if (prev === 1.0) return 1.25
+      if (prev === 1.25) return 1.5
+      return 1.0
+    })
   }
 
   const skipTime = (seconds: number) => {
@@ -402,66 +420,92 @@ const ModernAudioPlayer = ({ src, title, episodeId, userId, onTimeUpdate }: Mode
             </div>
           </div>
 
-          {/* Volume Control */}
-          <div
-            className="position-relative d-none d-md-block flex-shrink-0"
-            onMouseEnter={() => setShowVolumeControl(true)}
-            onMouseLeave={() => setShowVolumeControl(false)}
-          >
+          {/* Volume and Speed Control */}
+          <div className="d-flex align-items-center gap-2">
+            {/* Speed Control */}
             <Button
               variant="link"
-              className="p-2"
+              onClick={handleSpeedChange}
+              className="p-0 text-decoration-none"
               style={{
-                color: 'var(--bs-secondary)',
-                textDecoration: 'none',
+                color: 'var(--bs-primary)',
+                fontSize: '0.85rem',
+                fontWeight: '600',
                 minWidth: '36px',
-                minHeight: '36px',
+                height: '36px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                borderRadius: '8px',
+                background: 'rgba(var(--bs-primary-rgb), 0.1)',
+                border: 'none',
               }}
+              title="Playback Speed"
             >
-              <Icon
-                icon={volume === 0 ? 'mingcute:volume-mute-line' : volume < 0.5 ? 'mingcute:volume-1-line' : 'mingcute:volume-2-line'}
-                style={{ fontSize: '18px' }}
-              />
+              {playbackRate}x
             </Button>
 
-            {showVolumeControl && (
-              <div
-                className="position-absolute"
+            {/* Volume Control */}
+            <div
+              className="position-relative d-none d-md-block flex-shrink-0"
+              onMouseEnter={() => setShowVolumeControl(true)}
+              onMouseLeave={() => setShowVolumeControl(false)}
+            >
+              <Button
+                variant="link"
+                className="p-2"
                 style={{
-                  bottom: '100%',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  marginBottom: '8px',
-                  background: 'white',
-                  padding: '10px 6px',
-                  borderRadius: '10px',
-                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.12)',
-                  zIndex: 1000,
+                  color: 'var(--bs-secondary)',
+                  textDecoration: 'none',
+                  minWidth: '36px',
+                  minHeight: '36px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  value={volume}
-                  onChange={handleVolumeChange}
-                  style={{
-                    WebkitAppearance: 'slider-vertical',
-                    width: '6px',
-                    height: '70px',
-                    background: 'rgba(var(--bs-primary-rgb), 0.1)',
-                    borderRadius: '3px',
-                    outline: 'none',
-                    cursor: 'pointer',
-                    writingMode: 'bt-lr' as any,
-                  }}
+                <Icon
+                  icon={volume === 0 ? 'mingcute:volume-mute-line' : volume < 0.5 ? 'mingcute:volume-1-line' : 'mingcute:volume-2-line'}
+                  style={{ fontSize: '18px' }}
                 />
-              </div>
-            )}
+              </Button>
+
+              {showVolumeControl && (
+                <div
+                  className="position-absolute"
+                  style={{
+                    bottom: '100%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    marginBottom: '8px',
+                    background: 'white',
+                    padding: '10px 6px',
+                    borderRadius: '10px',
+                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.12)',
+                    zIndex: 1000,
+                  }}
+                >
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={volume}
+                    onChange={handleVolumeChange}
+                    style={{
+                      WebkitAppearance: 'slider-vertical',
+                      width: '6px',
+                      height: '70px',
+                      background: 'rgba(var(--bs-primary-rgb), 0.1)',
+                      borderRadius: '3px',
+                      outline: 'none',
+                      cursor: 'pointer',
+                      writingMode: 'bt-lr' as any,
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
