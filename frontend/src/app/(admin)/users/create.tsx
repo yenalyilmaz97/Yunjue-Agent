@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import TextFormInput from '@/components/from/TextFormInput'
 import SelectFormInput from '@/components/from/SelectFormInput'
 import TextAreaFormInput from '@/components/from/TextAreaFormInput'
-import { useForm, useWatch } from 'react-hook-form'
+import { useForm, useWatch, Controller } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useI18n } from '@/i18n/context'
@@ -28,6 +28,7 @@ type FormFields = {
   subscriptionEnd: string
   keciTimeEnd?: string
   isKeci: boolean
+  isActive: boolean
   roleId: number
 }
 
@@ -65,6 +66,9 @@ const UserCreateEditPage = () => {
     password: yup.string().transform((value) => (value === '' ? undefined : value)).min(6, t('users.passwordMin')).max(30, t('users.maxChar', { count: 30 })).optional(),
     subscriptionEnd: yup.string().required(t('users.selectSubscriptionEndRequired')),
     isKeci: yup.boolean().required(),
+    // isActive is required for edit but optional for create (will be defaulted in backend/frontend logic)
+    // We can just keep it required in schema but control defaultValue so it passes
+    isActive: yup.boolean().required(),
     keciTimeEnd: yup.string().when('isKeci', {
       is: true,
       then: (schema) => schema.required(t('users.selectKeciTimeEndRequired') || 'Keçi süresi seçiniz'),
@@ -89,6 +93,7 @@ const UserCreateEditPage = () => {
       subscriptionEnd: '',
       keciTimeEnd: '',
       isKeci: false,
+      isActive: true, // Default to true
       roleId: undefined,
     },
   })
@@ -141,6 +146,7 @@ const UserCreateEditPage = () => {
         subscriptionEnd: editItem.subscriptionEnd ? new Date(editItem.subscriptionEnd).toISOString().split('T')[0] : '',
         keciTimeEnd: editItem.keciTimeEnd ? new Date(editItem.keciTimeEnd).toISOString().split('T')[0] : '',
         isKeci: hasKeciTime,
+        isActive: editItem.isActive !== undefined ? editItem.isActive : true,
         roleId: editItem.roleId,
       })
     }
@@ -161,19 +167,23 @@ const UserCreateEditPage = () => {
         description: data.description,
         subscriptionEnd: data.subscriptionEnd,
         keciTimeEnd: data.isKeci ? data.keciTimeEnd : null,
+        // Remove isActive from payload for CREATE, only send for EDIT/UPDATE
+        // But commonData is shared. We construct payload below.
       };
 
       if (isEdit && editItem) {
         await userService.updateUser(editItem.userId, {
           userId: editItem.userId,
           ...commonData,
+          isActive: (data.isActive as any) === 'true' || data.isActive === true,
           roleId: data.roleId,
         } as any)
       } else {
         await userService.createUser({
           ...commonData,
           password: data.password || '',
-          roleId: data.roleId || 2, // Default to User role (usually 2) if not set, though validation requires it
+          roleId: data.roleId || 2,
+          // No isActive here
         } as any)
       }
       navigate('/admin/users')
@@ -249,6 +259,27 @@ const UserCreateEditPage = () => {
                   ]}
                 />
               </Col>
+              {isEdit && (
+                <Col md={6}>
+                  <Form.Label>{t('users.isActive') || 'Hesap Durumu'}</Form.Label>
+                  <div className="d-flex align-items-center" style={{ height: '38px' }}>
+                    <Controller
+                      control={control}
+                      name="isActive"
+                      render={({ field: { onChange, value } }) => (
+                        <Form.Check
+                          type="switch"
+                          id="isActive-switch"
+                          className="fs-4 ms-1"
+                          label={value ? (t('users.active') || 'Aktif') : (t('users.inactive') || 'Pasif')}
+                          checked={!!value}
+                          onChange={(e) => onChange(e.target.checked)}
+                        />
+                      )}
+                    />
+                  </div>
+                </Col>
+              )}
 
               <Col md={6}>
                 <div className="d-flex gap-2 align-items-end">

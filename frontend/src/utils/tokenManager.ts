@@ -210,3 +210,22 @@ export function initializeTokenManager(): void {
   }
   // If access token invalid but refresh token valid, axios interceptor will handle refresh
 }
+
+/**
+ * Get isActive status from token claims
+ */
+export function getIsActiveFromToken(): boolean {
+  const token = getToken()
+  if (!token) return true // Assume active if checking blindly, but likely called after auth check
+
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    if (payload.isActive !== undefined) {
+      // isActive is stored as "true" or "false" string in JWT claim
+      return payload.isActive === 'true'
+    }
+    return true // Default to true if claim missing (legacy users or undefined) to avoid locking out
+  } catch {
+    return true
+  }
+}

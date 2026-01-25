@@ -4,6 +4,7 @@ import AdminLayout from '@/layouts/AdminLayout'
 import UserLayout from '@/layouts/UserLayout'
 import type { ReactNode } from 'react'
 import type { RouteProps } from 'react-router-dom'
+import { getIsActiveFromToken } from '@/utils/tokenManager'
 
 // Define route patterns for admin and user areas
 const ADMIN_ROUTES = ['/admin', '/dashboards', '/base-ui', '/forms', '/tables', '/icons', '/apex-chart', '/maps', '/dark-', '/small-sidenav', '/hidden-sidenav', '/dark-mode', '/pages-404-alt']
@@ -38,6 +39,12 @@ export const ProtectedRoute = ({ children, routeType = 'shared' }: ProtectedRout
   // Redirect to sign-in if not authenticated
   if (!isAuthenticated) {
     return <Navigate to="/auth/sign-in" replace />
+  }
+
+  // Redirect to inactive page if user is not active (check from Token for security)
+  const isTokenActive = getIsActiveFromToken()
+  if (!isTokenActive) {
+    return <Navigate to="/auth/inactive" replace />
   }
 
   const isAdmin = user?.role === 'Admin'

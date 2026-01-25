@@ -202,7 +202,9 @@
     "phone": "Telefon",
     "role": "Rol",
     "roleName": "Rol",
-    "isActive": "Aktif",
+    "isActive": "Hesap Durumu",
+    "active": "Aktif",
+    "inactive": "Pasif",
     "createdAt": "Oluşturulma Tarihi",
     "updatedAt": "Güncellenme Tarihi",
     "profilePicture": "Profil Resmi",
@@ -636,4 +638,3 @@
     "userquestions": "Kullanıcı Soruları"
   }
 }
-

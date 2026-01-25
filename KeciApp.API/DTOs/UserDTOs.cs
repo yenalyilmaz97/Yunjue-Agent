@@ -97,6 +97,9 @@ public class EditUserRequest
     public int RoleId { get; set; }
 
     public int? DailyContentDayOrder { get; set; }
+
+    [Required]
+    public bool IsActive { get; set; }
 }
 
 public class AddKeciTimeDTO
@@ -144,6 +147,7 @@ public class UserResponseDTO
     public int? DailyContentDayOrder { get; set; }
     public int RoleId { get; set; }
     public string RoleName { get; set; }
+    public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }

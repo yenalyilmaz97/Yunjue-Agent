@@ -80,6 +80,7 @@ public class UserService : IUserService
         // Map request to user entity
         var user = _mapper.Map<User>(request);
         user.PasswordHash = passwordHash;
+        user.IsActive = true;
         
         // Ensure UTC for DateTimes
         user.DateOfBirth = DateTime.SpecifyKind(user.DateOfBirth, DateTimeKind.Utc);
@@ -150,6 +151,7 @@ public class UserService : IUserService
         existingUser.Description = request.Description;
         existingUser.SubscriptionEnd = DateTime.SpecifyKind(request.SubscriptionEnd, DateTimeKind.Utc);
         existingUser.RoleId = request.RoleId;
+        existingUser.IsActive = request.IsActive;
         
         if (request.KeciTimeEnd.HasValue)
         {

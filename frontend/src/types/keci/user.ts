@@ -19,6 +19,7 @@ export interface User {
   profilePictureUrl?: string
   createdAt?: string
   updatedAt?: string
+  isActive: boolean
 }
 
 export interface Role {
@@ -74,6 +75,7 @@ export interface EditUserRequest {
   keciTimeEnd?: string
   roleId: number
   dailyContentDayOrder?: number
+  isActive: boolean
 }
 
 export interface ChangePasswordRequest {
@@ -89,6 +91,7 @@ export interface AddTimeRequest {
 export interface AssignRoleRequest {
   userId: number
   roleId: number
+  isActive: boolean
 }
 
 export interface UserFormData {
@@ -105,6 +108,7 @@ export interface UserFormData {
   subscriptionEnd: string
   keciTimeEnd?: string
   roleId?: number
+  isActive: boolean
 }
 
 export interface UserFilter {

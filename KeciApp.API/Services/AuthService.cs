@@ -71,6 +71,7 @@ public class AuthService : IAuthService
         user.PasswordHash = HashPassword(password);
         user.CreatedAt = DateTime.UtcNow;
         user.UpdatedAt = DateTime.UtcNow;
+        user.IsActive = true;
 
         // Set default role (user)
         var defaultRole = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == "user");
