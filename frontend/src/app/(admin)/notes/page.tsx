@@ -132,11 +132,9 @@ const AdminNotesPage = () => {
             )
             : groups
 
-        // Seri ve bölüm adına göre sırala
+        // Tarihe göre sırala (En yeni en üstte)
         return filteredGroups.sort((a, b) => {
-            const seriesCompare = a.seriesTitle.localeCompare(b.seriesTitle)
-            if (seriesCompare !== 0) return seriesCompare
-            return a.episodeTitle.localeCompare(b.episodeTitle)
+            return new Date(b.note.createdAt).getTime() - new Date(a.note.createdAt).getTime()
         })
     }, [userNotes, noteSearch, articleMap])
 
