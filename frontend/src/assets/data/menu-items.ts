@@ -381,6 +381,7 @@ export const MENU_ITEMS: MenuItemType[] = [
       { key: 'weekly-assignment', label: 'Weekly Assignment', url: '/admin/access/weekly', parentKey: 'access' },
       { key: 'daily-content-access', label: 'Daily Content Access', url: '/admin/access/daily-content', parentKey: 'access' },
       { key: 'questions', label: 'User Questions', url: '/admin/questions', parentKey: 'access' },
+      { key: 'notes', label: 'User Notes', url: '/admin/notes', parentKey: 'access' },
     ],
   },
   // // ====================layouts===============

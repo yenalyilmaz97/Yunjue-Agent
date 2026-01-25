@@ -65,8 +65,9 @@ const MenuItemWithChildren = ({ item, className, linkClassName, subMenuClassName
       'Series Access': 'sidebar.seriesaccess',
       'Weekly Assignment': 'sidebar.weeklyassignment',
       'User Questions': 'sidebar.userquestions',
+      'User Notes': 'sidebar.usernotes',
     }
-    
+
     const translationKey = labelMap[label] || `sidebar.${label.toLowerCase().replace(/\s+/g, '').replace(/\.\.\./g, '')}`
     const translated = t(translationKey)
     return translated !== translationKey ? translated : label
@@ -127,7 +128,7 @@ const MenuItemLink = ({ item, className }: SubMenus) => {
   const { t } = useI18n()
   const { toggleBackdrop } = useLayoutContext()
   const { width } = useViewPort()
-  
+
   const getLabel = (label: string) => {
     // Map specific labels to translation keys
     const labelMap: Record<string, string> = {
@@ -161,8 +162,9 @@ const MenuItemLink = ({ item, className }: SubMenus) => {
       'Series Access': 'sidebar.seriesaccess',
       'Weekly Assignment': 'sidebar.weeklyassignment',
       'User Questions': 'sidebar.userquestions',
+      'User Notes': 'sidebar.usernotes',
     }
-    
+
     const translationKey = labelMap[label] || `sidebar.${label.toLowerCase().replace(/\s+/g, '').replace(/\.\.\./g, '')}`
     const translated = t(translationKey)
     return translated !== translationKey ? translated : label
@@ -179,9 +181,9 @@ const MenuItemLink = ({ item, className }: SubMenus) => {
   }
 
   return (
-    <Link 
-      to={item.url ?? ''} 
-      target={item.target} 
+    <Link
+      to={item.url ?? ''}
+      target={item.target}
       className={clsx(className, { disabled: item.isDisabled })}
       onClick={handleClick}
     >

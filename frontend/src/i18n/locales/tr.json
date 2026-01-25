@@ -51,6 +51,7 @@
     "profile": "Profil",
     "favorites": "Favoriler",
     "notes": "Notlar",
+    "adminNotes": "Kullanıcı Notları",
     "settings": "Ayarlar",
     "access": "Erişim"
   },
@@ -576,7 +577,12 @@
     "edit": "Not Düzenle",
     "noNotes": "Henüz not yok",
     "noteText": "Not Metni",
-    "enterNoteText": "Not metni giriniz"
+    "enterNoteText": "Not metni giriniz",
+    "userNotes": "Kullanıcı Notları",
+    "viewNotes": "Notları Görüntüle",
+    "noteCount": "Not Sayısı",
+    "totalNotes": "Toplam Not",
+    "noNotesForUser": "Bu kullanıcının notu yok"
   },
   "dataTable": {
     "search": "Ara...",
@@ -635,6 +641,7 @@
     "access": "Erişim",
     "seriesaccess": "Seri Erişimi",
     "weeklyassignment": "Haftalık Atama",
-    "userquestions": "Kullanıcı Soruları"
+    "userquestions": "Kullanıcı Soruları",
+    "usernotes": "Kullanıcı Notları"
   }
 }
