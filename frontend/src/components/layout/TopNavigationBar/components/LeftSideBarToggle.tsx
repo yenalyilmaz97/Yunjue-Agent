@@ -62,7 +62,7 @@ const LeftSideBarToggle = () => {
           changeMenuSize('default')
         }
       }
-      
+
       previousWidth.current = width
     }
 
@@ -82,7 +82,8 @@ const LeftSideBarToggle = () => {
     }
   }, [pathname, width])
 
-  const notificationCount = notificationsData.length
+  //const notificationCount = notificationsData.length
+  const notificationCount = 0
 
   return (
     <div className="topbar-item">
