@@ -32,12 +32,13 @@ const NotificationItem = ({ from, content, icon }: NotificationType) => {
 
 const SidebarNotifications = () => {
   const notificationList = notificationsData
-  const notificationCount = notificationList.length
+  //const notificationCount = notificationList.length
+  const notificationCount = 0
   const [isOpen, setIsOpen] = useState(false)
 
   return (
     <div className="sidebar-notifications">
-      <div 
+      <div
         className={clsx('sidebar-notifications-toggle', { active: isOpen })}
         onClick={() => setIsOpen(!isOpen)}
         role="button"
