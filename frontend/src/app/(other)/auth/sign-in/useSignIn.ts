@@ -62,6 +62,7 @@ const useSignIn = () => {
           role: isAdmin ? 'Admin' : 'User',
           token: res.token,
           password: '',
+          isActive: true, // Validate via token claims instead
         }
         saveSession(sessionUser, values.rememberMe)
         redirectUser(sessionUser.role)

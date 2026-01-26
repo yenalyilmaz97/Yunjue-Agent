@@ -303,7 +303,7 @@ const AdminNotesPage = () => {
                                         <span className="visually-hidden">{t('common.loading')}</span>
                                     </div>
                                 </div>
-                            ) : groupedNotes.length === 0 ? (
+                            ) : userNotes.length === 0 ? (
                                 <div className="text-center py-5 text-muted">
                                     <Icon icon="mingcute:file-line" style={{ fontSize: '3rem' }} />
                                     <p className="mt-3">{t('notes.noNotes')}</p>
