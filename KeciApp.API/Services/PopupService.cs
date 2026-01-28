@@ -43,6 +43,11 @@ public class PopupService : IPopupService
         return activePopup;
     }
 
+    public async Task<List<Popup>> GetAllPopupsAsync()
+    {
+        return await _popupRepository.GetAllPopupsAsync();
+    }
+
     public async Task<Popup> CreatePopupAsync(string title, IFormFile imageFile, bool repeatable)
     {
         // 1. Upload Image

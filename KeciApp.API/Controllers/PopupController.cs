@@ -54,10 +54,27 @@ public class PopupController : ControllerBase
     }
 
     /// <summary>
+    /// Gets all popups (Admin only).
+    /// </summary>
+    [HttpGet("admin/all")]
+    [Authorize(Roles = "admin,superadmin")]
+    public async Task<ActionResult<List<PopupResponseDTO>>> GetAllPopups()
+    {
+        var popups = await _popupService.GetAllPopupsAsync();
+        return Ok(popups.Select(p => new PopupResponseDTO
+        {
+            Id = p.Id,
+            Title = p.Title,
+            ImageUrl = p.ImageUrl,
+            Repeatable = p.Repeatable
+        }));
+    }
+
+    /// <summary>
     /// Creates a new active popup. Deactivates existing ones and resets user seen status.
     /// </summary>
     [HttpPost("admin")]
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "admin,superadmin")]
     [Consumes("multipart/form-data")]
     public async Task<ActionResult<PopupResponseDTO>> CreatePopup([FromForm] CreatePopupRequest request)
     {
@@ -76,7 +93,7 @@ public class PopupController : ControllerBase
     /// Updates an existing popup.
     /// </summary>
     [HttpPut("admin/{id}")]
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "admin,superadmin")]
     [Consumes("multipart/form-data")]
     public async Task<ActionResult<PopupResponseDTO>> UpdatePopup(int id, [FromForm] UpdatePopupRequest request)
     {
@@ -102,7 +119,7 @@ public class PopupController : ControllerBase
     /// Activates a popup and resets user views.
     /// </summary>
     [HttpPost("admin/{id}/activate")]
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "admin,superadmin")]
     public async Task<IActionResult> ActivatePopup(int id)
     {
         try
@@ -120,7 +137,7 @@ public class PopupController : ControllerBase
     /// Deletes a popup.
     /// </summary>
     [HttpDelete("admin/{id}")]
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "admin,superadmin")]
     public async Task<IActionResult> DeletePopup(int id)
     {
         try

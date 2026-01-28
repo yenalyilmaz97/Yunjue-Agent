@@ -6,7 +6,7 @@ namespace KeciApp.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin,SuperAdmin")] // Restrict to admins
+[Authorize(Roles = "admin,superadmin")] // Restrict to admins
 public class ContentUpdateBatchController : ControllerBase
 {
     private readonly IContentUpdateBatchService _service;

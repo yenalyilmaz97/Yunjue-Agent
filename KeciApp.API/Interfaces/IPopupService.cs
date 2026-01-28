@@ -5,6 +5,7 @@ namespace KeciApp.API.Interfaces;
 public interface IPopupService
 {
     Task<Popup?> GetActivePopupForUserAsync(int userId);
+    Task<List<Popup>> GetAllPopupsAsync();
     Task<Popup> CreatePopupAsync(string title, IFormFile imageFile, bool repeatable);
     Task<Popup> UpdatePopupAsync(int id, string title, IFormFile? imageFile, bool repeatable);
     Task ActivatePopupAsync(int id);

@@ -357,6 +357,7 @@ export const MENU_ITEMS: MenuItemType[] = [
     icon: 'mingcute:mic-line',
     children: [
       { key: 'content-articles', label: 'Articles', url: '/admin/articles', parentKey: 'content' },
+      { key: 'content-popups', label: 'Popups', url: '/admin/popups', parentKey: 'content' },
       { key: 'podcast-series', label: 'Series', url: '/admin/podcasts/series', parentKey: 'content' },
       { key: 'podcast-episodes', label: 'Episodes', url: '/admin/podcasts/episodes', parentKey: 'content' },
     ],

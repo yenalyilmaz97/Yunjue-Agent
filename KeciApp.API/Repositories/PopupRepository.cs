@@ -22,6 +22,13 @@ public class PopupRepository : IPopupRepository
             .FirstOrDefaultAsync();
     }
 
+    public async Task<List<Popup>> GetAllPopupsAsync()
+    {
+        return await _context.Popups
+            .OrderByDescending(p => p.CreatedAt)
+            .ToListAsync();
+    }
+
     public async Task<Popup?> GetPopupByIdAsync(int id)
     {
         return await _context.Popups.FindAsync(id);

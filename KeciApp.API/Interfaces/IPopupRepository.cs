@@ -5,6 +5,7 @@ namespace KeciApp.API.Interfaces;
 public interface IPopupRepository
 {
     Task<Popup?> GetActivePopupAsync();
+    Task<List<Popup>> GetAllPopupsAsync();
     Task<Popup?> GetPopupByIdAsync(int id);
     Task<Popup> CreatePopupAsync(Popup popup);
     Task<Popup> UpdatePopupAsync(Popup popup);
