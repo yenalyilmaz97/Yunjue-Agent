@@ -24,4 +24,6 @@ export type PopupResponse = {
     title: string
     imageUrl: string
     repeatable: boolean
+    isActive: boolean
+    createdAt: string
 }

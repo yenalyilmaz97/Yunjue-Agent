@@ -37,7 +37,9 @@ public class PopupController : ControllerBase
             Id = popup.Id,
             Title = popup.Title,
             ImageUrl = popup.ImageUrl,
-            Repeatable = popup.Repeatable
+            Repeatable = popup.Repeatable,
+            IsActive = popup.IsActive,
+            CreatedAt = popup.CreatedAt
         });
     }
 
@@ -66,7 +68,9 @@ public class PopupController : ControllerBase
             Id = p.Id,
             Title = p.Title,
             ImageUrl = p.ImageUrl,
-            Repeatable = p.Repeatable
+            Repeatable = p.Repeatable,
+            IsActive = p.IsActive,
+            CreatedAt = p.CreatedAt
         }));
     }
 
@@ -85,7 +89,9 @@ public class PopupController : ControllerBase
             Id = createdPopup.Id,
             Title = createdPopup.Title,
             ImageUrl = createdPopup.ImageUrl,
-            Repeatable = createdPopup.Repeatable
+            Repeatable = createdPopup.Repeatable,
+            IsActive = createdPopup.IsActive,
+            CreatedAt = createdPopup.CreatedAt
         });
     }
 
@@ -106,7 +112,9 @@ public class PopupController : ControllerBase
                 Id = updatedPopup.Id,
                 Title = updatedPopup.Title,
                 ImageUrl = updatedPopup.ImageUrl,
-                Repeatable = updatedPopup.Repeatable
+                Repeatable = updatedPopup.Repeatable,
+                IsActive = updatedPopup.IsActive,
+                CreatedAt = updatedPopup.CreatedAt
             });
         }
         catch (InvalidOperationException ex)

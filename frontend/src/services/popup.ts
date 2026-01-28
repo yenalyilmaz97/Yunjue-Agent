@@ -1,5 +1,5 @@
 import { api } from '@/lib/axios'
-import type { CreatePopupRequest, Popup, PopupResponse, UpdatePopupRequest } from '@/types/keci/popup'
+import type { CreatePopupRequest, PopupResponse, UpdatePopupRequest } from '@/types/keci/popup'
 
 export const popupService = {
     getAllPopups: async (): Promise<PopupResponse[]> => {

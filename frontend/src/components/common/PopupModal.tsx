@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Modal, Image, Button } from 'react-bootstrap'
+import { Modal } from 'react-bootstrap'
 import { popupService } from '@/services'
 import type { PopupResponse } from '@/types/keci/popup'
 import { useAuthContext } from '@/context/useAuthContext'

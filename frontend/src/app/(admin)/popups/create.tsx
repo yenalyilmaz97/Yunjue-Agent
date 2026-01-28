@@ -6,7 +6,6 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { popupService } from '@/services'
-import { useI18n } from '@/i18n/context'
 import type { Popup } from '@/types/keci/popup'
 import { useFilePreview } from '@/hooks/useFilePreview'
 
@@ -18,7 +17,6 @@ const schema = yup.object({
 })
 
 const Create = () => {
-    const { t } = useI18n()
     const navigate = useNavigate()
     const location = useLocation()
     const mode = location.state?.mode || 'create'
@@ -30,7 +28,6 @@ const Create = () => {
     const {
         register,
         handleSubmit,
-        setValue,
         formState: { errors, isSubmitting },
         reset,
     } = useForm({
