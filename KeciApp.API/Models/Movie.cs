@@ -13,4 +13,5 @@ public class Movie
   public int order {get; set;}
   
   public string? ImageUrl { get; set; }
+  public string? MovieDescription {get; set;}
 }

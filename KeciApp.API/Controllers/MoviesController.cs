@@ -52,6 +52,7 @@ public class MoviesController : ControllerBase
             var receivedData = new
             {
                 movieTitle = request.MovieTitle,
+                movieDescription = request.MovieDescription,
                 hasImageFile = request.ImageFile != null,
                 imageFileName = request.ImageFile?.FileName,
                 imageFileSize = request.ImageFile?.Length

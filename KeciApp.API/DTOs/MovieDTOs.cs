@@ -7,6 +7,7 @@ public class CreateMovieRequest
     [Required(ErrorMessage = "Film başlığı gereklidir")]
     [StringLength(100, ErrorMessage = "Film başlığı en fazla 100 karakter olabilir")]
     public string MovieTitle { get; set; }
+    public string MovieDescription { get; set; }
     
     public IFormFile? ImageFile { get; set; }
 }
@@ -19,6 +20,7 @@ public class EditMovieRequest
     [Required]
     [StringLength(100, ErrorMessage = "Film başlığı en fazla 100 karakter olabilir")]
     public string MovieTitle { get; set; }
+    public string MovieDescription { get; set; }
 }
 public class MovieResponseDTO
 {
@@ -26,6 +28,7 @@ public class MovieResponseDTO
     public string MovieTitle { get; set; }
     public int Order { get; set; }
     public string? ImageUrl { get; set; }
+    public string MovieDescription { get; set; }
 }
 
 // Request DTO for movie image upload
