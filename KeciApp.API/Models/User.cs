@@ -72,6 +72,9 @@ public class User
 
     public string? ProfilePictureUrl { get; set; }
 
+    [Required]
+    public bool IsPopupSeen { get; set; } = false;
+
     // Navigation Properties
     [ForeignKey("RoleId")]
     public Role Role { get; set; }

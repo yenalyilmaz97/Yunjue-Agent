@@ -33,6 +33,7 @@ public class AppDbContext : DbContext
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<ApiLog> ApiLogs { get; set; }
     public DbSet<ContentUpdateBatch> ContentUpdateBatches { get; set; }
+    public DbSet<Popup> Popups { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -214,6 +215,10 @@ public class AppDbContext : DbContext
             entity.HasKey(e => e.AffirmationId);
             entity.Property(e => e.Text).IsRequired();
         });
+
+        modelBuilder.Entity<User>()
+            .Property(u => u.IsPopupSeen)
+            .HasDefaultValue(false);
 
         // Articles
         modelBuilder.Entity<Article>(entity =>

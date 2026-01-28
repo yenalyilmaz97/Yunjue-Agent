@@ -1,0 +1,136 @@
+using KeciApp.API.DTOs;
+using KeciApp.API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+
+namespace KeciApp.API.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class PopupController : ControllerBase
+{
+    private readonly IPopupService _popupService;
+
+    public PopupController(IPopupService popupService)
+    {
+        _popupService = popupService;
+    }
+
+    /// <summary>
+    /// Gets the active popup for the current user. Returns 204 No Content if no popup to show.
+    /// </summary>
+    [HttpGet]
+    [Authorize]
+    public async Task<ActionResult<PopupResponseDTO>> GetActivePopup()
+    {
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+        var popup = await _popupService.GetActivePopupForUserAsync(userId);
+
+        if (popup == null)
+        {
+            return NoContent();
+        }
+
+        return Ok(new PopupResponseDTO
+        {
+            Id = popup.Id,
+            Title = popup.Title,
+            ImageUrl = popup.ImageUrl,
+            Repeatable = popup.Repeatable
+        });
+    }
+
+    /// <summary>
+    /// Marks the active popup as seen for the current user.
+    /// </summary>
+    [HttpPost("seen")]
+    [Authorize]
+    public async Task<IActionResult> MarkPopupAsSeen()
+    {
+        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+        await _popupService.MarkPopupAsSeenAsync(userId);
+        return Ok(new { message = "Popup marked as seen." });
+    }
+
+    /// <summary>
+    /// Creates a new active popup. Deactivates existing ones and resets user seen status.
+    /// </summary>
+    [HttpPost("admin")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Consumes("multipart/form-data")]
+    public async Task<ActionResult<PopupResponseDTO>> CreatePopup([FromForm] CreatePopupRequest request)
+    {
+        var createdPopup = await _popupService.CreatePopupAsync(request.Title, request.Image, request.Repeatable);
+
+        return Ok(new PopupResponseDTO
+        {
+            Id = createdPopup.Id,
+            Title = createdPopup.Title,
+            ImageUrl = createdPopup.ImageUrl,
+            Repeatable = createdPopup.Repeatable
+        });
+    }
+
+    /// <summary>
+    /// Updates an existing popup.
+    /// </summary>
+    [HttpPut("admin/{id}")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Consumes("multipart/form-data")]
+    public async Task<ActionResult<PopupResponseDTO>> UpdatePopup(int id, [FromForm] UpdatePopupRequest request)
+    {
+        try 
+        {
+            var updatedPopup = await _popupService.UpdatePopupAsync(id, request.Title, request.Image, request.Repeatable);
+
+            return Ok(new PopupResponseDTO
+            {
+                Id = updatedPopup.Id,
+                Title = updatedPopup.Title,
+                ImageUrl = updatedPopup.ImageUrl,
+                Repeatable = updatedPopup.Repeatable
+            });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return NotFound(ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Activates a popup and resets user views.
+    /// </summary>
+    [HttpPost("admin/{id}/activate")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
+    public async Task<IActionResult> ActivatePopup(int id)
+    {
+        try
+        {
+            await _popupService.ActivatePopupAsync(id);
+            return Ok(new { message = "Popup activated and user views reset." });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return NotFound(ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Deletes a popup.
+    /// </summary>
+    [HttpDelete("admin/{id}")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
+    public async Task<IActionResult> DeletePopup(int id)
+    {
+        try
+        {
+            await _popupService.DeletePopupAsync(id);
+            return Ok(new { message = "Popup deleted." });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return NotFound(ex.Message);
+        }
+    }
+}
