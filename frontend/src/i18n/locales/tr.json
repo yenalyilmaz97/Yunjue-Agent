@@ -36,7 +36,9 @@
     "confirm": "Onayla",
     "noData": "Veri bulunamadı",
     "noResults": "Sonuç bulunamadı",
-    "id": "ID"
+    "id": "ID",
+    "updateHistory": "Güncelleme Geçmişi",
+    "type": "Tür"
   },
   "pages": {
     "dashboard": "Ana Sayfa",
@@ -150,7 +152,8 @@
       "allSeries": "Tüm Seriler",
       "preview": "Önizleme",
       "active": "Aktif",
-      "unsupportedFileType": "Desteklenmeyen dosya türü: {fileName}. Lütfen ses, video veya resim dosyası yükleyiniz."
+      "unsupportedFileType": "Desteklenmeyen dosya türü: {fileName}. Lütfen ses, video veya resim dosyası yükleyiniz.",
+      "sequence": "Sıra No"
     }
   },
   "articles": {
@@ -340,7 +343,8 @@
       "required": "Zorunlu",
       "searchSeries": "Seri ara...",
       "loading": "Yükleniyor...",
-      "nA": "N/A"
+      "nA": "N/A",
+      "incrementSequence": "Haftalık İçerik Sayısını Güncelle"
     },
     "weeklyAssignment": {
       "incrementDaily": "Günlük İçerik Güncelle",
@@ -489,7 +493,11 @@
       "enterQuestionTextRequired": "Lütfen soru giriniz",
       "searchPlaceholder": "Haftalık soru ara...",
       "addNew": "Yeni Ekle",
-      "deleteConfirm": "Bu haftalık soruyu silmek istediğinize emin misiniz?"
+      "deleteConfirm": "Bu haftalık soruyu silmek istediğinize emin misiniz?",
+      "textLabel": "Soru Metni"
+    },
+    "questions": {
+      "textLabel": "Soru Metni"
     }
   },
   "dailyContent": {

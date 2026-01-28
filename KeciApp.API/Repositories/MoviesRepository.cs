@@ -14,9 +14,9 @@ public class MoviesRepository : IMoviesRepository
     {
         _context = context;
     }
-     public async Task<IEnumerable<Movie>> GetAllMoviesAsync()
+    public async Task<IEnumerable<Movie>> GetAllMoviesAsync()
     {
-        return await _context.Movies.ToListAsync();
+        return await _context.Movies.OrderBy(m => m.order).ToListAsync();
     }
     public async Task<int> GetMaxMovieOrderAsync()
     {

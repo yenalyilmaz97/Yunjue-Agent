@@ -114,6 +114,7 @@ const AdminQuestionsPage = lazy(() => import('@/app/(admin)/questions/page'))
 const AdminNotesPage = lazy(() => import('@/app/(admin)/notes/page'))
 const AdminPopupsPage = lazy(() => import('@/app/(admin)/popups/page'))
 const AdminPopupsCreatePage = lazy(() => import('@/app/(admin)/popups/create'))
+const AdminContentUpdatesPage = lazy(() => import('@/app/(admin)/content-updates/page'))
 // User Articles Pages
 const UserArticlesPage = lazy(() => import('@/app/(user)/articles/page'))
 const UserArticleDetailPage = lazy(() => import('@/app/(user)/articles/[slug]/page'))
@@ -468,6 +469,7 @@ export const appRoutes = [
   // admin popup routes
   { name: 'AdminPopups', path: '/admin/popups', element: <AdminPopupsPage /> },
   { name: 'AdminPopupsCreate', path: '/admin/popups/create', element: <AdminPopupsCreatePage /> },
+  { name: 'AdminContentUpdates', path: '/admin/content-updates', element: <AdminContentUpdatesPage /> },
   // user routes
   { name: 'UserArticles', path: '/articles', element: <UserArticlesPage /> },
   { name: 'UserArticleDetail', path: '/articles/*', element: <UserArticleDetailPage /> },

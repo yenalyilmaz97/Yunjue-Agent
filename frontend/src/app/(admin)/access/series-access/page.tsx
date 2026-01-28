@@ -12,7 +12,7 @@ const page = () => {
   const [items, setItems] = useState<UserSeriesAccess[]>([])
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
-  const [bulkGranting, setBulkGranting] = useState(false)
+
   const [incrementing, setIncrementing] = useState(false)
   const navigate = useNavigate()
 
@@ -68,22 +68,7 @@ const page = () => {
     setItems((prev) => prev.filter((x) => !(x.userId === userId && (x.seriesId === seriesId || x.articleId === articleId))))
   }
 
-  const handleBulkGrant = async () => {
-    if (!confirm(t('access.seriesAccess.bulkGrantConfirm') || 'Tüm kullanıcılara tüm serilerin 1. bölümlerine erişim vermek istediğinizden emin misiniz? Mevcut erişimler korunacaktır.')) return
 
-    setBulkGranting(true)
-    try {
-      const result = await userSeriesAccessService.bulkGrantAccess()
-      alert(result.message || `Başarılı: ${result.grantedCount} erişim verildi, ${result.skippedCount} atlandı.`)
-      // Reload data
-      const data = await userSeriesAccessService.getAllUserSeriesAccess()
-      setItems(data)
-    } catch (error: any) {
-      alert(error?.response?.data?.message || error?.message || 'Toplu erişim verilirken bir hata oluştu.')
-    } finally {
-      setBulkGranting(false)
-    }
-  }
 
   const handleIncrementSequence = async () => {
     if (!confirm(t('access.seriesAccess.incrementSequenceConfirm') || 'Tamamlanmış episode\'lere göre kullanıcıların erişilebilir bölüm numaralarını artırmak istediğinizden emin misiniz?')) return
@@ -120,17 +105,9 @@ const page = () => {
               size="sm"
               variant="info"
               onClick={handleIncrementSequence}
-              disabled={incrementing || bulkGranting}
+              disabled={incrementing}
             >
               {incrementing ? t('common.loading') || 'Yükleniyor...' : t('access.seriesAccess.incrementSequence') || 'Kontrol Et'}
-            </Button>
-            <Button
-              size="sm"
-              variant="success"
-              onClick={handleBulkGrant}
-              disabled={bulkGranting || incrementing}
-            >
-              {bulkGranting ? t('common.loading') || 'Yükleniyor...' : t('access.seriesAccess.bulkGrant') || 'Toplu Erişim Ver'}
             </Button>
           </div>
         </CardHeader>

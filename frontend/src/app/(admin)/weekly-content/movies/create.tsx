@@ -4,6 +4,7 @@ import { contentService } from '@/services'
 import { Card, CardBody, CardHeader, CardTitle, Button, Form, Row, Col } from 'react-bootstrap'
 import { useLocation, useNavigate } from 'react-router-dom'
 import TextFormInput from '@/components/from/TextFormInput'
+import TextAreaFormInput from '@/components/from/TextAreaFormInput'
 import DropzoneFormInput from '@/components/from/DropzoneFormInput'
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
@@ -17,11 +18,12 @@ const CreateMoviePage = () => {
   const location = useLocation()
   const schema = yup.object({
     movieTitle: yup.string().trim().required(t('weeklyContent.movies.enterTitleRequired')),
+    movieDescription: yup.string().trim().optional(),
   })
 
-  const { control, handleSubmit, reset, formState } = useForm<{ movieTitle: string}>({
+  const { control, handleSubmit, reset, formState } = useForm<{ movieTitle: string; movieDescription?: string }>({
     resolver: yupResolver(schema),
-    defaultValues: { movieTitle: '' },
+    defaultValues: { movieTitle: '', movieDescription: '' },
   })
   const { isSubmitting } = formState
   const state = (location.state as any) || {}
@@ -32,7 +34,7 @@ const CreateMoviePage = () => {
 
   useEffect(() => {
     if (isEdit && editItem) {
-      reset({ movieTitle: editItem.movieTitle || '' })
+      reset({ movieTitle: editItem.movieTitle || '', movieDescription: editItem.movieDescription || '' })
     }
   }, [isEdit, editItem, reset])
 
@@ -58,8 +60,12 @@ const CreateMoviePage = () => {
     try {
       if (isEdit && editItem) {
         // For edit, update movie first, then upload image separately if provided
-        await contentService.updateMovie(editItem.movieId, { movieId: editItem.movieId, movieTitle: data.movieTitle })
-        
+        await contentService.updateMovie(editItem.movieId, {
+          movieId: editItem.movieId,
+          movieTitle: data.movieTitle,
+          movieDescription: data.movieDescription || ''
+        })
+
         // Upload image if provided
         if (imageFile) {
           setUploadingImage(true)
@@ -76,8 +82,9 @@ const CreateMoviePage = () => {
         // For create, send both movie data and image in one request
         setUploadingImage(true)
         try {
-          await contentService.createMovie({ 
+          await contentService.createMovie({
             movieTitle: data.movieTitle,
+            movieDescription: data.movieDescription || undefined,
             imageFile: imageFile || undefined
           })
         } finally {
@@ -111,6 +118,15 @@ const CreateMoviePage = () => {
                 />
               </Col>
               <Col md={12}>
+                <TextAreaFormInput
+                  control={control}
+                  name="movieDescription"
+                  rows={3}
+                  label={t('weeklyContent.music.description')} // Using music description label as fallback/shared
+                  placeholder={t('weeklyContent.music.enterDescription')}
+                />
+              </Col>
+              <Col md={12}>
                 <DropzoneFormInput
                   label={t('weeklyContent.movies.imageLabel')}
                   text={t('weeklyContent.movies.uploadImage')}
@@ -141,8 +157,8 @@ const CreateMoviePage = () => {
                     <div className="d-flex align-items-start gap-3">
                       <div>
                         <strong>{t('weeklyContent.movies.currentImage')}:</strong>
-                        <img 
-                          src={editItem.imageUrl} 
+                        <img
+                          src={editItem.imageUrl}
                           alt={editItem.movieTitle}
                           style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '10px', display: 'block' }}
                         />

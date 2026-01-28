@@ -13,6 +13,7 @@ export { userWeeklyAssignmentService } from './userWeeklyAssignment'
 export { dailyContentService } from './dailyContent'
 export { weeklyQuestionAnswerService } from './weeklyQuestionAnswer'
 export * from './popup'
+export * from './content-update'
 export { userProgressService } from './userProgress'
 
 export type * from '@/types/keci'
