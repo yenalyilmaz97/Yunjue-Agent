@@ -12,12 +12,20 @@ public class DailyContentService : IDailyContentService
     private readonly IUserProgressRepository _userProgressRepository;
     private readonly IMapper _mapper;
 
-    public DailyContentService(IDailyContentRepository dailyContentRepository, IUserRepository userRepository, IUserProgressRepository userProgressRepository, IMapper mapper)
+    private readonly IContentUpdateBatchService _contentUpdateBatchService;
+
+    public DailyContentService(
+        IDailyContentRepository dailyContentRepository, 
+        IUserRepository userRepository, 
+        IUserProgressRepository userProgressRepository, 
+        IMapper mapper,
+        IContentUpdateBatchService contentUpdateBatchService)
     {
         _dailyContentRepository = dailyContentRepository;
         _userRepository = userRepository;
         _userProgressRepository = userProgressRepository;
         _mapper = mapper;
+        _contentUpdateBatchService = contentUpdateBatchService;
     }
 
     public async Task<IEnumerable<DailyContentResponseDTO>> GetAllDailyContentAsync()
@@ -117,6 +125,8 @@ public class DailyContentService : IDailyContentService
         int skippedCount = 0;
         var maxDayOrder = await _dailyContentRepository.GetMaxDayOrderAsync();
         
+        var updateDetails = new List<UserUpdateDetail>();
+
         if (maxDayOrder == 0)
         {
             return new BulkUpdateDailyContentResponseDTO
@@ -156,6 +166,14 @@ public class DailyContentService : IDailyContentService
                     user.DailyContentId = nextDailyContent.DailyContentId;
                     await _userRepository.UpdateUserAsync(user);
                     dailyUpdatedCount++;
+                    
+                    updateDetails.Add(new UserUpdateDetail 
+                    { 
+                        UserId = user.UserId, 
+                        UserName = user.UserName ?? "Unknown", 
+                        Details = $"{currentDailyContent.DayOrder} -> {nextDailyContent.DayOrder}" 
+                    });
+
                 }
                 else
                 {
@@ -168,12 +186,26 @@ public class DailyContentService : IDailyContentService
             }
         }
 
+        if (updateDetails.Any())
+        {
+            await _contentUpdateBatchService.LogBatchAsync("DailyContent", updateDetails);
+        }
+
+        var responseMessage = $"Successfully updated daily content for {dailyUpdatedCount} users. Skipped {skippedCount} users.";
+        
+        if (updateDetails.Any())
+        {
+            var detailsSummary = string.Join("\n", updateDetails.Select(u => $"{u.UserName}: {u.Details}"));
+            responseMessage += $"\n\nDetails:\n{detailsSummary}";
+        }
+
         return new BulkUpdateDailyContentResponseDTO
         {
             UpdatedCount = dailyUpdatedCount,
             SkippedCount = skippedCount,
-            Message = $"Successfully updated daily content for {dailyUpdatedCount} users. Skipped {skippedCount} users."
+            Message = responseMessage
         };
+
     }
     public async Task<IEnumerable<DailyContentResponseDTO>> GetUsersDailyContentHistoryAsync(int userId)
     {
