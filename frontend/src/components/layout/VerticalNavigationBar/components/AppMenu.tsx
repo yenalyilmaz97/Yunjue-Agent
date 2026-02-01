@@ -8,8 +8,10 @@ import { Link, useLocation } from 'react-router-dom'
 import { useI18n } from '@/i18n/context'
 import { useLayoutContext } from '@/context/useLayoutContext'
 import useViewPort from '@/hooks/useViewPort'
+import { UserType } from '@/types/auth'
+import { Tooltip, OverlayTrigger } from 'react-bootstrap'
 
-const MenuItemWithChildren = ({ item, className, linkClassName, subMenuClassName, activeMenuItems, toggleMenu }: SubMenus) => {
+const MenuItemWithChildren = ({ item, className, linkClassName, subMenuClassName, activeMenuItems, toggleMenu, user }: SubMenus & { user?: UserType }) => {
   const { t } = useI18n()
   const [open, setOpen] = useState<boolean>(activeMenuItems!.includes(item.key))
 
@@ -104,7 +106,7 @@ const MenuItemWithChildren = ({ item, className, linkClassName, subMenuClassName
                       toggleMenu={toggleMenu}
                     />
                   ) : (
-                    <MenuItem item={child} className="sub-nav-item" linkClassName={clsx('sub-nav-link', getActiveClass(child))} />
+                    <MenuItem item={child} className="sub-nav-item" linkClassName={clsx('sub-nav-link', getActiveClass(child))} user={user} />
                   )}
                 </Fragment>
               )
@@ -116,15 +118,15 @@ const MenuItemWithChildren = ({ item, className, linkClassName, subMenuClassName
   )
 }
 
-const MenuItem = ({ item, className, linkClassName }: SubMenus) => {
+const MenuItem = ({ item, className, linkClassName, user }: SubMenus & { user?: UserType }) => {
   return (
     <li className={className}>
-      <MenuItemLink item={item} className={linkClassName} />
+      <MenuItemLink item={item} className={linkClassName} user={user} />
     </li>
   )
 }
 
-const MenuItemLink = ({ item, className }: SubMenus) => {
+const MenuItemLink = ({ item, className, user }: SubMenus & { user?: UserType }) => {
   const { t } = useI18n()
   const { toggleBackdrop } = useLayoutContext()
   const { width } = useViewPort()
@@ -180,6 +182,37 @@ const MenuItemLink = ({ item, className }: SubMenus) => {
     }
   }
 
+  const isRestricted = item.key === 'questions' && user?.role && !['admin', 'keci', 'keçi'].some(r => user.role.toLowerCase().includes(r))
+
+  const LinkContent = (
+    <>
+      {item.icon && (
+        <span className="nav-icon">
+          <IconifyIcon icon={item.icon} width={18} height={18} aria-hidden />
+        </span>
+      )}
+      <span className="nav-text ">{getLabel(item.label)}</span>
+      {item.badge && <span className={`badge badge-pill text-end bg-${item.badge.variant}`}>{item.badge.text}</span>}
+      {isRestricted && <IconifyIcon icon="mingcute:lock-line" className="ms-auto text-muted" width={16} height={16} />}
+    </>
+  )
+
+  if (isRestricted) {
+    return (
+      <OverlayTrigger
+        placement="right"
+        overlay={<Tooltip id={`tooltip-${item.key}`}>Bu özellik sadece keçi rolüne sahip kullanıcılara açıktır.</Tooltip>}
+      >
+        <span
+          className={clsx(className, "disabled", "d-flex align-items-center opacity-50")}
+          style={{ cursor: 'not-allowed', pointerEvents: 'auto' }}
+        >
+          {LinkContent}
+        </span>
+      </OverlayTrigger>
+    )
+  }
+
   return (
     <Link
       to={item.url ?? ''}
@@ -198,11 +231,14 @@ const MenuItemLink = ({ item, className }: SubMenus) => {
   )
 }
 
+
+
 type AppMenuProps = {
   menuItems: Array<MenuItemType>
+  user?: UserType
 }
 
-const AppMenu = ({ menuItems }: AppMenuProps) => {
+const AppMenu = ({ menuItems, user }: AppMenuProps) => {
   const { pathname } = useLocation()
   const { t } = useI18n()
 
@@ -292,9 +328,10 @@ const AppMenu = ({ menuItems }: AppMenuProps) => {
                     linkClassName={clsx('nav-link', getActiveClass(item))}
                     subMenuClassName="nav sub-navbar-nav"
                     activeMenuItems={activeMenuItems}
+                    user={user}
                   />
                 ) : (
-                  <MenuItem item={item} linkClassName={clsx('nav-link', getActiveClass(item))} className="nav-item " />
+                  <MenuItem item={item} linkClassName={clsx('nav-link', getActiveClass(item))} className="nav-item " user={user} />
                 )}
               </>
             )}

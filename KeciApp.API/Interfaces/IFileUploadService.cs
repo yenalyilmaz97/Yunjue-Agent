@@ -14,6 +14,8 @@ public interface IFileUploadService
     
     Task<string> UploadMovieImageAsync(IFormFile file, string movieTitle, int movieId);
     
+    Task<string> UploadPopupImageAsync(IFormFile file, string title);
+    
     Task<bool> DeleteFileAsync(string fileUrl);
     
     Task<bool> DeleteMovieImageFolderAsync(int movieId, string movieTitle);

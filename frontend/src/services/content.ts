@@ -40,20 +40,23 @@ export const contentService = {
 		return api.get<Movie>(`${MOVIES_ENDPOINT}/movies/${id}`)
 	},
 
-	async createMovie(movieData: { movieTitle: string; imageFile?: File }): Promise<Movie> {
+	async createMovie(movieData: { movieTitle: string; movieDescription?: string; imageFile?: File }): Promise<Movie> {
 		// Always use FormData for consistency (even without image)
 		const formData = new FormData()
 		formData.append('movieTitle', movieData.movieTitle)
+		if (movieData.movieDescription) {
+			formData.append('movieDescription', movieData.movieDescription)
+		}
 		if (movieData.imageFile) {
 			formData.append('imageFile', movieData.imageFile)
 		}
-		// Don't set Content-Type header - let axios/browser set it with boundary
+		// Don't set-Content-Type header - let axios/browser set it with boundary
 		return api.post<Movie>(`${MOVIES_ENDPOINT}/movies`, formData, {
 			timeout: 300000, // 5 minutes for large file uploads
 		})
 	},
 
-	async updateMovie(_id: number, movieData: { movieId: number; movieTitle: string }): Promise<Movie> {
+	async updateMovie(_id: number, movieData: { movieId: number; movieTitle: string; movieDescription?: string }): Promise<Movie> {
 		return api.put<Movie>(`${MOVIES_ENDPOINT}/movies`, movieData)
 	},
 

@@ -7,7 +7,7 @@ namespace KeciApp.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "admin,superadmin")]
 public class LogsController : ControllerBase
 {
     private readonly IApiLogRepository _logRepository;

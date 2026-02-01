@@ -8,11 +8,14 @@ import PDFViewer from '@/components/podcast/PDFViewer'
 import { Card, Row, Col, Button, Form, Collapse, Spinner } from 'react-bootstrap'
 import { Icon } from '@iconify/react'
 import { useAuthContext } from '@/context/useAuthContext'
+import type { UserType } from '@/types/auth' // Added explicit import
 
 const ArticleDetailPage = () => {
   const params = useParams()
   const slugOrId = params['*'] || ''
-  const { user } = useAuthContext()
+  const { user: contextUser } = useAuthContext()
+  // Cast user to correct type to fix TS error: Property 'role' does not exist on type '{ user: UserType; }'
+  const user = contextUser as unknown as UserType | undefined
 
   const [article, setArticle] = useState<Article | null>(null)
   const [loading, setLoading] = useState(true)
@@ -526,10 +529,13 @@ const ArticleDetailPage = () => {
                           />
                         </div>
                         <h6
-                          className="mb-0 fw-semibold"
+                          className="mb-0 fw-semibold d-flex align-items-center gap-1"
                           style={{ fontSize: '0.9rem' }}
                         >
                           Soru Sor
+                          {user?.role && !['admin', 'keci', 'keçi'].some(r => user.role.toLowerCase().includes(r)) && (
+                            <Icon icon="mingcute:lock-line" className="text-secondary" style={{ fontSize: '1rem' }} />
+                          )}
                         </h6>
                         {existingQuestion ? (
                           <span
@@ -614,16 +620,21 @@ const ArticleDetailPage = () => {
                             <Form.Control
                               as="textarea"
                               rows={3}
-                              placeholder="Bu makale hakkında sorunuzu yazın..."
+                              placeholder={user?.role && !['admin', 'keci', 'keçi'].some(r => user.role.toLowerCase().includes(r))
+                                ? "Soru sorma özelliği sadece keçi rolüne sahip kullanıcılara açıktır."
+                                : "Bu makale hakkında sorunuzu yazın..."
+                              }
                               value={questionText}
                               onChange={(e) => setQuestionText(e.target.value)}
+                              disabled={!!(user?.role && !['admin', 'keci', 'keçi'].some(r => user.role.toLowerCase().includes(r)))}
                               style={{
                                 resize: 'vertical',
                                 fontSize: '0.8rem',
                                 minHeight: '70px',
                                 borderRadius: '8px',
                                 borderColor: 'rgba(var(--bs-warning-rgb), 0.15)',
-                                padding: '0.5rem 0.75rem'
+                                padding: '0.5rem 0.75rem',
+                                opacity: user?.role && !['admin', 'keci', 'keçi'].some(r => user.role.toLowerCase().includes(r)) ? 0.6 : 1
                               }}
                             />
                           </Form.Group>
@@ -632,7 +643,7 @@ const ArticleDetailPage = () => {
                             variant="warning"
                             size="sm"
                             onClick={handleSubmitQuestion}
-                            disabled={questionLoading || !questionText.trim()}
+                            disabled={questionLoading || !questionText.trim() || !!(user?.role && !['admin', 'keci', 'keçi'].some(r => user.role.toLowerCase().includes(r)))}
                             className="w-100 d-flex align-items-center justify-content-center gap-2"
                             style={{
                               transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -640,7 +651,8 @@ const ArticleDetailPage = () => {
                               borderRadius: '8px',
                               padding: '0.5rem',
                               fontWeight: '500',
-                              color: '#1a1a1a'
+                              color: '#1a1a1a',
+                              opacity: user?.role && !['admin', 'keci', 'keçi'].some(r => user.role.toLowerCase().includes(r)) ? 0.6 : 1
                             }}
                           >
                             {questionLoading ? (
@@ -650,8 +662,8 @@ const ArticleDetailPage = () => {
                               </>
                             ) : (
                               <>
-                                <Icon icon="mingcute:send-line" style={{ fontSize: '0.9rem' }} />
-                                <span>Soruyu Gönder</span>
+                                <Icon icon={user?.role && !['admin', 'keci', 'keçi'].some(r => user.role.toLowerCase().includes(r)) ? "mingcute:lock-line" : "mingcute:send-line"} style={{ fontSize: '0.9rem' }} />
+                                <span>{user?.role && !['admin', 'keci', 'keçi'].some(r => user.role.toLowerCase().includes(r)) ? "Özellik Kilitli" : "Soruyu Gönder"}</span>
                               </>
                             )}
                           </Button>

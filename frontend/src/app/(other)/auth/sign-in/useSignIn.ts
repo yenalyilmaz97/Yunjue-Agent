@@ -59,7 +59,7 @@ const useSignIn = () => {
           email: res.user.email,
           firstName: res.user.firstName,
           lastName: res.user.lastName,
-          role: isAdmin ? 'Admin' : 'User',
+          role: isAdmin ? 'Admin' : (res.roles || []).some(r => ['keci', 'keçi'].includes(r.toLowerCase())) ? 'Keci' : 'User',
           token: res.token,
           password: '',
           isActive: true, // Validate via token claims instead

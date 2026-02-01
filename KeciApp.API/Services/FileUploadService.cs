@@ -170,7 +170,7 @@ public class FileUploadService : IFileUploadService
             }
 
             // Validate file size (max 5MB)
-            const long maxFileSize = 50 * 1024 * 1024; // 5MB
+            const long maxFileSize = 50 * 1024 * 1024; // 50MB (Wait, profile picture max is 50MB in original code? Keeping it as is for profile, but will use 5MB for popup)
             if (file.Length > maxFileSize)
             {
                 throw new ArgumentException("File size must be less than 50MB");
@@ -246,6 +246,107 @@ public class FileUploadService : IFileUploadService
         {
             _logger.LogError(ex, "Error uploading profile picture. UserName: {UserName}, FileName: {FileName}", 
                 userName, file?.FileName);
+            throw;
+        }
+    }
+
+    public async Task<string> UploadPopupImageAsync(IFormFile file, string title)
+    {
+        try
+        {
+            if (file == null || file.Length == 0)
+            {
+                _logger.LogWarning("UploadPopupImageAsync called with null or empty file");
+                throw new ArgumentException("File is empty or null");
+            }
+
+            // Validate file type (only images)
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+            var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                throw new ArgumentException("Only image files are allowed (jpg, jpeg, png, gif, webp)");
+            }
+
+            // Validate file size (max 5MB)
+            const long maxFileSize = 5 * 1024 * 1024; // 5MB
+            if (file.Length > maxFileSize)
+            {
+                throw new ArgumentException("File size must be less than 5MB");
+            }
+
+            // Generate title slug
+            string titleSlug = GenerateSlug(title);
+            
+            // Build directory path: popup/{titleSlug}
+            string directoryPath = Path.Combine(_uploadBasePath, "popup", titleSlug);
+            
+            // Create directory if it doesn't exist
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            // Generate file name: popup{extension} (or random guid to prevent caching if title reused?)
+            // Let's use a guid to be safe
+            string guid = Guid.NewGuid().ToString().Substring(0, 8);
+            string fileName = $"popup-{guid}{fileExtension}";
+            string filePath = Path.Combine(directoryPath, fileName);
+
+            // Save file
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            // Verify file was saved
+            if (!File.Exists(filePath))
+            {
+                _logger.LogError("Failed to save popup image: {FilePath}", filePath);
+                throw new IOException($"Failed to save file to {filePath}");
+            }
+
+            // Build remote path for CDN: popup/{titleSlug}/{fileName}
+            string remotePath = $"popup/{titleSlug}/{fileName}";
+
+            // Upload to CDN if enabled
+            if (_uploadToCdn)
+            {
+                try
+                {
+                    bool uploadSuccess = await _cdnUploadService.UploadFileAsync(filePath, remotePath);
+                    if (uploadSuccess)
+                    {
+                        // Delete local file after successful CDN upload
+                        try
+                        {
+                            File.Delete(filePath);
+                        }
+                        catch (Exception deleteEx)
+                        {
+                            _logger.LogWarning(deleteEx, "Failed to delete local file after CDN upload: {FilePath}", filePath);
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogWarning("CDN upload failed. File kept locally: {RemotePath}", remotePath);
+                    }
+                }
+                catch (Exception cdnEx)
+                {
+                    _logger.LogError(cdnEx, "CDN upload error. File kept locally: {RemotePath}", remotePath);
+                }
+            }
+
+            // Build CDN URL
+            string cdnUrl = $"{_cdnBaseUrl}/{remotePath}";
+
+            return cdnUrl;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error uploading popup image. Title: {Title}, FileName: {FileName}", 
+                title, file?.FileName);
             throw;
         }
     }

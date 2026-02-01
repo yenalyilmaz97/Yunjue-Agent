@@ -197,6 +197,8 @@ builder.Services.AddScoped<IDailyContentRepository, DailyContentRepository>();
 builder.Services.AddScoped<IWeeklyQuestionAnswerRepository, WeeklyQuestionAnswerRepository>();
 builder.Services.AddScoped<IUserProgressRepository, UserProgressRepository>();
 builder.Services.AddScoped<IApiLogRepository, ApiLogRepository>();
+builder.Services.AddScoped<IContentUpdateBatchRepository, ContentUpdateBatchRepository>();
+builder.Services.AddScoped<IPopupRepository, PopupRepository>();
 
 // Add Services
 builder.Services.AddScoped<IUserService, UserService>();
@@ -221,6 +223,8 @@ builder.Services.AddScoped<IWeeklyQuestionAnswerService, WeeklyQuestionAnswerSer
 builder.Services.AddScoped<IUserProgressService, UserProgressService>();
 builder.Services.AddScoped<ICdnUploadService, CdnUploadService>();
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
+builder.Services.AddScoped<IContentUpdateBatchService, ContentUpdateBatchService>();
+builder.Services.AddScoped<IPopupService, PopupService>();
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));

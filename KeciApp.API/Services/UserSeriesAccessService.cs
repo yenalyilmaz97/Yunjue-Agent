@@ -15,6 +15,7 @@ public class UserSeriesAccessService : IUserSeriesAccessService
     private readonly IWeeklyRepository _weeklyRepository;
     private readonly IArticleRepository _articleRepository;
     private readonly IMapper _mapper;
+    private readonly IContentUpdateBatchService _contentUpdateBatchService;
 
     public UserSeriesAccessService(
         IUserSeriesAccessRepository userSeriesAccessRepository, 
@@ -24,7 +25,8 @@ public class UserSeriesAccessService : IUserSeriesAccessService
         IPodcastEpisodesRepository podcastEpisodesRepository,
         IWeeklyRepository weeklyRepository,
         IArticleRepository articleRepository,
-        IMapper mapper)
+        IMapper mapper,
+        IContentUpdateBatchService contentUpdateBatchService)
     {
         _userSeriesAccessRepository = userSeriesAccessRepository;
         _userRepository = userRepository;
@@ -34,6 +36,7 @@ public class UserSeriesAccessService : IUserSeriesAccessService
         _weeklyRepository = weeklyRepository;
         _articleRepository = articleRepository;
         _mapper = mapper;
+        _contentUpdateBatchService = contentUpdateBatchService;
     }
 
     public async Task<IEnumerable<UserSeriesAccessResponseDTO>> GetAllUserSeriesAccessAsync()
@@ -313,6 +316,8 @@ public class UserSeriesAccessService : IUserSeriesAccessService
         int skippedCount = 0;
         var usersWithNewEpisodeCompletion = new HashSet<int>();
         var usersWithNewArticleCompletion = new HashSet<int>();
+        var updateDetails = new List<UserUpdateDetail>();
+
 
         // Step 1: Update Series Access based on Completed Episodes
         var completedEpisodeProgresses = await _userProgressRepository.GetCompletedEpisodeProgressesAsync();
@@ -351,6 +356,15 @@ public class UserSeriesAccessService : IUserSeriesAccessService
                 await _userSeriesAccessRepository.UpdateUserSeriesAccessAsync(userAccess);
                 episodeUpdatedCount++;
                 usersWithNewEpisodeCompletion.Add(userId);
+
+                var user = await _userRepository.GetUserByIdAsync(userId);
+                updateDetails.Add(new UserUpdateDetail
+                {
+                    UserId = userId,
+                    UserName = user?.UserName ?? "Unknown",
+                    Details = $"Episode Sequence: {highestCompletedSequence} -> {highestCompletedSequence + 1}"
+                });
+
             }
             else
             {
@@ -402,6 +416,15 @@ public class UserSeriesAccessService : IUserSeriesAccessService
                     await _userSeriesAccessRepository.UpdateUserSeriesAccessAsync(articleAccess);
                     articleUpdatedCount++;
                     usersWithNewArticleCompletion.Add(userId);
+                    
+                    var user = await _userRepository.GetUserByIdAsync(userId);
+                    updateDetails.Add(new UserUpdateDetail
+                    {
+                        UserId = userId,
+                        UserName = user?.UserName ?? "Unknown",
+                        Details = $"Article Sequence: {highestCompletedOrder} -> {nextArticle.Order}"
+                    });
+
                 }
             }
             else
@@ -433,7 +456,7 @@ public class UserSeriesAccessService : IUserSeriesAccessService
                 var nextWeekOrder = currentWeekOrder + 1;
                 if (nextWeekOrder > maxWeekOrder)
                 {
-                    nextWeekOrder = 1; // Cycle back to week 1
+                    nextWeekOrder = maxWeekOrder; // Cycle back to week 1
                 }
 
                 var nextWeeklyContent = allWeeklyContents.FirstOrDefault(wc => wc.WeekOrder == nextWeekOrder);
@@ -442,8 +465,29 @@ public class UserSeriesAccessService : IUserSeriesAccessService
                     user.WeeklyContentId = nextWeeklyContent.WeekId;
                     await _userRepository.UpdateUserAsync(user);
                     weeklyContentUpdatedCount++;
+
+                    updateDetails.Add(new UserUpdateDetail
+                    {
+                        UserId = userId,
+                        UserName = user?.UserName ?? "Unknown",
+                        Details = $"Weekly Content: {currentWeekOrder} -> {nextWeekOrder}"
+                    });
+
                 }
             }
+        }
+
+        if (updateDetails.Any())
+        {
+            await _contentUpdateBatchService.LogBatchAsync("Series/Article/Weekly Increment", updateDetails);
+        }
+
+        var responseMessage = $"Updated Episode Access for {episodeUpdatedCount} records. Updated Article Access for {articleUpdatedCount} records. Advanced Weekly Content for {weeklyContentUpdatedCount} users.";
+        
+        if (updateDetails.Any())
+        {
+             var detailsSummary = string.Join("\n", updateDetails.Select(u => $"{u.UserName}: {u.Details}"));
+             responseMessage += $"\n\nDetails:\n{detailsSummary}";
         }
 
         return new BulkGrantAccessResponseDTO
@@ -452,8 +496,9 @@ public class UserSeriesAccessService : IUserSeriesAccessService
             TotalSeries = completedEpisodesByUserSeries.Keys.Select(k => k.SeriesId).Distinct().Count(),
             GrantedCount = episodeUpdatedCount + articleUpdatedCount,
             SkippedCount = skippedCount,
-            Message = $"Updated Episode Access for {episodeUpdatedCount} records. Updated Article Access for {articleUpdatedCount} records. Advanced Weekly Content for {weeklyContentUpdatedCount} users."
+            Message = responseMessage
         };
+
     }
 
     private async Task UpdateArticleAccessForUserAsync(int userId, int weekOrder)

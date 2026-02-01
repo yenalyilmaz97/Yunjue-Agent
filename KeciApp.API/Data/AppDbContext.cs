@@ -32,6 +32,8 @@ public class AppDbContext : DbContext
     public DbSet<UserProgress> UserProgresses { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<ApiLog> ApiLogs { get; set; }
+    public DbSet<ContentUpdateBatch> ContentUpdateBatches { get; set; }
+    public DbSet<Popup> Popups { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -214,6 +216,10 @@ public class AppDbContext : DbContext
             entity.Property(e => e.Text).IsRequired();
         });
 
+        modelBuilder.Entity<User>()
+            .Property(u => u.IsPopupSeen)
+            .HasDefaultValue(false);
+
         // Articles
         modelBuilder.Entity<Article>(entity =>
         {
@@ -277,6 +283,16 @@ public class AppDbContext : DbContext
             // Index for faster token lookups
             entity.HasIndex(e => e.Token).IsUnique();
             entity.HasIndex(e => e.UserId);
+        });
+
+        // ContentUpdateBatch entity configuration
+        modelBuilder.Entity<ContentUpdateBatch>(entity =>
+        {
+            entity.ToTable("ContentUpdateBatches");
+            entity.HasKey(e => e.BatchId);
+            entity.Property(e => e.UpdateType).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.UpdateData).IsRequired(); // Stores JSON
+            entity.Property(e => e.CreatedAt).IsRequired();
         });
 
         // Relationships configuration

@@ -3,7 +3,6 @@ import { useLayoutContext } from '@/context/useLayoutContext'
 import useViewPort from '@/hooks/useViewPort'
 import { useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
-import { notificationsData } from '@/assets/data/topbar'
 
 const LeftSideBarToggle = () => {
   const {

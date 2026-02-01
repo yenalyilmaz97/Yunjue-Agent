@@ -198,6 +198,28 @@ const QuestionsPage = () => {
     })
   }
 
+  // Role check
+  const isKeciOrAdmin = user?.role && ['admin', 'keci', 'keçi'].some(r => user.role.toLowerCase().includes(r))
+
+  if (!loading && !isKeciOrAdmin) {
+    return (
+      <>
+        <PageTitle subName="KeciApp" title="Sorularım" />
+        <Card className="border-0 shadow-sm" style={{ borderRadius: '16px' }}>
+          <CardBody className="text-center text-muted py-5">
+            <div className="mb-3">
+              <Icon icon="mingcute:lock-line" style={{ fontSize: '4rem', opacity: 0.3 }} />
+            </div>
+            <h5 className="mb-2">Erişim Kısıtlı</h5>
+            <p className="mb-0">
+              Soru sorma ve soruları görüntüleme özelliği sadece Keçi üyelerine özeldir.
+            </p>
+          </CardBody>
+        </Card>
+      </>
+    )
+  }
+
   return (
     <>
       <PageTitle subName="KeciApp" title="Sorularım" />
