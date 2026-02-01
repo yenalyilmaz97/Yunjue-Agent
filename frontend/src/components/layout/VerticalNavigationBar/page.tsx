@@ -13,7 +13,7 @@ const page = () => {
       <LogoBox />
       <SimplebarReactClient className="scrollbar" data-simplebar>
         <div className="sidebar-content-wrapper">
-          <AppMenu menuItems={menuItems} />
+          <AppMenu menuItems={menuItems} user={user} />
         </div>
       </SimplebarReactClient>
     </div>

@@ -696,7 +696,12 @@ const PodcastsPage = () => {
                               <div className="d-flex align-items-center justify-content-center" style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: 'rgba(var(--bs-warning-rgb), 0.1)' }}>
                                 <Icon icon="mingcute:question-line" style={{ fontSize: '0.9rem', color: 'var(--bs-warning)' }} />
                               </div>
-                              <h6 className="mb-0 fw-semibold" style={{ fontSize: '0.85rem' }}>Soru Sor</h6>
+                              <h6 className="mb-0 fw-semibold d-flex align-items-center gap-1" style={{ fontSize: '0.85rem' }}>
+                                Soru Sor
+                                {user?.role && !['admin', 'keci', 'keçi'].some(r => user.role.toLowerCase().includes(r)) && (
+                                  <Icon icon="mingcute:lock-line" className="text-secondary" style={{ fontSize: '0.9rem' }} />
+                                )}
+                              </h6>
                               <span className="badge ms-auto" style={{ fontSize: '0.6rem', backgroundColor: existingQuestion?.isAnswered ? 'rgba(var(--bs-primary-rgb), 0.1)' : 'rgba(var(--bs-warning-rgb), 0.1)', color: existingQuestion?.isAnswered ? 'var(--bs-primary)' : 'var(--bs-warning)', borderRadius: '6px' }}>
                                 {existingQuestion ? (existingQuestion.isAnswered ? 'Cevaplandı' : 'Gönderildi') : "Admin'e Gönderilir"}
                               </span>
@@ -720,22 +725,47 @@ const PodcastsPage = () => {
                                   <Form.Control
                                     as="textarea"
                                     rows={2}
-                                    placeholder="Sorunuzu yazın..."
+                                    placeholder={user?.role && !['admin', 'keci', 'keçi'].some(r => user.role.toLowerCase().includes(r))
+                                      ? "Soru sorma özelliği sadece keçi rolüne sahip kullanıcılara açıktır."
+                                      : "Sorunuzu yazın..."
+                                    }
                                     value={questionText}
                                     onChange={(e) => setQuestionText(e.target.value)}
-                                    style={{ resize: 'vertical', fontSize: '0.8rem', minHeight: '60px', borderRadius: '8px', borderColor: 'rgba(var(--bs-warning-rgb), 0.15)' }}
+                                    disabled={!!(user?.role && !['admin', 'keci', 'keçi'].some(r => user.role.toLowerCase().includes(r)))}
+                                    style={{
+                                      resize: 'vertical',
+                                      fontSize: '0.8rem',
+                                      minHeight: '60px',
+                                      borderRadius: '8px',
+                                      borderColor: 'rgba(var(--bs-warning-rgb), 0.15)',
+                                      opacity: user?.role && !['admin', 'keci', 'keçi'].some(r => user.role.toLowerCase().includes(r)) ? 0.6 : 1
+                                    }}
                                   />
                                 </Form.Group>
                                 <Button
                                   variant="warning"
                                   size="sm"
                                   onClick={handleSubmitQuestion}
-                                  disabled={questionLoading || !questionText.trim()}
+                                  disabled={questionLoading || !questionText.trim() || !!(user?.role && !['admin', 'keci', 'keçi'].some(r => user.role.toLowerCase().includes(r)))}
                                   className="w-100 d-flex align-items-center justify-content-center gap-2"
-                                  style={{ fontSize: '0.8rem', borderRadius: '8px', color: '#1a1a1a' }}
+                                  style={{
+                                    fontSize: '0.8rem',
+                                    borderRadius: '8px',
+                                    color: '#1a1a1a',
+                                    opacity: user?.role && !['admin', 'keci', 'keçi'].some(r => user.role.toLowerCase().includes(r)) ? 0.6 : 1
+                                  }}
                                 >
-                                  {questionLoading ? <Spinner animation="border" size="sm" /> : <Icon icon={existingQuestion ? "mingcute:save-line" : "mingcute:send-line"} style={{ fontSize: '0.9rem' }} />}
-                                  <span>{existingQuestion ? 'Güncelle' : 'Gönder'}</span>
+                                  {questionLoading ? (
+                                    <Spinner animation="border" size="sm" />
+                                  ) : (
+                                    <Icon icon={user?.role && !['admin', 'keci', 'keçi'].some(r => user.role.toLowerCase().includes(r)) ? "mingcute:lock-line" : (existingQuestion ? "mingcute:save-line" : "mingcute:send-line")} style={{ fontSize: '0.9rem' }} />
+                                  )}
+                                  <span>
+                                    {user?.role && !['admin', 'keci', 'keçi'].some(r => user.role.toLowerCase().includes(r))
+                                      ? 'Özellik Kilitli'
+                                      : (existingQuestion ? 'Güncelle' : 'Gönder')
+                                    }
+                                  </span>
                                 </Button>
                               </>
                             )}
