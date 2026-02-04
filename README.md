@@ -155,6 +155,12 @@ If you find this work useful, please cite:
 
 ---
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=YunjueTech/Yunjue-Agent&type=date&legend=top-left)](https://www.star-history.com/#YunjueTech/Yunjue-Agent&type=date&legend=top-left)
+
+---
+
 
 ## 📄 License
 
